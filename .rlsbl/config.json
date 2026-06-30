@@ -1,0 +1,12 @@
+{
+  "targets": [
+    "pypi"
+  ],
+  "private": false,
+  "pipelines": {
+    "pypi": {
+      "type": "pypi",
+      "local": false
+    }
+  }
+}
