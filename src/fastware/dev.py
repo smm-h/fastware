@@ -21,7 +21,7 @@ def dev(
     host: str | None = None,
     port: int | None = None,
     pid_path: Path | None = None,
-    name: str = "WESKTOP",
+    name: str = "FASTWARE",
     pre_serve: Callable[[], None] | None = None,
 ) -> None:
     """Start Vite dev server + fastware ASGI server for development.

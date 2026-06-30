@@ -199,7 +199,7 @@ def _resolve_target(target: str | Callable) -> str:
     global _callable_counter
     with _callable_counter_lock:
         _callable_counter += 1
-        mod_name = f"_wesktop_target_{_callable_counter}"
+        mod_name = f"_fastware_target_{_callable_counter}"
     mod = types.ModuleType(mod_name)
     mod.app = target  # type: ignore[attr-defined]
     sys.modules[mod_name] = mod
@@ -318,7 +318,7 @@ def serve_background(
     host: str,
     port: int,
     pid_path: Path,
-    name: str = "WESKTOP",
+    name: str = "FASTWARE",
 ) -> str:
     """Start the server as an independent background process. Returns the URL.
 
@@ -362,7 +362,7 @@ def serve_background(
     proc = _subprocess.Popen(
         [
             sys.executable, "-c",
-            f"from wesktop.server import _serve_subprocess; "
+            f"from fastware.server import _serve_subprocess; "
             f"_serve_subprocess({target_str!r}, {host!r}, {port!r}, "
             f"{str(pid_path)!r}, {name!r})",
         ],
@@ -401,7 +401,7 @@ def serve(
     host: str | None = None,
     port: int | None = None,
     pid_path: Path | None = None,
-    name: str = "WESKTOP",
+    name: str = "FASTWARE",
     pre_serve: Callable[[], None] | None = None,
     reload: bool = False,
     single_instance: bool = True,
@@ -425,7 +425,7 @@ def serve(
         write PID, register cleanup).
     name:
         Application name for env var prefix (uppercased) and log messages.
-        Default "WESKTOP".
+        Default "FASTWARE".
     pre_serve:
         Optional callable invoked synchronously after PID/port checks but
         before Granian starts.
