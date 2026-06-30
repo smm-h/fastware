@@ -18,7 +18,6 @@ Environment variables consumed by the default server:
 from __future__ import annotations
 
 import os
-import sys
 from collections.abc import Callable
 from types import ModuleType
 from typing import Any
@@ -104,6 +103,9 @@ def register_tools_for_role(
     server: Any,
     role: str,
     tool_modules: list[ModuleType],
+    *,
+    roles: dict[str, dict[str, Any]] | None = None,
+    default_role: str | None = None,
 ) -> dict[str, Callable[..., Any]]:
     """Register only the tools allowed by *role* on *server*.
 
@@ -111,9 +113,16 @@ def register_tools_for_role(
     tool name to the callable. Only tools listed in the role's config
     are registered.
 
+    Args:
+        roles: Role definitions dict. If None, uses the module-level ROLES.
+        default_role: Fallback role when *role* is not found. If None, uses
+            the module-level DEFAULT_ROLE.
+
     Returns the dict of registered tool name -> function.
     """
-    role_config = ROLES.get(role, ROLES[DEFAULT_ROLE])
+    _roles = roles if roles is not None else ROLES
+    _default_role = default_role if default_role is not None else DEFAULT_ROLE
+    role_config = _roles.get(role, _roles[_default_role])
     allowed = set(role_config["tools"])
 
     registry: dict[str, Callable[..., Any]] = {}
@@ -133,10 +142,12 @@ def register_tools_for_role(
 
 
 def create_mcp_server(
-    name: str = "wesktop-agent",
+    name: str = "fastware-agent",
     *,
     role: str | None = None,
     tool_modules: list[ModuleType] | None = None,
+    roles: dict[str, dict[str, Any]] | None = None,
+    default_role: str | None = None,
 ) -> Any:
     """Create a FastMCP server with role-filtered tools.
 
@@ -146,10 +157,14 @@ def create_mcp_server(
         Server name passed to FastMCP.
     role:
         Agent role. If *None*, reads ``SA_ROLE`` from environment
-        (falling back to DEFAULT_ROLE).
+        (falling back to *default_role* or DEFAULT_ROLE).
     tool_modules:
         List of modules that define a ``TOOLS`` dict. If *None*, no
         tools are registered (caller must register manually).
+    roles:
+        Role definitions dict. If None, uses the module-level ROLES.
+    default_role:
+        Fallback role. If None, uses the module-level DEFAULT_ROLE.
 
     Returns
     -------
@@ -167,12 +182,17 @@ def create_mcp_server(
             "Install it with: pip install mcp"
         )
 
+    _default_role = default_role if default_role is not None else DEFAULT_ROLE
+
     if role is None:
-        role = os.environ.get("SA_ROLE", DEFAULT_ROLE)
+        role = os.environ.get("SA_ROLE", _default_role)
 
     server = FastMCP(name)
 
     if tool_modules is not None:
-        register_tools_for_role(server, role, tool_modules)
+        register_tools_for_role(
+            server, role, tool_modules,
+            roles=roles, default_role=default_role,
+        )
 
     return server
