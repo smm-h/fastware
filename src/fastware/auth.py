@@ -15,9 +15,6 @@ from http.cookies import SimpleCookie
 from pathlib import Path
 from typing import Any, Callable
 
-import bcrypt
-import jwt
-
 from fastware.responses import HTTPError, send_error, set_cookie, delete_cookie
 
 # ---------------------------------------------------------------------------
@@ -32,6 +29,8 @@ def create_token(
     expires_hours: int = 720,
 ) -> str:
     """Create a signed JWT with sub, role, exp, and iat claims (HS256)."""
+    import jwt
+
     now = datetime.now(UTC)
     payload = {
         "sub": username,
@@ -44,6 +43,8 @@ def create_token(
 
 def verify_token(token: str, secret: str) -> dict[str, Any] | None:
     """Decode and validate a JWT. Returns claims dict or None on any error."""
+    import jwt
+
     try:
         return jwt.decode(token, secret, algorithms=["HS256"])
     except (jwt.InvalidTokenError, jwt.ExpiredSignatureError, Exception):
@@ -57,11 +58,15 @@ def verify_token(token: str, secret: str) -> dict[str, Any] | None:
 
 def hash_password(plain: str) -> str:
     """Hash a plaintext password with bcrypt."""
+    import bcrypt
+
     return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
 
 
 def verify_password(plain: str, hashed: str) -> bool:
     """Check a plaintext password against a bcrypt hash."""
+    import bcrypt
+
     return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
