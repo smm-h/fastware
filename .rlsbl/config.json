@@ -8,5 +8,27 @@
       "type": "pypi",
       "local": false
     }
+  },
+  "batch_limits": {
+    "exclusions": [
+      {
+        "reason": "**Initial release.** ASGI micro-framework: Router, Request/Response types, WebSocket, SSE broadcaster, middleware (CORS, RequestID, RequestTiming, TrustedHost, ViteDevProxy), Granian server lifecycle, dependency injection, auth (JWT, passwords, CSRF), structured logging, background tasks, feature flags, MCP server support, and test client utilities.",
+        "entries": [
+          {
+            "version": "unreleased",
+            "line": 1
+          }
+        ]
+      },
+      {
+        "reason": "non-user-facing batch",
+        "entries": [
+          {
+            "version": "unreleased",
+            "line": 3
+          }
+        ]
+      }
+    ]
   }
 }
