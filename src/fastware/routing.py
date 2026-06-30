@@ -63,6 +63,23 @@ class Router:
         self._routes: list[tuple[str, list[ParsedSegment], Callable, dict[str, Callable], type | None]] = []
         # WebSocket routes: (parsed_segments, handler, deps_dict)
         self._ws_routes: list[tuple[list[ParsedSegment], Callable, dict[str, Callable]]] = []
+        # Mounted sub-apps: (prefix, asgi_app)
+        self._mounts: list[tuple[str, Any]] = []
+
+    def mount(self, prefix: str, app: Any) -> None:
+        """Mount an ASGI sub-application at a path prefix.
+
+        When a request path starts with *prefix*, the scope is rewritten
+        (path stripped, root_path extended) and forwarded to *app*.
+        Both ``http`` and ``websocket`` scope types are forwarded.
+
+        The prefix must start with ``/`` and must not end with ``/``.
+        A trailing slash is stripped automatically.
+        """
+        if not prefix.startswith("/"):
+            prefix = "/" + prefix
+        prefix = prefix.rstrip("/")
+        self._mounts.append((prefix, app))
 
     def get(self, path: str, *, deps: dict[str, Callable] | None = None, response_model: type | None = None) -> Callable:
         """Decorator to register a GET handler."""

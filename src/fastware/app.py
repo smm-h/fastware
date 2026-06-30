@@ -266,6 +266,17 @@ def create_app(
                 await send({"type": "lifespan.shutdown.complete"})
             return
 
+        # -- Mounted sub-apps (checked before regular routing) --
+        if scope["type"] in ("http", "websocket"):
+            path = scope.get("path", "")
+            for mount_prefix, mount_app in router._mounts:
+                if path == mount_prefix or path.startswith(mount_prefix + "/"):
+                    # Rewrite scope: strip prefix from path, extend root_path
+                    inner_path = path[len(mount_prefix):] or "/"
+                    scope = {**scope, "path": inner_path, "root_path": scope.get("root_path", "") + mount_prefix}
+                    await mount_app(scope, receive, send)
+                    return
+
         # -- WebSocket routing (app-scoped via router) --
         if scope["type"] == "websocket":
             # Merge lifespan state into scope for WebSocket connections
