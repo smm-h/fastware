@@ -1,0 +1,42 @@
+[project]
+name = "fastware"
+dynamic = ["version"]
+description = "A fast, batteries-included ASGI framework. The FastAPI alternative."
+requires-python = ">=3.11"
+dependencies = [
+    "msgspec>=0.21.1",
+    "granian>=2.7.4",
+]
+
+[project.optional-dependencies]
+auth = ["pyjwt", "bcrypt"]
+logging = ["structlog"]
+dev = ["httpx>=0.28", "watchfiles", "websockets"]
+testing = ["httpx>=0.28"]
+mcp = ["mcp"]
+pydantic = ["pydantic"]
+all = [
+    "fastware[auth]",
+    "fastware[logging]",
+    "fastware[dev]",
+    "fastware[testing]",
+    "fastware[mcp]",
+    "fastware[pydantic]",
+]
+
+[dependency-groups]
+dev = ["pytest", "httpx>=0.28"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "regex"
+path = "src/fastware/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fastware"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
