@@ -18,7 +18,10 @@ import logging
 import sys
 from typing import TYPE_CHECKING
 
-import structlog
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
 
 if TYPE_CHECKING:
     from structlog.typing import FilteringBoundLogger
@@ -34,6 +37,12 @@ def configure_logging(*, json_output: bool | None = None) -> None:
                      console output.  If None (default), auto-detect
                      based on whether stderr is a TTY.
     """
+    if structlog is None:
+        raise ImportError(
+            "structlog is required for fastware.logging. "
+            "Install with: pip install fastware[logging]"
+        )
+
     if json_output is None:
         json_output = not sys.stderr.isatty()
 
@@ -79,6 +88,12 @@ def get_logger(component: str | None = None, **initial_binds: object) -> Filteri
         logger = get_logger("auth")
         logger.info("login attempt", username="alice")
     """
+    if structlog is None:
+        raise ImportError(
+            "structlog is required for fastware.logging. "
+            "Install with: pip install fastware[logging]"
+        )
+
     if component is not None:
         initial_binds["component"] = component
     return structlog.get_logger(**initial_binds)  # type: ignore[no-any-return]
