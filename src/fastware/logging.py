@@ -26,6 +26,12 @@ except ImportError:
 if TYPE_CHECKING:
     from structlog.typing import FilteringBoundLogger
 
+__all__ = [
+    "configure_logging",
+    "get_logger",
+    "init_sentry",
+]
+
 
 def configure_logging(*, json_output: bool | None = None) -> None:
     """Configure structlog processors and stdlib integration.

@@ -17,6 +17,11 @@ if TYPE_CHECKING:
 
     from fastware.features import FeatureFlags
 
+__all__ = [
+    "BackgroundTask",
+    "TaskRegistry",
+]
+
 log = logging.getLogger(__name__)
 
 

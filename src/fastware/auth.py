@@ -17,6 +17,21 @@ from typing import Any, Callable
 
 from fastware.responses import HTTPError, send_error, set_cookie, delete_cookie
 
+__all__ = [
+    "create_token",
+    "verify_token",
+    "hash_password",
+    "verify_password",
+    "UserStore",
+    "JSONFileUserStore",
+    "get_current_user",
+    "require_role",
+    "CSRFMiddleware",
+    "set_session_cookies",
+    "clear_session_cookies",
+    "rate_limit",
+]
+
 # ---------------------------------------------------------------------------
 # 4.1 JWT token operations
 # ---------------------------------------------------------------------------

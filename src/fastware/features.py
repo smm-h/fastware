@@ -11,6 +11,10 @@ import json
 import threading
 from pathlib import Path
 
+__all__ = [
+    "FeatureFlags",
+]
+
 
 class FeatureFlags:
     """Feature flag store with defaults and optional file-based overrides.

@@ -13,6 +13,10 @@ from typing import Any, TypeVar
 
 T = TypeVar("T")
 
+__all__ = [
+    "load_config",
+]
+
 
 def load_config(path: str | Path, schema: type[T] | None = None) -> T | dict[str, Any]:
     """Load a TOML config file.

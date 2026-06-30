@@ -16,6 +16,11 @@ from typing import Any
 
 from httpx import ASGITransport, AsyncClient
 
+__all__ = [
+    "AsyncTestClient",
+    "TestClient",
+]
+
 
 class AsyncTestClient:
     """Async test client for fastware apps.

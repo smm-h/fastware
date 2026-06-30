@@ -6,6 +6,10 @@ from typing import Any, Callable
 
 import msgspec
 
+__all__ = [
+    "WebSocket",
+]
+
 
 class WebSocket:
     """Wraps the raw ASGI (scope, receive, send) triple for WebSocket connections.

@@ -18,6 +18,19 @@ from typing import Callable
 
 from granian import Granian
 
+__all__ = [
+    "check_already_running",
+    "ensure_port_available",
+    "read_port_file",
+    "serve_background",
+    "serve",
+    "stop",
+    "status",
+    "ServerStatus",
+    "PortInUseError",
+    "AlreadyRunningError",
+]
+
 log = logging.getLogger(__name__)
 
 

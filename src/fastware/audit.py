@@ -11,6 +11,10 @@ import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
+__all__ = [
+    "AuditLog",
+]
+
 
 class AuditLog:
     """Append-only JSONL audit log.

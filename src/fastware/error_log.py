@@ -25,6 +25,10 @@ import threading
 import time
 from pathlib import Path
 
+__all__ = [
+    "ErrorLog",
+]
+
 
 _CREATE_TABLE = """\
 CREATE TABLE IF NOT EXISTS errors (

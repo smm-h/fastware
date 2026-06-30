@@ -11,6 +11,11 @@ from typing import Any
 from fastware.request import Request
 from fastware.responses import StreamResponse
 
+__all__ = [
+    "Broadcaster",
+    "sse_route",
+]
+
 log = logging.getLogger(__name__)
 
 

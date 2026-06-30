@@ -29,6 +29,14 @@ try:
 except ImportError:
     _HAS_STRUCTLOG = False
 
+__all__ = [
+    "CORSMiddleware",
+    "RequestIDMiddleware",
+    "RequestTimingMiddleware",
+    "TrustedHostMiddleware",
+    "ViteDevProxy",
+]
+
 
 # ---------------------------------------------------------------------------
 # Request ID

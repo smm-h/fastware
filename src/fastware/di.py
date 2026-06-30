@@ -11,6 +11,10 @@ from __future__ import annotations
 import inspect
 from typing import Any, Callable
 
+__all__ = [
+    "DependencyResolver",
+]
+
 
 class DependencyResolver:
     """Resolves a dict of ``{name: factory}`` into ``{name: value}`` per request.

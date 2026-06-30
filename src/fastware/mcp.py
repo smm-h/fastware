@@ -29,6 +29,13 @@ try:
 except ModuleNotFoundError:
     _MCP_AVAILABLE = False
 
+__all__ = [
+    "ROLES",
+    "DEFAULT_ROLE",
+    "create_mcp_server",
+    "register_tools_for_role",
+]
+
 # ---------------------------------------------------------------------------
 # Role definitions
 # ---------------------------------------------------------------------------
