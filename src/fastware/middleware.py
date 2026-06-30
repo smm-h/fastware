@@ -333,10 +333,12 @@ class ViteDevProxy:
         *,
         vite_port: int,
         api_prefix: str = "/api",
+        backend_prefixes: list[str] | None = None,
     ) -> None:
         self.app = app
         self.vite_port = vite_port
         self.api_prefix = api_prefix
+        self.backend_prefixes = backend_prefixes if backend_prefixes is not None else ["/events"]
         self._http_client: Any | None = None
 
     def _is_api_request(self, path: str) -> bool:
@@ -344,7 +346,7 @@ class ViteDevProxy:
         return (
             path.startswith(self.api_prefix + "/")
             or path == self.api_prefix
-            or path.startswith("/events")
+            or any(path.startswith(p) for p in self.backend_prefixes)
         )
 
     def _get_client(self) -> Any:
