@@ -21,7 +21,7 @@ from fastware.responses import (
 )
 from fastware.request import State, Request
 from fastware.routing import Router, ParsedSegment
-from fastware.websocket import WebSocket
+from fastware.websocket import WebSocket, WebSocketDisconnect
 from fastware.app import AppConfig, create_app
 from fastware.di import DependencyResolver
 from fastware.sse import Broadcaster, sse_route
@@ -80,6 +80,7 @@ __all__ = [
     "ParsedSegment",
     # websocket
     "WebSocket",
+    "WebSocketDisconnect",
     # app
     "AppConfig",
     "create_app",

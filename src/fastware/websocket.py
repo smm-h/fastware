@@ -8,7 +8,20 @@ import msgspec
 
 __all__ = [
     "WebSocket",
+    "WebSocketDisconnect",
 ]
+
+
+class WebSocketDisconnect(Exception):
+    """Raised when a WebSocket client disconnects.
+
+    The *code* attribute carries the close code from the ASGI
+    ``websocket.disconnect`` message (defaults to 1000 / normal closure).
+    """
+
+    def __init__(self, code: int = 1000) -> None:
+        self.code = code
+        super().__init__(f"WebSocket disconnected with code {code}")
 
 
 class WebSocket:
@@ -64,17 +77,24 @@ class WebSocket:
     async def send_text(self, text: str) -> None:
         await self._send({"type": "websocket.send", "text": text})
 
-    async def receive_json(self) -> Any:
+    async def _receive_data(self) -> dict[str, Any]:
+        """Receive a data message, raising WebSocketDisconnect on disconnect."""
         msg = await self._receive()
+        if msg.get("type") == "websocket.disconnect":
+            raise WebSocketDisconnect(code=msg.get("code", 1000))
+        return msg
+
+    async def receive_json(self) -> Any:
+        msg = await self._receive_data()
         raw = msg.get("bytes") or msg.get("text", b"")
         return msgspec.json.decode(raw)
 
     async def receive_bytes(self) -> bytes:
-        msg = await self._receive()
+        msg = await self._receive_data()
         return msg.get("bytes", b"")
 
     async def receive_text(self) -> str:
-        msg = await self._receive()
+        msg = await self._receive_data()
         return msg.get("text", "")
 
     async def receive_raw(self) -> dict[str, Any]:
