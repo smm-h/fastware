@@ -20,6 +20,15 @@ from granian import Granian
 
 log = logging.getLogger(__name__)
 
+
+class PortInUseError(RuntimeError):
+    """Raised when the requested port is already in use."""
+
+
+class AlreadyRunningError(RuntimeError):
+    """Raised when a single-instance server is already running."""
+
+
 # Counter for generating unique synthetic module names when serving callables.
 _callable_counter = 0
 _callable_counter_lock = threading.Lock()
@@ -63,7 +72,7 @@ def _signal_handler(signum: int, _frame: object, pid_path: Path) -> None:
         pass
     _remove_pid(pid_path)
     _remove_port_file(_port_file_path(pid_path))
-    sys.exit(0)
+    raise SystemExit(0)
 
 
 def check_already_running(pid_path: Path, name: str = "server") -> int | None:
@@ -131,13 +140,12 @@ def ensure_port_available(host: str, port: int, name: str = "server") -> int:
     except Exception:
         pass
 
-    log.error(
-        "Port %d on %s is already in use. Use a different port "
-        "or stop the process holding it.",
-        port,
-        host,
+    msg = (
+        f"Port {port} on {host} is already in use. Use a different port "
+        f"or stop the process holding it."
     )
-    sys.exit(1)
+    log.error("%s", msg)
+    raise PortInUseError(msg)
 
 
 def _kill_port_holder(host: str, port: int) -> None:
@@ -448,12 +456,12 @@ def serve(
     if pid_path is not None and single_instance:
         existing_pid = check_already_running(pid_path, name)
         if existing_pid is not None:
-            log.error(
-                "%s is already running (PID %d). Stop it before starting another.",
-                name,
-                existing_pid,
+            msg = (
+                f"{name} is already running (PID {existing_pid}). "
+                f"Stop it before starting another."
             )
-            sys.exit(1)
+            log.error("%s", msg)
+            raise AlreadyRunningError(msg)
     ensure_port_available(resolved_host, resolved_port, name)
     if pid_path is not None:
         _write_pid(pid_path)
