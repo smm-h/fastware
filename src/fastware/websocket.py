@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
+import msgspec
+
 
 class WebSocket:
     """Wraps the raw ASGI (scope, receive, send) triple for WebSocket connections.
@@ -50,8 +52,7 @@ class WebSocket:
         await self._send({"type": "websocket.close", "code": code})
 
     async def send_json(self, data: Any) -> None:
-        import json as _json
-        await self._send({"type": "websocket.send", "text": _json.dumps(data)})
+        await self._send({"type": "websocket.send", "bytes": msgspec.json.encode(data)})
 
     async def send_bytes(self, data: bytes) -> None:
         await self._send({"type": "websocket.send", "bytes": data})
@@ -60,9 +61,9 @@ class WebSocket:
         await self._send({"type": "websocket.send", "text": text})
 
     async def receive_json(self) -> Any:
-        import json as _json
         msg = await self._receive()
-        return _json.loads(msg.get("text", ""))
+        raw = msg.get("bytes") or msg.get("text", b"")
+        return msgspec.json.decode(raw)
 
     async def receive_bytes(self) -> bytes:
         msg = await self._receive()
