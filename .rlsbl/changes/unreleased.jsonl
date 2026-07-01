@@ -1,0 +1,6 @@
+{"commits":["fc34bcd9840742459a9e36c92ec42fb16796f624","5a3d474b01aacafb1fc8de941c2c01d88a3e9e68"],"user_facing":true,"description":"**New.** ASGI sub-app mounting via `Router.mount()` for composing multiple routers.","type":"feature"}
+{"commits":["7b3bd12895b379e0e0c57e787be00dcf8a37ba82"],"user_facing":true,"description":"**New.** `WebSocketDisconnect` exception and automatic disconnect detection in WebSocket receive methods.","type":"feature"}
+{"commits":["c09886eec2c99ce94e8dc859e0c2ffa7ec23aeac"],"user_facing":true,"description":"**New.** Benchmark suite comparing fastware vs FastAPI (serialization, import time, throughput).","type":"feature"}
+{"commits":["0050bbe410d8e15d7617969dd20c961215299601","ac7dd2723eabe831a2dc83a1be557090d05331dd","e4cf047c28a13e37f12d62ffca4f52d879a2aab2","6ae2a6f8f482e1a2a6bb7af60757915e7b2ef487","3863eec3c297984fcc756cb32a8dd578d351f0f1","f2c2ecab4b0d8050b78a94812043daace2b76a08","029554ba1fcc3288ab38018e545f44fa7788195f","da4d0c086a31849881822ad27a5f2a58e615805c","be9426edaea472fd921535cb8452b0b45f550f89"],"user_facing":false}
+{"commits":["98149216b3cc83d4f31c270d55c81b0e3f5daa60","7bb26df77f2c432ae8b6fbbbcf7e2ffad87a6464","8ec29d8c1eb7d0d7c3a8df83607af6de1bdac2d5","17628b4c15fc39ceea3bdd1c556cef2550654642"],"user_facing":false}
+{"commits":["0a368ae42d6122e04d0a24bae086b4870266b8fe"],"user_facing":false}
