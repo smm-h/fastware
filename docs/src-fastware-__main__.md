@@ -1,6 +1,6 @@
 ---
 title: src.fastware.__main__
-description: "Enable `python -m fastware`."
+description: "Enable running fastware as a module with `python -m fastware`, providing CLI access to diagnostics, config, and server commands."
 generated: true
 nav_group: "API Reference"
 nav_order: 1
