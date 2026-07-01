@@ -47,7 +47,7 @@
     "source_docstring": "ba92a0deee1a7267e589b5d0b07c8c75d01ce29a0d14744f5778cf23641e9706"
   },
   "en/quickstart.md": {
-    "content": "ddcf740f342e9f929522726d8389234bd69be49394a81102fb537c90a940e732",
+    "content": "00dfa3d63d769fd4bb049f10fd59862e2b2613b66d57bcdf720a3d5208c76778",
     "description": "52a6c563615e55822cc3ae64c65afe85f76a50577518cd7488c0e81623eef276"
   },
   "en/src-fastware-__main__.md": {
@@ -156,13 +156,13 @@
     "source_docstring": "2d7d94929aada92bf8c5b9e5382be8f5c8849278b5c076e3fbf062cf37f5145e"
   },
   "en/sse-guide.md": {
-    "content": "684000c8c7b1b6ea7687f252c51a49ec7f9c4dfe0471a275a8019023ad9574ea",
-    "description": "130613236bec449d094d9b0c294e7e3f2b770986f1be1a633753188470220fc2",
+    "content": "8dd5b7de007ad0c70907be26d5c77def11468cac194c938749bad8f4911df5b2",
+    "description": "4d9d863f04a0c6f6c63981ed4528f76f57a5d6b45a3b66258bf02feb236f6a64",
     "source_docstring": "7ca011e966e8046e6430cf4bc527d73698d0e9a6fd81d61f2d7a656b2c1e45ad"
   },
   "en/vite-guide.md": {
-    "content": "9d542b4003813c73e28126b6690fa5e5fb763177880499c8c8916050e3748606",
-    "description": "47ff5dc215b4ed9d4c9832c308d36e3070e07668e060295cd052def53a7f2a73",
+    "content": "279922f13cc6d7ba7855698a1fc281183ed19baf043b862450f8b71b5de78cf8",
+    "description": "5fc06cd9bf6d06904884cc47891c05eee7329ca00dadc6dca672a1d9e9ab4804",
     "source_docstring": "ac4f0d4baf4543795a2b2aa4bcd3f7f1d15a3bc22181d39b7784072665f426a6"
   },
   "en/vs-fastapi.md": {
