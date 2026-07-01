@@ -53,26 +53,27 @@ if __name__ == "__main__":
 
 ## Feature overview
 
-- **__main__**: Enable `python -m fastware`.
-- **app**: ASGI application factory with middleware, static files, SPA fallback, and lifespan.
-- **audit**: Append-only JSONL audit log writer.
-- **auth**: Authentication module: JWT tokens, password hashing, user storage, CSRF, rate limiting.
-- **config**: Config loading utility for fastware apps.
-- **dev**: Development mode: Vite + fastware server in a single command.
-- **di**: Dependency injection: per-request resolution with caching and cleanup.
-- **error_log**: SQLite-backed error log for 5xx responses.
-- **features**: Boolean feature flags with optional per-machine overrides via JSON file.
-- **logging**: Structured logging configuration using structlog.
-- **mcp**: MCP server for per-role agent tool provisioning.
-- **middleware**: Request tracing, CORS, trusted-host, and Vite dev proxy middleware.
-- **request**: HTTP request wrapper with lazy body parsing, query parameters, and state.
-- **responses**: HTTP response types, cookie helpers, and low-level ASGI send functions.
-- **routing**: Path-based HTTP router with {param} placeholders and type coercion.
-- **sse**: SSE (Server-Sent Events) broadcaster with typed event registration.
-- **tasks**: Background task registry with feature-gated lifecycle.
-- **testing**: Test client utilities for fastware apps.
-- **types**: ASGI type aliases used throughout fastware.
-- **websocket**: WebSocket helper class wrapping the raw ASGI triple.
+- **__main__**: Enable running fastware as a module with `python -m fastware`, providing CLI access to diagnostics, config, and server commands.
+- **app**: ASGI application factory with middleware chain composition, static file serving, SPA fallback routing, async lifespan hooks, and WebSocket support.
+- **audit**: Append-only JSONL audit log writer for recording timestamped application events with structured payloads, using thread-safe file writes.
+- **auth**: Authentication module providing JWT token creation and verification, bcrypt password hashing, user storage, CSRF protection, and rate limiting.
+- **config**: Config loading utility providing standalone TOML config file parsing with optional Pydantic validation and environment variable overrides.
+- **dev**: Development mode combining Vite frontend dev server and fastware ASGI backend in a single command with hot reload and proxy routing.
+- **di**: Dependency injection container providing per-request resolution with automatic caching, generator cleanup, and scope-aware dependency override support.
+- **error_log**: SQLite-backed error log for recording and querying 5xx server responses with request context, tracebacks, and timestamps for post-mortem analysis.
+- **features**: Boolean feature flags with per-machine JSON overrides, providing enabled/disabled checks, runtime toggle, and hot reload for gradual rollouts.
+- **logging**: Structured logging configuration using structlog with automatic JSON output in production and colored console rendering in development mode.
+- **mcp**: MCP (Model Context Protocol) server factory providing per-role agent tool provisioning, tool filtering, and stdio-based server lifecycle management.
+- **middleware**: Pure ASGI middleware for request tracing, CORS headers, trusted-host validation, and Vite dev proxy routing, all streaming-safe for SSE and WebSocket.
+- **request**: HTTP request wrapper providing lazy body parsing, query parameter extraction, JSON deserialization via msgspec, header access, and per-request state.
+- **responses**: HTTP response types including JSON, text, HTML, bytes, and streaming responses, plus cookie helpers and low-level ASGI send functions.
+- **routing**: Path-based HTTP router with curly-brace parameter placeholders, automatic type coercion, method-based dispatch, and route group composition.
+- **server**: Granian ASGI server lifecycle -- PID file management, port checks, serve/stop/status.
+- **sse**: SSE (Server-Sent Events) broadcaster with typed event registration, per-client async queues, automatic disconnect pruning, and strict mode enforcement.
+- **tasks**: Background task registry with feature-gated lifecycle management, supporting start/stop protocol, factory registration, and graceful shutdown ordering.
+- **testing**: Sync and async test clients for fastware apps, wrapping httpx with ASGITransport to exercise routes without starting a real network server.
+- **types**: ASGI type aliases (Scope, Receive, Send, ASGIApp, Middleware) used throughout fastware for consistent type-checked request and response handling.
+- **websocket**: WebSocket helper class wrapping the raw ASGI scope/receive/send triple with typed accept, send, receive, and close methods for ergonomic usage.
 
 ## Installation
 
