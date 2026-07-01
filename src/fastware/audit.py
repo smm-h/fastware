@@ -1,4 +1,4 @@
-"""Append-only JSONL audit log writer.
+"""Append-only JSONL audit log writer for recording timestamped application events with structured payloads, using thread-safe file writes.
 
 Each entry is a single JSON line with an ISO timestamp, event type, and
 optional payload dict. Thread-safe via ``threading.Lock``.

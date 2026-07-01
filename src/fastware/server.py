@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Granian ASGI server lifecycle -- PID file management, port checks, serve/stop/status."""
+
+from __future__ import annotations
 
 import atexit
 import logging
@@ -514,7 +514,7 @@ def serve(
         from granian import _signals
         from granian.server import common as _granian_common
 
-        _noop = lambda *a, **kw: None
+        def _noop(*a, **kw): None
         _signals.set_main_signals = _noop
         _granian_common.set_main_signals = _noop
 

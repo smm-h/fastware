@@ -1,4 +1,4 @@
-"""ASGI application factory with middleware, static files, SPA fallback, and lifespan."""
+"""ASGI application factory with middleware chain composition, static file serving, SPA fallback routing, async lifespan hooks, and WebSocket support."""
 
 from __future__ import annotations
 
@@ -10,19 +10,17 @@ from typing import Any, Callable
 
 import msgspec
 
-from fastware.types import Scope, Receive, Send
+from fastware.request import Request
 from fastware.responses import (
-    JSONResponse,
-    TextResponse,
-    HTMLResponse,
     BytesResponse,
-    StreamResponse,
     FileResponse,
+    HTMLResponse,
     HTTPError,
+    JSONResponse,
+    StreamResponse,
+    TextResponse,
     _send_response,
-    send_error,
 )
-from fastware.request import Request, State
 from fastware.routing import Router
 from fastware.websocket import WebSocket
 
@@ -444,9 +442,17 @@ def create_app(
     # -- Built-in middleware (innermost first, outermost last) --
     from fastware.middleware import (
         CORSMiddleware as _CORSMiddleware,
+    )
+    from fastware.middleware import (
         RequestIDMiddleware as _RequestIDMiddleware,
+    )
+    from fastware.middleware import (
         RequestTimingMiddleware as _RequestTimingMiddleware,
+    )
+    from fastware.middleware import (
         TrustedHostMiddleware as _TrustedHostMiddleware,
+    )
+    from fastware.middleware import (
         ViteDevProxy as _ViteDevProxy,
     )
 

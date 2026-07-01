@@ -1,4 +1,4 @@
-"""Authentication module: JWT tokens, password hashing, user storage, CSRF, rate limiting.
+"""Authentication module providing JWT token creation and verification, bcrypt password hashing, user storage, CSRF protection, and rate limiting.
 
 Pure functions and DI-compatible factories with no framework-specific dependencies
 beyond fastware's own asgi types. Keeps auth logic testable and reusable.
@@ -15,7 +15,7 @@ from http.cookies import SimpleCookie
 from pathlib import Path
 from typing import Any, Callable
 
-from fastware.responses import HTTPError, send_error, set_cookie, delete_cookie
+from fastware.responses import HTTPError, delete_cookie, send_error, set_cookie
 
 __all__ = [
     "create_token",

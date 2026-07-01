@@ -20,8 +20,8 @@ import uuid
 from collections import deque
 from typing import Any, Callable
 
-from fastware.types import Scope, Receive, Send
 from fastware.responses import send_error
+from fastware.types import Receive, Scope, Send
 
 try:
     import structlog

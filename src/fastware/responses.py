@@ -7,8 +7,6 @@ from typing import Any, AsyncGenerator, Callable
 
 import msgspec
 
-from fastware.types import Scope, Receive, Send
-
 __all__ = [
     "set_cookie",
     "delete_cookie",

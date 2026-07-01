@@ -1,4 +1,4 @@
-"""Enable `python -m fastware`."""
+"""Enable running fastware as a module with `python -m fastware`, providing CLI access to diagnostics, config, and server commands."""
 
 # Placeholder until CLI is implemented
 def main() -> None:

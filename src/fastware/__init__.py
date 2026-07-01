@@ -4,27 +4,27 @@ from __future__ import annotations
 
 import importlib.metadata
 
-# -- Tier 1: Core symbols (eager imports -- lightweight modules) -------------
-
-from fastware.types import Scope, Receive, Send
-from fastware.responses import (
-    set_cookie,
-    delete_cookie,
-    HTTPError,
-    JSONResponse,
-    TextResponse,
-    HTMLResponse,
-    BytesResponse,
-    StreamResponse,
-    FileResponse,
-    send_error,
-)
-from fastware.request import State, Request
-from fastware.routing import Router, ParsedSegment
-from fastware.websocket import WebSocket, WebSocketDisconnect
 from fastware.app import AppConfig, create_app
 from fastware.di import DependencyResolver
+from fastware.request import Request, State
+from fastware.responses import (
+    BytesResponse,
+    FileResponse,
+    HTMLResponse,
+    HTTPError,
+    JSONResponse,
+    StreamResponse,
+    TextResponse,
+    delete_cookie,
+    send_error,
+    set_cookie,
+)
+from fastware.routing import ParsedSegment, Router
 from fastware.sse import Broadcaster, sse_route
+
+# -- Tier 1: Core symbols (eager imports -- lightweight modules) -------------
+from fastware.types import Receive, Scope, Send
+from fastware.websocket import WebSocket, WebSocketDisconnect
 
 __version__ = importlib.metadata.version("fastware")
 
