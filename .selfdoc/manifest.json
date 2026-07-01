@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "name": "fastware",
+  "slug": "fastware",
+  "version": "0.1.0",
+  "description": "A fast, batteries-included ASGI framework. The FastAPI alternative.",
+  "language": "python",
+  "base_url": "https://fastware.smmh.dev",
+  "pages": [
+    {
+      "path": "api-auth.md",
+      "title": "Auth API Reference",
+      "type": "doc"
+    },
+    {
+      "path": "api-middleware.md",
+      "title": "Middleware API Reference",
+      "type": "doc"
+    },
+    {
+      "path": "api-server.md",
+      "title": "Server API Reference",
+      "type": "doc"
+    },
+    {
+      "path": "api-testing.md",
+      "title": "Testing API Reference",
+      "type": "doc"
+    },
+    {
+      "path": "api.md",
+      "title": "Core API Reference",
+      "type": "doc"
+    },
+    {
+      "path": "di-guide.md",
+      "title": "Dependency Injection",
+      "type": "doc"
+    },
+    {
+      "path": "extras.md",
+      "title": "Optional Extras",
+      "type": "doc"
+    },
+    {
+      "path": "gen-index.md",
+      "title": "API Reference",
+      "type": "doc"
+    },
+    {
+      "path": "index.md",
+      "title": "fastware",
+      "type": "doc"
+    },
+    {
+      "path": "migration-fastapi.md",
+      "title": "Migrating from FastAPI",
+      "type": "doc"
+    },
+    {
+      "path": "quickstart.md",
+      "title": "Quickstart",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-__main__.md",
+      "title": "src.fastware.__main__",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-app.md",
+      "title": "src.fastware.app",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-audit.md",
+      "title": "src.fastware.audit",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-auth.md",
+      "title": "src.fastware.auth",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-config.md",
+      "title": "src.fastware.config",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-dev.md",
+      "title": "src.fastware.dev",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-di.md",
+      "title": "src.fastware.di",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-error_log.md",
+      "title": "src.fastware.error_log",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-features.md",
+      "title": "src.fastware.features",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-logging.md",
+      "title": "src.fastware.logging",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-mcp.md",
+      "title": "src.fastware.mcp",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-middleware.md",
+      "title": "src.fastware.middleware",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-request.md",
+      "title": "src.fastware.request",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-responses.md",
+      "title": "src.fastware.responses",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-routing.md",
+      "title": "src.fastware.routing",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-server.md",
+      "title": "src.fastware.server",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-sse.md",
+      "title": "src.fastware.sse",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-tasks.md",
+      "title": "src.fastware.tasks",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-testing.md",
+      "title": "src.fastware.testing",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-types.md",
+      "title": "src.fastware.types",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-websocket.md",
+      "title": "src.fastware.websocket",
+      "type": "doc"
+    },
+    {
+      "path": "sse-guide.md",
+      "title": "SSE Broadcasting",
+      "type": "doc"
+    },
+    {
+      "path": "vite-guide.md",
+      "title": "Vite Dev Mode",
+      "type": "doc"
+    },
+    {
+      "path": "vs-fastapi.md",
+      "title": "fastware vs FastAPI",
+      "type": "doc"
+    },
+    {
+      "path": "vs-litestar.md",
+      "title": "fastware vs Litestar",
+      "type": "doc"
+    },
+    {
+      "path": "vs-sanic.md",
+      "title": "fastware vs Sanic",
+      "type": "doc"
+    },
+    {
+      "path": "vs-starlette.md",
+      "title": "fastware vs Starlette",
+      "type": "doc"
+    }
+  ],
+  "posts": [],
+  "last_gen": "2026-07-01T09:30:19.618997+00:00"
+}
