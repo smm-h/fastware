@@ -1,6 +1,6 @@
 ---
 title: Migrating from FastAPI
-description: Step-by-step guide to migrating your FastAPI application to fastware, with import mappings and pattern translations
+description: "Step-by-step guide to migrating FastAPI apps to fastware: import mappings, route handler patterns, DI translation, and SSE migration."
 date: 2026-07-01
 ---
 
@@ -15,6 +15,8 @@ This guide walks through converting a FastAPI application to fastware, covering 
 - **Server management** -- PID files, port availability checks, signal handling, and process group leadership are handled by the framework. Start, stop, and status-check your server programmatically.
 
 ## Import mapping
+
+The table below maps 9 common FastAPI imports to their fastware equivalents:
 
 | FastAPI | fastware |
 |---|---|
@@ -31,6 +33,8 @@ This guide walks through converting a FastAPI application to fastware, covering 
 ## Pattern translation
 
 ### App creation
+
+In FastAPI, you create the application object directly and register routes on it. In fastware, routing and app construction are separate concerns, which makes the router testable independently and allows multiple routers to be composed before building the final ASGI app:
 
 **FastAPI:**
 
@@ -60,6 +64,8 @@ fastware separates routing (Router) from app construction (create_app). The Rout
 
 ### Route handlers
 
+The biggest API difference between FastAPI and fastware is how route handlers access request data. FastAPI inspects handler signatures and injects parameters automatically; fastware passes an explicit `Request` object with typed accessor methods:
+
 **FastAPI** -- signature-injected parameters:
 
 ```python
@@ -85,6 +91,8 @@ Key differences:
 - Return a plain dict or list and it gets auto-wrapped as a JSON response. Or return an explicit `JSONResponse`, `HTMLResponse`, etc.
 
 ### Middleware
+
+FastAPI uses `add_middleware` calls after app creation, which means middleware ordering depends on call order. In fastware, all 5 built-in middleware classes (CORS, RequestID, RequestTiming, TrustedHost, ViteDevProxy) are configured declaratively via `AppConfig` fields, eliminating the imperative step and ensuring middleware ordering is deterministic regardless of configuration order:
 
 **FastAPI:**
 
@@ -115,6 +123,8 @@ app = create_app(router, config=AppConfig(
 Built-in middleware is configured declaratively via AppConfig. Custom middleware can be passed as a list of ASGI middleware classes via `AppConfig(middleware=[...])`.
 
 ### Dependency injection
+
+FastAPI uses a `Depends()` wrapper function that reads the handler signature. fastware uses an explicit `deps` dict on route decorators, making dependencies visible in the decorator call without inspecting the handler body:
 
 **FastAPI:**
 
@@ -158,6 +168,8 @@ Dependencies are declared as a dict mapping names to factory callables, passed v
 
 ### Testing
 
+The test client pattern is nearly identical between the two frameworks. Both wrap httpx with ASGI transport to send requests directly to the ASGI application in-process, so your existing test assertions (status code checks, JSON body comparisons, header inspection) mostly transfer unchanged -- only the import path changes:
+
 **FastAPI:**
 
 ```python
@@ -189,6 +201,8 @@ async with AsyncTestClient(app) as client:
 ```
 
 ### SSE (Server-Sent Events)
+
+FastAPI requires the `sse-starlette` third-party package and a manual generator function pattern. fastware includes a built-in `Broadcaster` with typed event registration, per-client async queues, automatic disconnect pruning, and configurable heartbeat intervals:
 
 **FastAPI** -- requires `sse-starlette` third-party package:
 
@@ -241,6 +255,8 @@ The Broadcaster manages per-client queues, prunes disconnected clients, and opti
 - **Optional deps are truly optional** -- pywebview, structlog, pydantic, and websockets are late-imported only when needed. The core framework loads with only msgspec and granian.
 
 ## API reference
+
+See the `Router` class for all 6 route registration methods (get, post, put, patch, delete, ws) plus `add_route` and `include_router` for programmatic registration, and the `AppConfig` dataclass for all 12 declarative configuration options including middleware, static files, and SPA fallback:
 
 :-: ref path="src.fastware.routing" target="Router"
 

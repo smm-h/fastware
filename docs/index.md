@@ -1,6 +1,6 @@
 ---
 title: fastware
-description: Documentation for fastware, a fast batteries-included ASGI framework built on msgspec and Granian
+description: "Documentation for fastware, a fast batteries-included ASGI framework built on msgspec (10-75x faster JSON) and Granian (Rust-based server)."
 date: 2026-07-01
 ---
 
@@ -55,8 +55,12 @@ Run it and visit `http://127.0.0.1:8000/hello/world` to see `{"message": "Hello,
 
 ## Dependencies
 
+The table below lists all runtime and optional dependencies that fastware can install. The core has only 2 required packages (msgspec for JSON serialization and granian for ASGI serving); all others are opt-in via 6 extras groups (auth, logging, dev, testing, mcp, pydantic) that add specific capabilities without bloating the default install:
+
 :-: table-dep path="pyproject.toml"
 
 ## Project structure
+
+The source tree consists of 20 modules organized by feature area (routing, responses, middleware, SSE, server, auth, DI, testing, and more). Each module is independently importable with no circular dependencies, and optional features use late imports to avoid loading unused packages:
 
 :-: list-tree path="src/fastware/" depth="1"

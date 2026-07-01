@@ -1,6 +1,6 @@
 ---
 title: Server API Reference
-description: Granian server lifecycle management including serve, stop, status, PID files, and port management
+description: "API reference for fastware server: Granian ASGI lifecycle management with foreground and background serving, PID files, port checks, and hot reload."
 date: 2026-07-01
 ---
 
@@ -14,6 +14,8 @@ Server symbols are lazily imported from the top-level `fastware` package to avoi
 
 ## ServerStatus
 
+The `ServerStatus` enum represents the 3 possible states of a fastware server instance: running, stopped, or unknown. It is returned by `status()` after checking the PID file and probing the process.
+
 :-: table-schema path="src/fastware/server.py" target="ServerStatus"
 
 ## Error Types
@@ -26,13 +28,13 @@ Before raising, `ensure_port_available` attempts to detect whether the port hold
 
 ### AlreadyRunningError
 
-Raised by `serve` (when `single_instance=True`) if a PID file exists and the corresponding process is still alive. The error message includes the PID of the running instance.
+Raised by `serve` (when `single_instance=True`) if a PID file exists and the corresponding process is still alive. The error message includes the PID of the running instance. This prevents accidentally starting duplicate servers on the same port, which would cause bind failures or silent request splitting.
 
 Stale PID files (where the process has died) are cleaned up automatically and do not trigger this error.
 
 ## serve() vs serve_background()
 
-`serve()` is the primary entry point for starting the server. It supports both foreground (blocking) and background (daemon thread) modes:
+`serve()` is the primary entry point for starting the Granian ASGI server. It supports both foreground (blocking) and background (daemon thread) modes, with optional PID file management, single-instance enforcement, and hot reload for development workflows:
 
 ```python
 from fastware.server import serve
@@ -79,7 +81,7 @@ url = serve_background(
 
 ## Hot Reload
 
-Pass `reload=True` to `serve()` for development. This uses `watchfiles` to monitor `.py` files and automatically restart the server on changes. Requires `foreground=True`:
+Pass `reload=True` to `serve()` for development. This uses `watchfiles` to monitor all `.py` files in the project directory and automatically restart the Granian server on changes, providing sub-second feedback during development. Requires `foreground=True`:
 
 ```python
 serve(

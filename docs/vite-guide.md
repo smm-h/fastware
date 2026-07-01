@@ -1,6 +1,6 @@
 ---
 title: Vite Dev Mode
-description: How to use fastware's ViteDevProxy and dev() function for hot-reload frontend development
+description: "Guide to fastware Vite integration: dev() for combined server startup, ViteDevProxy middleware for backend-first routing, and SPA fallback."
 date: 2026-07-01
 ---
 
@@ -10,7 +10,7 @@ When building a frontend (React, Vue, Svelte, or plain TypeScript) alongside a f
 
 ## The problem
 
-During development, you have two processes:
+During development, you have 2 processes that need to coexist on different ports, each serving a distinct role. The frontend dev server handles asset transformation and hot module replacement, while the backend handles API routes, SSE broadcasting, and WebSocket endpoints:
 
 - **Vite dev server** (port 5173) -- serves frontend assets, handles HMR via WebSocket, transforms TypeScript/JSX on the fly
 - **fastware server** (port 8000) -- handles API routes, SSE broadcasting, WebSocket endpoints
@@ -19,7 +19,7 @@ The browser loads the page from one origin but needs to reach both. You could co
 
 ## The dev() function
 
-The simplest way to run both servers together:
+The simplest way to run both the Vite frontend and fastware backend servers together in a single process. It handles subprocess management, port readiness polling (up to 15 seconds), and proxy configuration automatically:
 
 ```python
 from fastware.dev import dev
@@ -56,7 +56,7 @@ When the fastware server shuts down (Ctrl+C), the Vite subprocess is terminated 
 
 ## ViteDevProxy middleware
 
-Under the hood, `dev()` uses `ViteDevProxy`, which you can also use directly for more control:
+Under the hood, `dev()` uses `ViteDevProxy`, a pure ASGI middleware class that intercepts HTTP and WebSocket requests. You can also use `ViteDevProxy` directly for more control over proxy behavior, backend prefix configuration, and middleware ordering in your ASGI stack, or to integrate with custom app factory patterns:
 
 ```python
 from fastware import Router, create_app, AppConfig
@@ -74,7 +74,7 @@ Setting `vite_dev_port` in `AppConfig` enables ViteDevProxy as a built-in middle
 
 ### How routing works
 
-ViteDevProxy uses a **backend-first** strategy for HTTP requests:
+ViteDevProxy uses a **backend-first** strategy for HTTP requests, which eliminates the need for API prefix configuration in most cases and keeps all middleware, error handling, and SSE support intact. This approach is the opposite of Vite's built-in proxy (which puts Vite first), and avoids the common problem of losing backend middleware when requests flow through the frontend server first. The 3-step routing logic is:
 
 1. Every HTTP request hits the fastware app first
 2. If the app returns 404 (no route matched), the request is proxied to Vite
@@ -89,7 +89,7 @@ For **WebSocket** connections, the proxy uses prefix-based routing because WebSo
 
 ### Configuring backend prefixes
 
-By default, ViteDevProxy routes WebSocket connections on `/events` to the backend (in addition to the API prefix). If your SSE or WebSocket endpoints use different paths, configure them explicitly:
+By default, ViteDevProxy routes WebSocket connections on `/events` to the backend (in addition to the API prefix). The `backend_prefixes` list is checked for every WebSocket upgrade request; paths matching any prefix are handled by fastware while all others are proxied to Vite for HMR. If your SSE or WebSocket endpoints use different paths, configure them explicitly:
 
 ```python
 from fastware.middleware import ViteDevProxy
@@ -106,7 +106,7 @@ The `backend_prefixes` parameter is a list of path prefixes that should be route
 
 ## Production: SPA fallback
 
-In production, Vite is not running. Instead, you build your frontend to static files and serve them with fastware's SPA fallback:
+In production, Vite is not running. Instead, you build your frontend to static files (`npm run build`) and serve them with fastware's built-in SPA fallback, which routes unmatched GET requests to `index.html` for client-side navigation:
 
 ```bash
 npm run build   # outputs to dist/
@@ -138,6 +138,8 @@ With SPA fallback:
 - All other GET requests serve `dist/index.html`, letting the frontend router handle client-side navigation
 
 ## Complete development setup
+
+This example shows a complete development setup with 3 files: a fastware backend module serving API routes and SSE events via the Broadcaster, a dev entry point that runs both Vite and fastware together with hot reload, and a production entry point that serves pre-built static assets with SPA fallback routing:
 
 **backend (myapp.py):**
 
@@ -193,6 +195,8 @@ if __name__ == "__main__":
 Run `python dev.py` during development, `python main.py` in production.
 
 ## API reference
+
+See the `dev()` function reference for combined Vite and fastware server startup with subprocess management, and the `ViteDevProxy` class reference for fine-grained control over proxy routing, backend prefix configuration, and WebSocket connection handling:
 
 :-: ref path="src.fastware.dev"
 

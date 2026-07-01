@@ -1,4 +1,4 @@
-"""Boolean feature flags with optional per-machine overrides via JSON file.
+"""Boolean feature flags with per-machine JSON overrides, providing enabled/disabled checks, runtime toggle, and hot reload for gradual rollouts.
 
 Apps declare flags with defaults at startup. Overrides are loaded from
 a JSON file whose path is provided by the app. API: enabled(name),

@@ -1,6 +1,6 @@
 ---
 title: Dependency Injection
-description: How to use fastware's DependencyResolver for per-request dependency management with automatic cleanup
+description: "Guide to fastware dependency injection: per-request resolution with caching, generator cleanup, router-level deps, and test overrides."
 date: 2026-07-01
 ---
 
@@ -10,19 +10,19 @@ fastware's `DependencyResolver` provides per-request dependency resolution with 
 
 ## What DI solves
 
-Web handlers often need shared resources -- database connections, authenticated user objects, configuration, external API clients. Without DI, you either:
+Web handlers often need shared resources -- database connections, authenticated user objects, configuration, external API clients. Managing these manually leads to 3 common problems that grow worse as the application scales. Dependency injection solves all 3 by letting the framework create, cache, and clean up resources per request. Without DI, you either:
 
 - Create resources inside each handler (wasteful, no sharing)
 - Use module-level globals (hard to test, no per-request lifecycle)
 - Pass everything through middleware and request state (boilerplate)
 
-DI lets you declare what a handler needs, and the framework resolves it per request, caches it (so the same factory called twice returns the same instance), and cleans it up when the request is done.
+DI lets you declare what a handler needs, and the framework resolves it once per request, caches it (so the same factory called twice returns the same instance), and cleans it up when the request is done. Generator factories are cleaned up in reverse order -- last resolved, first cleaned.
 
 ## Basic usage
 
 ### 1. Define factory functions
 
-A factory function receives a `Request` and returns the dependency value:
+A factory function receives a `Request` and returns the dependency value. Factories can be either sync or async, and can optionally use the yield pattern for resource lifecycle management with automatic cleanup:
 
 ```python
 async def get_db(request):
@@ -38,7 +38,7 @@ async def get_config():
 
 ### 2. Declare dependencies on routes
 
-Pass a `deps` dict mapping names to factory callables:
+Pass a `deps` dict mapping parameter names to factory callables on any route decorator. The resolver calls each factory once per request, caches the result, and injects it as a keyword argument:
 
 ```python
 from fastware import Router
@@ -65,7 +65,7 @@ The app factory creates a `DependencyResolver` internally and uses it to resolve
 
 ## Sync and async factories
 
-Both sync and async factory functions are supported:
+Both sync and async factory functions are supported. The resolver detects whether a factory returns an awaitable and handles it automatically, so you can mix sync and async factories freely in the same route's deps dict:
 
 ```python
 # Sync factory
@@ -81,7 +81,7 @@ If a factory returns an awaitable, the resolver awaits it automatically.
 
 ## Generator factories (yield pattern)
 
-For resources that need cleanup (database connections, file handles, transactions), use the yield pattern. The factory yields the value, and the code after `yield` runs after the handler completes:
+For resources that need cleanup (database connections, file handles, transactions), use the yield pattern. The factory yields the value, and the code after `yield` runs automatically after the handler completes, even if the handler raises an exception. This ensures resources are never leaked:
 
 ### Sync generator
 
@@ -109,7 +109,7 @@ Cleanup runs in reverse order (last resolved, first cleaned up). Cleanup errors 
 
 ## Per-request caching
 
-When the same factory is used in multiple deps on the same request, it is resolved once and the result is reused:
+When the same factory is used in multiple deps on the same request, it is resolved exactly once and the cached result is reused for all subsequent references. This prevents creating duplicate database connections or re-authenticating on every dependency resolution:
 
 ```python
 async def get_db(request):
@@ -124,7 +124,7 @@ Caching is based on the factory function's identity (`id(factory)`). If two depe
 
 ## Router-level dependencies
 
-Apply dependencies to all routes in a sub-router using `include_router`:
+Apply dependencies to all routes in a sub-router using `include_router`, so every route under that prefix automatically receives the specified dependencies without repeating the `deps` dict on each route decorator:
 
 ```python
 api_router = Router()
@@ -148,7 +148,7 @@ Handlers that don't accept a particular dependency keyword are not affected -- t
 
 ## Dependency overrides for testing
 
-Replace factory functions with test doubles using `dependency_overrides` on `create_app`:
+Replace factory functions with test doubles using `dependency_overrides` on `create_app`. This lets you substitute real databases, API clients, and auth providers with in-memory fakes during testing, without changing any route code:
 
 ```python
 from fastware import create_app, AppConfig
@@ -229,5 +229,7 @@ if __name__ == "__main__":
 ```
 
 ## API reference
+
+See the full `DependencyResolver` class reference below, which documents all public methods for factory registration, per-request resolution with identity-based caching, generator cleanup ordering, and dependency override management for test environments:
 
 :-: ref path="src.fastware.di"

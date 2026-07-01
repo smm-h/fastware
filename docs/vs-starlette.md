@@ -1,6 +1,6 @@
 ---
 title: fastware vs Starlette
-description: Comparison of fastware and Starlette -- batteries-included framework vs modular ASGI toolkit
+description: "Comparison of fastware and Starlette: batteries-included framework (SSE, auth, server lifecycle) vs lightweight modular ASGI toolkit."
 date: 2026-07-01
 ---
 
@@ -10,7 +10,7 @@ Starlette is a lightweight ASGI toolkit that provides the building blocks for we
 
 ## Toolkit vs framework
 
-The core difference is scope:
+The core difference is scope and assembly level -- Starlette gives you the parts, fastware gives you the product:
 
 **Starlette provides building blocks.** You get a router, request/response classes, middleware protocol, WebSocket support, and a test client. You assemble them into an application, choose a server (Uvicorn, Hypercorn, Daphne), configure middleware, pick a JSON library, add auth, and wire up SSE yourself.
 
@@ -41,7 +41,7 @@ The core difference is scope:
 
 ## What Starlette does differently
 
-Starlette is intentionally minimal. This is a strength, not a weakness:
+Starlette is intentionally minimal -- it ships with only 2 required dependencies (`anyio` and `typing_extensions`). This is a strength, not a weakness:
 
 - **Lighter dependency footprint**: Starlette has no required dependencies beyond `anyio` and `typing_extensions`. fastware requires msgspec and granian.
 - **More server choices**: Because Starlette does not manage a server, you can run it on Uvicorn, Hypercorn, Daphne, or any ASGI server. fastware is opinionated about Granian.

@@ -1,4 +1,4 @@
-"""HTTP response types, cookie helpers, and low-level ASGI send functions."""
+"""HTTP response types including JSON, text, HTML, bytes, and streaming responses, plus cookie helpers and low-level ASGI send functions."""
 
 from __future__ import annotations
 

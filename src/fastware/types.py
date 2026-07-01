@@ -1,15 +1,9 @@
-"""ASGI type aliases used throughout fastware."""
+"""ASGI type aliases (Scope, Receive, Send, ASGIApp, Middleware) used throughout fastware for consistent type-checked request and response handling."""
 
 from __future__ import annotations
 
 from collections.abc import Awaitable
 from typing import Any, Callable
-
-__all__ = [
-    "Scope",
-    "Receive",
-    "Send",
-]
 
 # ---------------------------------------------------------------------------
 # ASGI type aliases

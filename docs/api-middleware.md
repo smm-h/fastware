@@ -1,6 +1,6 @@
 ---
 title: Middleware API Reference
-description: CORS, request ID tracing, request timing, trusted host validation, and Vite dev proxy middleware
+description: "API reference for fastware middleware: CORS headers, request ID tracing, request timing, trusted host validation, and Vite dev proxy routing."
 date: 2026-07-01
 ---
 
@@ -14,7 +14,7 @@ Built-in middleware is automatically applied by `create_app` when the correspond
 
 ## CORS Configuration for a Typical SPA
 
-When building a single-page application with a separate frontend dev server (e.g., Vite on port 5173), configure CORS to allow the frontend origin:
+When building a single-page application with a separate frontend dev server (e.g., Vite on port 5173), you need to configure CORS to allow the frontend origin. The `CORSMiddleware` handles preflight OPTIONS requests automatically and injects the correct `Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, and `Access-Control-Allow-Headers` response headers on every cross-origin request:
 
 ```python
 from fastware import Router, create_app, AppConfig
@@ -52,7 +52,7 @@ When `cors_origins` is set on `AppConfig`, `create_app` applies `CORSMiddleware`
 
 ## ViteDevProxy Routing
 
-The `ViteDevProxy` middleware uses a backend-first routing strategy for HTTP requests:
+The `ViteDevProxy` middleware uses a backend-first routing strategy for HTTP requests, forwarding unmatched paths to the Vite dev server so that frontend assets, HMR WebSocket connections, and backend API routes all work through a single origin without manual proxy configuration:
 
 1. Every HTTP request hits the fastware backend first.
 2. If the backend returns 404 (no route matched), the request is proxied to the Vite dev server.

@@ -1,6 +1,6 @@
 ---
 title: Quickstart
-description: Build your first fastware application in under 5 minutes with this step-by-step guide
+description: "Build your first fastware ASGI application in 6 steps: routing, response types, app factory, server, SSE broadcasting, and middleware."
 date: 2026-07-01
 ---
 
@@ -16,7 +16,7 @@ pip install fastware
 
 ## Step 1: Create a Router and add routes
 
-The `Router` is the core of every fastware app. Register handlers with decorators like `@router.get()`, `@router.post()`, etc.
+The `Router` is the core of every fastware app. It provides decorator-based route registration for all 7 HTTP methods (`get`, `post`, `put`, `patch`, `delete`, `options`, `head`) plus WebSocket routes via `ws`. Each handler receives a `Request` object with typed accessors for path parameters, query strings, headers, and body:
 
 ```python
 from fastware import Router, Request
@@ -49,7 +49,7 @@ async def get_user(request: Request):
 
 ## Step 2: Use response types
 
-fastware provides typed response classes for different content types.
+fastware provides 5 typed response classes for different content types. Each accepts optional `status`, `headers`, and `cookies` parameters for fine-grained control over the HTTP response. The `HTTPError` exception can be raised from anywhere to return a JSON error body:
 
 ```python
 from fastware import (
@@ -82,7 +82,7 @@ async def error_example(request: Request):
 
 ## Step 3: Create the ASGI app
 
-The `create_app` factory assembles the router, middleware, static files, and lifespan into a single ASGI callable.
+The `create_app` factory assembles the router, middleware chain, static file serving, SPA fallback, and async lifespan hooks into a single ASGI callable that can be served by Granian or any ASGI-compatible server:
 
 ```python
 from fastware import Router, create_app
@@ -115,7 +115,7 @@ app = create_app(
 
 ## Step 4: Serve it
 
-Use `serve()` to start the Granian ASGI server.
+Use `serve()` to start the Granian ASGI server with managed PID files, port availability checks, and signal handling. The `foreground` parameter controls whether the call blocks until shutdown or returns immediately with the server URL:
 
 ```python
 from fastware import Router, create_app, serve
@@ -146,7 +146,7 @@ print(f"Server running at {url}")
 
 ## Step 5: Add SSE broadcasting
 
-The `Broadcaster` manages typed server-sent events with per-client queues.
+The `Broadcaster` manages typed server-sent events with per-client async queues, configurable heartbeat intervals, and automatic disconnect pruning. Events must be registered before broadcast (strict mode), catching typos and invalid event names at development time rather than silently dropping messages:
 
 ```python
 from fastware import Router, Broadcaster, sse_route, create_app, serve
@@ -182,7 +182,7 @@ Clients connect to `/events` and receive SSE messages. The broadcaster automatic
 
 ## Step 6: Add middleware
 
-fastware includes several built-in middleware that can be enabled via `create_app` parameters.
+fastware includes 5 built-in middleware classes (CORS, request ID, request timing, trusted host, Vite dev proxy) that can be enabled declaratively via `create_app` parameters or `AppConfig` fields, without writing any middleware wrapping code:
 
 ```python
 from fastware import Router, create_app, serve

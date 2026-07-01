@@ -1,4 +1,4 @@
-"""SQLite-backed error log for 5xx responses.
+"""SQLite-backed error log for recording and querying 5xx server responses with request context, tracebacks, and timestamps for post-mortem analysis.
 
 Provides a simple append-only store that the request timing middleware
 can write to on server errors.  Each entry captures enough context for

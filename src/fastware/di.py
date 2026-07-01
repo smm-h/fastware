@@ -1,4 +1,4 @@
-"""Dependency injection: per-request resolution with caching and cleanup.
+"""Dependency injection container providing per-request resolution with automatic caching, generator cleanup, and scope-aware dependency override support.
 
 Supports sync/async factory callables and sync/async generator factories
 (yield pattern). Generator factories get cleanup after the handler returns.

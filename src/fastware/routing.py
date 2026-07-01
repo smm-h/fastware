@@ -1,4 +1,4 @@
-"""Path-based HTTP router with {param} placeholders and type coercion."""
+"""Path-based HTTP router with curly-brace parameter placeholders, automatic type coercion, method-based dispatch, and route group composition."""
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ from typing import Any, Callable
 
 __all__ = [
     "Router",
-    "ParsedSegment",
 ]
 
 

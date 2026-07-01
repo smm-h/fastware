@@ -1,6 +1,6 @@
 ---
 title: Optional Extras
-description: Guide to fastware's optional dependency groups for auth, logging, dev tools, testing, MCP, and Pydantic
+description: "Guide to fastware's 7 optional extras groups: auth (JWT, bcrypt), logging (structlog), dev (hot reload), testing, MCP, Pydantic, and all."
 date: 2026-07-01
 ---
 
@@ -21,13 +21,15 @@ pip install fastware[all]         # everything above
 
 ## All dependencies
 
+The complete dependency table below shows every package fastware can install, organized by extras group. The core has only 2 runtime dependencies (msgspec for JSON serialization and granian for ASGI serving); the remaining 8 packages are optional and only installed when you explicitly request the corresponding extras group:
+
 :-: table-dep path="pyproject.toml"
 
 ## Extras groups
 
 ### `auth` -- JWT and password hashing
 
-**Installs:** `pyjwt`, `bcrypt`
+**Installs:** `pyjwt` for JSON Web Token encoding and decoding with HS256 algorithm support, and `bcrypt` for password hashing with configurable work factor rounds. These 2 packages provide the cryptographic foundation for the entire auth module.
 
 **Required by:** `fastware.auth` -- specifically `create_token`, `verify_token`, `hash_password`, `verify_password`, and everything that depends on them (`get_current_user`, `require_role`, `UserStore.create_user`).
 
@@ -39,7 +41,7 @@ pip install fastware[auth]
 
 ### `logging` -- structured logging
 
-**Installs:** `structlog`
+**Installs:** `structlog` for structured, context-bound logging with JSON output in production environments and colored console rendering in development. Structlog adds request ID binding via contextvars, so every log entry within a request automatically includes the X-Request-Id header value.
 
 **Required by:** `fastware.middleware.RequestIDMiddleware` and `fastware.middleware.RequestTimingMiddleware` use structlog when available for context-bound structured logging (request ID in every log entry, request duration as structured data).
 
@@ -56,7 +58,7 @@ pip install fastware[logging]
 
 ### `dev` -- development tools
 
-**Installs:** `httpx`, `watchfiles`, `websockets`
+**Installs:** 3 packages for development workflows: `httpx` as the HTTP client for the Vite dev proxy, `watchfiles` as a Rust-based file watcher for sub-second hot reload, and `websockets` for proxying Vite HMR WebSocket connections to the frontend dev server.
 
 **Required by:**
 
@@ -70,9 +72,9 @@ pip install fastware[dev]
 
 ### `testing` -- test client
 
-**Installs:** `httpx`
+**Installs:** `httpx`, an async-capable HTTP client that provides `ASGITransport` for sending requests directly to an ASGI application in-process, bypassing the network stack entirely for zero-overhead test execution.
 
-**Required by:** `fastware.testing` -- the `AsyncTestClient` and `TestClient` classes that wrap httpx with `ASGITransport` for testing without a real server.
+**Required by:** `fastware.testing` -- the `AsyncTestClient` and `TestClient` classes that wrap httpx with `ASGITransport` for testing route handlers, middleware, and lifespan without starting a real network server.
 
 **What happens without it:** Importing `fastware.testing` raises `ImportError` immediately (httpx is imported at module level in the testing module).
 
@@ -92,9 +94,9 @@ with TestClient(app) as client:
 
 ### `mcp` -- MCP server support
 
-**Installs:** `mcp`
+**Installs:** `mcp`, the Model Context Protocol SDK for building agent-compatible tool servers with stdio transport. This package provides the server framework, tool registration, and protocol handling needed by fastware's MCP integration.
 
-**Required by:** `fastware.mcp` -- the `create_mcp_server` function for role-based agent tool provisioning.
+**Required by:** `fastware.mcp` -- the `create_mcp_server` function for role-based agent tool provisioning. The module exports `ROLES` (a dict of role name to tool permissions) and `DEFAULT_ROLE` (the fallback role, `"auditor"`) for customization.
 
 **What happens without it:** Importing `fastware.mcp` raises `ImportError`.
 
@@ -104,7 +106,7 @@ pip install fastware[mcp]
 
 ### `pydantic` -- Pydantic model support
 
-**Installs:** `pydantic`
+**Installs:** `pydantic`, a data validation and serialization library that uses Python type annotations to define schemas. Pydantic v2 uses a Rust-based core for validation performance, and integrates with fastware via `request.json_as()` and the `response_model` route parameter.
 
 **Required by:**
 
@@ -118,7 +120,7 @@ pip install fastware[pydantic]
 
 ### `all` -- everything
 
-**Installs:** All of the above extras.
+**Installs:** All 6 extras groups above, pulling in every optional dependency (8 packages total) for full-featured development and testing. This is the simplest way to get started when you want access to all fastware features without picking individual extras.
 
 ```bash
 pip install fastware[all]

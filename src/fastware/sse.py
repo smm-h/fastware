@@ -1,4 +1,4 @@
-"""SSE (Server-Sent Events) broadcaster with typed event registration."""
+"""SSE (Server-Sent Events) broadcaster with typed event registration, per-client async queues, automatic disconnect pruning, and strict mode enforcement."""
 
 from __future__ import annotations
 

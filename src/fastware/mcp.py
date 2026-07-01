@@ -1,4 +1,4 @@
-"""MCP server for per-role agent tool provisioning.
+"""MCP (Model Context Protocol) server factory providing per-role agent tool provisioning, tool filtering, and stdio-based server lifecycle management.
 
 Provides role-based tool filtering and server creation for MCP agent
 processes. The ``mcp`` package is an optional dependency -- this module
@@ -30,8 +30,6 @@ except ModuleNotFoundError:
     _MCP_AVAILABLE = False
 
 __all__ = [
-    "ROLES",
-    "DEFAULT_ROLE",
     "create_mcp_server",
     "register_tools_for_role",
 ]

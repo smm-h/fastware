@@ -1,4 +1,4 @@
-"""Test client utilities for fastware apps.
+"""Sync and async test clients for fastware apps, wrapping httpx with ASGITransport to exercise routes without starting a real network server.
 
 Provides sync and async test clients that wrap httpx with ASGITransport,
 so tests can exercise a fastware app without starting a real server.
@@ -18,7 +18,6 @@ from httpx import ASGITransport, AsyncClient
 
 __all__ = [
     "AsyncTestClient",
-    "TestClient",
 ]
 
 

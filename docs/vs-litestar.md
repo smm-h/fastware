@@ -1,6 +1,6 @@
 ---
 title: fastware vs Litestar
-description: Comparison of fastware and Litestar -- both use msgspec, different philosophies
+description: "Comparison of fastware and Litestar: both use msgspec for JSON, but differ in server management, SSE, auth, OpenAPI, and DI depth."
 date: 2026-07-01
 ---
 
@@ -42,7 +42,7 @@ Litestar and fastware share a conviction: msgspec is the right JSON engine for P
 
 Both frameworks use msgspec as their primary serialization engine, which gives them a shared performance advantage over Pydantic-based frameworks. If you are choosing between them and msgspec matters to you, both are solid choices.
 
-However, Litestar also supports Pydantic and attrs as alternative data backends. You can mix and match within a single application. fastware supports Pydantic as an optional extra (`request.json_as()`, `response_model`) but msgspec is the only primary path -- there is no attrs support.
+However, Litestar also supports Pydantic and attrs as alternative data backends -- 3 serialization backends in total. You can mix and match within a single application. fastware supports Pydantic as an optional extra (`request.json_as()`, `response_model`) but msgspec is the only primary path -- there is no attrs support.
 
 ## What Litestar does better
 

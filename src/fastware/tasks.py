@@ -1,4 +1,4 @@
-"""Background task registry with feature-gated lifecycle.
+"""Background task registry with feature-gated lifecycle management, supporting start/stop protocol, factory registration, and graceful shutdown ordering.
 
 Tasks implement the ``BackgroundTask`` protocol (``start()`` and ``stop()``
 methods). Apps register zero-arg factories via ``TaskRegistry.register()``.

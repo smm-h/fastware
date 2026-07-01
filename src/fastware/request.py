@@ -1,4 +1,4 @@
-"""HTTP request wrapper with lazy body parsing, query parameters, and state."""
+"""HTTP request wrapper providing lazy body parsing, query parameter extraction, JSON deserialization via msgspec, header access, and per-request state."""
 
 from __future__ import annotations
 

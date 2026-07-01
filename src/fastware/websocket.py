@@ -1,4 +1,4 @@
-"""WebSocket helper class wrapping the raw ASGI triple."""
+"""WebSocket helper class wrapping the raw ASGI scope/receive/send triple with typed accept, send, receive, and close methods for ergonomic usage."""
 
 from __future__ import annotations
 

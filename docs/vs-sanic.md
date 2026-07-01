@@ -1,6 +1,6 @@
 ---
 title: fastware vs Sanic
-description: Comparison of fastware and Sanic -- both bundle their own servers, different server choices
+description: "Comparison of fastware and Sanic: both bundle their own server, but differ in JSON engine (msgspec vs stdlib), auth, SSE, and worker management."
 date: 2026-07-01
 ---
 
@@ -41,7 +41,7 @@ The practical difference: Sanic's server is Python-native and deeply integrated.
 
 ## Performance
 
-Both frameworks prioritize performance, but in different layers:
+Both frameworks prioritize performance, but optimize in different layers of the stack. The 3 key performance dimensions are JSON serialization, HTTP parsing, and event loop implementation:
 
 - **JSON serialization**: fastware uses msgspec, which is significantly faster than stdlib json. Sanic uses stdlib json by default. This gives fastware an advantage on JSON-heavy endpoints. Sanic can be configured to use alternative JSON libraries, but it requires manual setup.
 - **HTTP parsing**: Granian parses HTTP in Rust. Sanic uses httptools (a Python binding to the Node.js HTTP parser, also written in C). Both are fast at the protocol level.

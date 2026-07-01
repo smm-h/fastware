@@ -1,6 +1,6 @@
 ---
 title: Core API Reference
-description: Reference for fastware's core routing, request handling, response types, and application factory
+description: "Core API reference for fastware: ASGI type aliases, 5 response types, request parsing, path-based routing, WebSocket helpers, and the app factory."
 date: 2026-07-01
 ---
 
@@ -10,7 +10,7 @@ This page documents fastware's core modules: the foundational types, response cl
 
 ## ASGI Types
 
-Low-level ASGI type aliases used throughout fastware. These are re-exported from the top-level package for convenience.
+Low-level ASGI type aliases (`Scope`, `Receive`, `Send`, `ASGIApp`, `Middleware`) used throughout fastware. These 5 type aliases are re-exported from the top-level package for convenience and provide consistent type-checking across the entire middleware and routing stack.
 
 :-: ref path="src.fastware.types"
 
@@ -28,13 +28,13 @@ The `Request` wrapper provides lazy body parsing, query parameter extraction wit
 
 ## Routing
 
-Path-based HTTP router with `{param}` placeholder syntax, typed parameters (`{id:int}`), greedy path segments (`{path:path}`), and sub-router composition via `include_router`. Supports all standard HTTP methods and WebSocket routes.
+Path-based HTTP router with `{param}` placeholder syntax, typed parameters (`{id:int}`), greedy path segments (`{path:path}`), and sub-router composition via `include_router`. Supports all 7 standard HTTP methods (GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD) and WebSocket routes.
 
 :-: ref path="src.fastware.routing"
 
 ## WebSocket
 
-WebSocket helper class wrapping the raw ASGI triple into a convenient interface with `accept`, `close`, `send_json`, `receive_json`, and similar methods. Handlers registered via `router.ws()` receive a `WebSocket` instance.
+WebSocket helper class wrapping the raw ASGI scope/receive/send triple into a convenient interface with `accept`, `close`, `send_json`, `receive_json`, `send_text`, `receive_text`, and similar methods. Handlers registered via `router.ws()` receive a `WebSocket` instance instead of a raw `Request`.
 
 :-: ref path="src.fastware.websocket"
 

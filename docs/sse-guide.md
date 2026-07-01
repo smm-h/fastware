@@ -1,6 +1,6 @@
 ---
 title: SSE Broadcasting
-description: How to use fastware's built-in SSE broadcaster for real-time server-to-client communication
+description: "Guide to fastware SSE broadcasting: typed events, per-client async queues, heartbeat keep-alive, strict mode, and automatic disconnect pruning."
 date: 2026-07-01
 ---
 
@@ -108,6 +108,8 @@ If `heartbeat_interval` is `None` (the default), no heartbeats are sent and the 
 
 ## Strict mode vs permissive mode
 
+The Broadcaster supports 2 event validation modes that control whether event type names must be pre-registered before broadcasting. Strict mode (the default) catches typos at development time; permissive mode allows dynamic event vocabularies:
+
 **Strict mode** (default, `strict=True`):
 
 ```python
@@ -130,7 +132,7 @@ Permissive mode skips event type validation. Use this when event types are dynam
 
 ## Buffer size
 
-Each client gets a queue with a maximum size (default 256 messages):
+Each client gets an async queue with a configurable maximum size. The default buffer holds 256 messages per client. Slow consumers whose queues fill up are automatically pruned on the next `broadcast()` call to prevent unbounded memory growth:
 
 ```python
 broadcaster = Broadcaster(buffer_size=512)
@@ -175,5 +177,7 @@ if __name__ == "__main__":
 ```
 
 ## API reference
+
+See the full `Broadcaster` class reference below, which documents the `register_event` method for declaring event types, the `broadcast` method for pushing events to all connected clients, the `stream` method for creating per-client SSE response generators, and the `sse_route` helper function for wiring a Broadcaster to a route:
 
 :-: ref path="src.fastware.sse"

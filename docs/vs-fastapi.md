@@ -1,6 +1,6 @@
 ---
 title: fastware vs FastAPI
-description: Detailed comparison of fastware and FastAPI covering performance, features, architecture, and developer experience
+description: "Detailed comparison of fastware and FastAPI: msgspec vs Pydantic performance, managed Granian vs BYO Uvicorn, and built-in vs third-party features."
 date: 2026-07-01
 ---
 
@@ -47,7 +47,7 @@ FastAPI is server-agnostic and typically runs on Uvicorn. This means you configu
 
 ## Batteries
 
-Things fastware includes that FastAPI does not:
+There are 8 major features that fastware includes out of the box that FastAPI requires third-party packages or manual implementation for:
 
 - **SSE Broadcaster**: Typed server-sent events with per-client async queues, automatic disconnection pruning, and optional heartbeat. FastAPI requires the third-party `sse-starlette` package.
 - **Server lifecycle**: `serve()`, `stop()`, `status()`, `serve_background()` with PID files, port checks, and process group management. FastAPI has no server management -- you use Uvicorn or Gunicorn externally.
@@ -60,7 +60,7 @@ Things fastware includes that FastAPI does not:
 
 ## What FastAPI does better
 
-Being honest about where FastAPI has clear advantages:
+Being honest about the 7 areas where FastAPI has clear advantages over fastware today:
 
 - **Automatic OpenAPI**: FastAPI generates OpenAPI schemas, Swagger UI, and ReDoc from your route signatures and Pydantic models. This is a major productivity feature for API documentation and client generation. fastware has no OpenAPI support yet.
 - **Type-driven route signatures**: FastAPI's signature injection means the framework reads your function parameters, validates the request against them, and passes typed values. This eliminates manual parsing. fastware requires explicit `request.json`, `request.query()`, and `request.path_params` access.

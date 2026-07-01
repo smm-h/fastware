@@ -1,6 +1,6 @@
 ---
 title: Auth API Reference
-description: JWT tokens, password hashing, user stores, CSRF protection, rate limiting, and session management
+description: "API reference for fastware auth: JWT token creation and verification, bcrypt password hashing, user stores, CSRF middleware, and rate limiting."
 date: 2026-07-01
 ---
 
@@ -23,7 +23,7 @@ The auth module provides JWT token operations, password hashing, user storage, C
 
 ## Practical Example: JWT Auth on a Route
 
-Setting up JWT authentication on a protected route using the dependency injection system:
+Setting up JWT authentication on a protected route using the dependency injection system. This example shows how to hash and verify passwords with bcrypt, issue JWT tokens at login, read them back with `get_current_user`, and enforce role-based access control on specific endpoints:
 
 ```python
 from fastware import Router, create_app

@@ -1,4 +1,4 @@
-"""Structured logging configuration using structlog.
+"""Structured logging configuration using structlog with automatic JSON output in production and colored console rendering in development mode.
 
 Provides JSON-formatted log output in production (non-tty) and colored console
 output in development (tty).  Call ``configure_logging()`` once at startup.

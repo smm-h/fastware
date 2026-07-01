@@ -1,4 +1,4 @@
-"""Granian ASGI server lifecycle -- PID file management, port checks, serve/stop/status."""
+"""Granian ASGI server lifecycle management with PID file tracking, port availability checks, foreground and background serve modes, and graceful stop."""
 
 from __future__ import annotations
 

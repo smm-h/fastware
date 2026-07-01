@@ -1,6 +1,6 @@
-"""Request tracing, CORS, trusted-host, and Vite dev proxy middleware.
+"""Pure ASGI middleware for request tracing, CORS headers, trusted-host validation, and Vite dev proxy routing, all streaming-safe for SSE and WebSocket.
 
-All middleware classes are pure ASGI — no framework dependency beyond
+All middleware classes are pure ASGI -- no framework dependency beyond
 fastware's own ``send_error`` helper.  This keeps them streaming-safe
 (SSE, WebSocket) and avoids the response-buffering issues of
 BaseHTTPMiddleware-style wrappers.

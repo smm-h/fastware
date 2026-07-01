@@ -1,12 +1,12 @@
 ---
 title: Testing API Reference
-description: Async and sync test clients for testing fastware applications without a running server
+description: "API reference for fastware testing: async and sync test clients wrapping httpx with ASGITransport for in-process route testing without a server."
 date: 2026-07-01
 ---
 
 # Testing API Reference
 
-The testing module provides sync and async test clients that wrap `httpx` with `ASGITransport`, so tests can exercise a fastware app without starting a real server. Both clients run requests against the ASGI application directly in-process.
+The testing module provides 2 test clients (sync and async) that wrap `httpx` with `ASGITransport`, so tests can exercise a fastware app without starting a real server. Both clients run requests against the ASGI application directly in-process.
 
 `httpx` is a dev/test dependency -- this module should only be imported in test contexts.
 
@@ -14,7 +14,7 @@ The testing module provides sync and async test clients that wrap `httpx` with `
 
 ## AsyncTestClient (async)
 
-Use `AsyncTestClient` in `pytest` async tests. It wraps an `httpx.AsyncClient` with `ASGITransport`:
+Use `AsyncTestClient` in `pytest` async tests for full async/await support. It wraps an `httpx.AsyncClient` with `ASGITransport`, running requests directly against the ASGI application in-process without any network overhead or server startup delay:
 
 ```python
 import pytest
@@ -41,7 +41,7 @@ The `async with` block creates and closes the underlying `httpx.AsyncClient`. In
 
 ## TestClient (sync)
 
-Use `TestClient` for synchronous test code. It runs an event loop in a background thread, so you can call `.get()`, `.post()`, etc. without `await`:
+Use `TestClient` for synchronous test code when you prefer not to use `async`/`await` in your test functions. It runs an event loop in a background thread, so you can call `.get()`, `.post()`, etc. without `await`, while still exercising the full ASGI application stack including middleware and lifespan:
 
 ```python
 from fastware import Router, create_app
@@ -66,11 +66,13 @@ def test_health_sync():
 
 ## Example From the Test Suite
 
+This example from the fastware test suite demonstrates the `AsyncTestClient` in action, testing route matching with path parameter extraction and type coercion, HTTP method dispatch across GET and POST handlers, correct 404 responses for unmatched paths, and proper error handling -- all exercised against a real ASGI application without starting a network server:
+
 :-: code-test path="tests/test_asgi.py" target="TestRouterMatching"
 
 ## pytest Integration
 
-A typical `conftest.py` for a fastware project:
+A typical `conftest.py` for a fastware project sets up reusable `app` and `client` fixtures that other test modules can inject, reducing boilerplate and ensuring consistent application configuration across all test files:
 
 ```python
 import pytest
