@@ -161,12 +161,12 @@
     "source_docstring": "7ca011e966e8046e6430cf4bc527d73698d0e9a6fd81d61f2d7a656b2c1e45ad"
   },
   "en/vite-guide.md": {
-    "content": "c1a545c661d6e065606f554ffce48d860c314c446161676496d57052eedef5f4",
+    "content": "ab2c098fb1c8d079f455c390a2944e9b3cb14de78743fc0ecfd474c20c91652b",
     "description": "5fc06cd9bf6d06904884cc47891c05eee7329ca00dadc6dca672a1d9e9ab4804",
     "source_docstring": "ac4f0d4baf4543795a2b2aa4bcd3f7f1d15a3bc22181d39b7784072665f426a6"
   },
   "en/vs-fastapi.md": {
-    "content": "a97bc12f703da74997fd519549ad720768b8275b559c4694dcf204ee4eff349f",
+    "content": "90269a86a0ec1f9077f1415cac253186cc8524d9fb7c659f16723dbc041821d7",
     "description": "58f4e18c9ed1e901c2c2340226f43f61e05bfe44fdbbd8143dac44b39d7e9217"
   },
   "en/vs-litestar.md": {
@@ -174,7 +174,7 @@
     "description": "1e017927516d3eec893b9e20f028fe625283fe7bfed2b6dcd2b5498f67f84132"
   },
   "en/vs-sanic.md": {
-    "content": "09384be56f785d3c207b142635c76c17f024b9225f4228fe0cf063b665961d75",
+    "content": "4e0444ebb1f72ef2336fc4184c2ab8b705dbbb095540130c49dff76bcec9b554",
     "description": "d5a864d7a157305e7bca36a8df3414c5f2c5880800bffe0c68f28f9c425461e2"
   },
   "en/vs-starlette.md": {
