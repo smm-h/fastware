@@ -66,7 +66,7 @@ def test_health_sync():
 
 ## Example From the Test Suite
 
-:-: code-test path="tests/test_asgi.py" target="TestRouterMatching.test_parameterized_path"
+:-: code-test path="tests/test_asgi.py" target="TestRouterMatching"
 
 ## pytest Integration
 
