@@ -1,27 +1,33 @@
 {
   "en/api-auth.md": {
-    "content": "e1b070c3a04733ec46d1a268632bb80e407d5f71c4867ef01a7a5110f93955e4",
-    "description": "ea1c082c1daa1c5c5cf2b957e4ad77fadbbef9b75c911e040687f1f82e5789d5"
+    "content": "65ae2f7dcd9b1e272589281efa7c95853eceadcf4b948e8867403499fcbcc3a0",
+    "description": "9b0bd0d8058f289a757cbb6efa67c01f7e8eeaa990a01c04e976b621578ddeb7",
+    "source_docstring": "ab92eb3317da12193770170362ea1043d91578085ed2f8f28f93fb16f2240eea"
   },
   "en/api-middleware.md": {
     "content": "5f69732599040a254f60898f318e8379eb1e18d2d6603b63dba9b74bf5df7e4c",
-    "description": "c2a39c09338c2027b284460299d6aa64682b8a3cd8fb9c6d1cff49f28b0ee1e3"
+    "description": "c2a39c09338c2027b284460299d6aa64682b8a3cd8fb9c6d1cff49f28b0ee1e3",
+    "source_docstring": "dfb82b70b3f3e099e4a8dde280c0060c041d3f0e79c537b8176dbbcbf7eb5bcf"
   },
   "en/api-server.md": {
     "content": "417c836e3fd809eb7f241ed374d71b8da77fc696a7f73c792330f210888bec98",
-    "description": "27c72249de6e4a216ff66246063f55b49356d4d2c66db9a4a64f5d40edaf293c"
+    "description": "27c72249de6e4a216ff66246063f55b49356d4d2c66db9a4a64f5d40edaf293c",
+    "source_docstring": "f1cd21bac484a74ac65042890e78f4be947bd91b3563b52d4cb528a0ae99016f"
   },
   "en/api-testing.md": {
     "content": "3fb6efd38a455b9d7b87800c7f4cfee3033c5eb01b04310bc614f1f5d3dc9145",
-    "description": "33dcbf6d81476eb2ba6783186568112c53e4f133103752d27d6101b06d4a3093"
+    "description": "33dcbf6d81476eb2ba6783186568112c53e4f133103752d27d6101b06d4a3093",
+    "source_docstring": "03c7bc8054feb641b622a25e351f4855bc83c32d3ec285da08a7043886f8885f"
   },
   "en/api.md": {
     "content": "b1510c690c447c4bd641879df7b5e3782081750c2a1914a2b15f7b834cfecc5e",
-    "description": "91db660161f43dfca258276b965b861f7866456c2983b4bb8910ac07b25fafd3"
+    "description": "91db660161f43dfca258276b965b861f7866456c2983b4bb8910ac07b25fafd3",
+    "source_docstring": "90906d7564e24da7132b7f136f1fcc3d660b55f1fcd627e7ec469d1c8e443485"
   },
   "en/di-guide.md": {
     "content": "8fc282db8b37f42ec7da200eb926ea52a7aac70de8c05e7e1941d7192846bb94",
-    "description": "b7ba88532e0fd08a921b074d60f47eb05af64f36f5b516907466200ec974a487"
+    "description": "b7ba88532e0fd08a921b074d60f47eb05af64f36f5b516907466200ec974a487",
+    "source_docstring": "605ca4f4fa82c72f09a01771c357cad7fa412f5abaa9074cd238a32ca6adda89"
   },
   "en/extras.md": {
     "content": "4f363e6f1bbf1051add7766cea5893b19c2632caf936e563b415ac0a1c8a08c8",
@@ -37,7 +43,8 @@
   },
   "en/migration-fastapi.md": {
     "content": "321814a4954ea81588830401d46369e264a8d1b789fb6f53389f0eb1efe51151",
-    "description": "0d336d60588a5f748dd5ddb7cd031c11edf854430fbe2adc667118d569585bbc"
+    "description": "0d336d60588a5f748dd5ddb7cd031c11edf854430fbe2adc667118d569585bbc",
+    "source_docstring": "ba92a0deee1a7267e589b5d0b07c8c75d01ce29a0d14744f5778cf23641e9706"
   },
   "en/quickstart.md": {
     "content": "ddcf740f342e9f929522726d8389234bd69be49394a81102fb537c90a940e732",
@@ -45,95 +52,118 @@
   },
   "en/src-fastware-__main__.md": {
     "content": "3827835b67a1e5a8569a7965f1977bd86a525ec31e24da294eb8edf42ae82722",
-    "description": "4af2d6bd95a94bf1e579c1beec36380b52d2b130b7bb3c977a35952dbe4850e7"
+    "description": "4af2d6bd95a94bf1e579c1beec36380b52d2b130b7bb3c977a35952dbe4850e7",
+    "source_docstring": "24fd595bdbfbb6ef5881cf8688978c778c8382f5868165cebcdd95228df38f55"
   },
   "en/src-fastware-app.md": {
     "content": "f1a7a1249e95af3f180cf33e4b335cf1ed2219dca044b0d03d915de765686b29",
-    "description": "1f0c5aa824b0375dca9e670eb7b9a0c46271b355a10938a8241148d5a0bb1e58"
+    "description": "1f0c5aa824b0375dca9e670eb7b9a0c46271b355a10938a8241148d5a0bb1e58",
+    "source_docstring": "074bf08f4076f3a9f0a712b3683b74b8cca04fd4d96ca8bde74a1da4b26bd90a"
   },
   "en/src-fastware-audit.md": {
     "content": "f94a48c7da13afa1dce159cfbbd4a85111c668bd51ba940a63cdc9831895d5fe",
-    "description": "29e374e33a513e2256cb7517f12e99fe33ffe9da5a0817ef575d72317a113dc0"
+    "description": "29e374e33a513e2256cb7517f12e99fe33ffe9da5a0817ef575d72317a113dc0",
+    "source_docstring": "58d1e90d578cc9560c2591cbf6d8e382aaf2ed4f00e4c851febd05044292ee75"
   },
   "en/src-fastware-auth.md": {
     "content": "d4df5892b5a8e71ff35e98b59274fbce030dd5d93ad18b6e92787d3174082023",
-    "description": "98d4d92b47eead030c50425c002e3ba55068f403a9a329ac41e537c4fd26f248"
+    "description": "98d4d92b47eead030c50425c002e3ba55068f403a9a329ac41e537c4fd26f248",
+    "source_docstring": "ab92eb3317da12193770170362ea1043d91578085ed2f8f28f93fb16f2240eea"
   },
   "en/src-fastware-config.md": {
     "content": "fae810a7f037e51a8933f17ecfd1520633ad4f74ab645eb8a372fb14857b8ca1",
-    "description": "fbaaa6b3a5387cd47da9d859e247cb9df9f997872e61b6fe414656a9e4374542"
+    "description": "fbaaa6b3a5387cd47da9d859e247cb9df9f997872e61b6fe414656a9e4374542",
+    "source_docstring": "c3a857e29ed801c8eed9edf0fb97d7d1745c080956185a75e6412d54e7104a87"
   },
   "en/src-fastware-dev.md": {
     "content": "0b7ff82a22e1af51ddee2c2dd64587f71c6125389079dae2e44b19c54b7f599d",
-    "description": "66c0fd11fdc38fa4fccfcbd40968929650b5aaaed8335485a5f47e99194633b9"
+    "description": "66c0fd11fdc38fa4fccfcbd40968929650b5aaaed8335485a5f47e99194633b9",
+    "source_docstring": "2b06e00714049495f1f02ee5dc60c5b0e7ff9b122c6a67be625b6f87131ef11d"
   },
   "en/src-fastware-di.md": {
     "content": "f781562e3d135c1d2bbcb02dd0f541083793df7debefe451f3c5b948667af87b",
-    "description": "a1f397682124fd3303ff7a31bd723177969d61572cd31fb5f8f13a26b9c5f122"
+    "description": "a1f397682124fd3303ff7a31bd723177969d61572cd31fb5f8f13a26b9c5f122",
+    "source_docstring": "605ca4f4fa82c72f09a01771c357cad7fa412f5abaa9074cd238a32ca6adda89"
   },
   "en/src-fastware-error_log.md": {
     "content": "a8beaacde0756a3e1a125e081dde659d89fdbcc4b5449123ba8d8bccd85da097",
-    "description": "05f731b9e690acb1ff5f560f738703b2cb6d5c217e33e480378ce51a3c3a026b"
+    "description": "05f731b9e690acb1ff5f560f738703b2cb6d5c217e33e480378ce51a3c3a026b",
+    "source_docstring": "74295b6b1f06d509338f9a5d1088cbe460e3abfdeb21fa49ba927561ab4a4846"
   },
   "en/src-fastware-features.md": {
     "content": "5a1edc8bd882a84a4c5ce27b4e3b80bb9b26d3ee90c3d87d70927bb28b4de24c",
-    "description": "2cb8ab6bf4024bdca7791554a4c3f1904529a03374669fc4f4298ef79d8eefda"
+    "description": "2cb8ab6bf4024bdca7791554a4c3f1904529a03374669fc4f4298ef79d8eefda",
+    "source_docstring": "16fc4e959c47f193092e0b42c394faa879e79e3a479e5730e7e17c64c7cfc470"
   },
   "en/src-fastware-logging.md": {
     "content": "9d925ee339a533ae3db83727cfdf4616cb4954f8bd53113c3a27eedadf277a2f",
-    "description": "c38d17e63b56a08639bd69955bbe6e957a0fad3fe338a99a455478a36c83e5b8"
+    "description": "c38d17e63b56a08639bd69955bbe6e957a0fad3fe338a99a455478a36c83e5b8",
+    "source_docstring": "138f195068db3f32ecee6aa7874f6cf59fc38d940b5ccbc8762f574d9a961fda"
   },
   "en/src-fastware-mcp.md": {
     "content": "f593f031564ecf1041149eb8366cdb1a7dd711469e3c909948efa61d6ff3f340",
-    "description": "c4a4258b7961485ce00f7971adc61f81a95100a6329e07ecc5dd28cbe857cb52"
+    "description": "c4a4258b7961485ce00f7971adc61f81a95100a6329e07ecc5dd28cbe857cb52",
+    "source_docstring": "9899273654dd798d4a5584d2d8c4bfb4195cc05cba5aae786a7f9164215bbaea"
   },
   "en/src-fastware-middleware.md": {
     "content": "d5da8d6ed880a397d1fa92d44f6b63e73fdad5773af4a3dc9b6436efa42f13a4",
-    "description": "89224af09ee12f55d9c1c2391d10a00ed861dbfc2f0fd37b6af0507e5eba5377"
+    "description": "89224af09ee12f55d9c1c2391d10a00ed861dbfc2f0fd37b6af0507e5eba5377",
+    "source_docstring": "dfb82b70b3f3e099e4a8dde280c0060c041d3f0e79c537b8176dbbcbf7eb5bcf"
   },
   "en/src-fastware-request.md": {
     "content": "e7a06497e767620cacda3f506da46e691e1cb8ce6540b6af1539b7ea8269c659",
-    "description": "daaa23bcfb71c7edf7bc9d8f717b110a58a9258dfc7bc14ed2fca31005793664"
+    "description": "daaa23bcfb71c7edf7bc9d8f717b110a58a9258dfc7bc14ed2fca31005793664",
+    "source_docstring": "b7219c1d88a23d46539cf2d18c2abcf0d0775821eb78ace98bac7f21aba4b48a"
   },
   "en/src-fastware-responses.md": {
     "content": "d8a121b8cbd03898af81ce3753da5f75b1ba57c2316a0cf8f5e577042e1e6929",
-    "description": "ef808ae712b1f4f8f30f7d42144cd5803027ab147d1085d0ecfc1cbafd78d15d"
+    "description": "ef808ae712b1f4f8f30f7d42144cd5803027ab147d1085d0ecfc1cbafd78d15d",
+    "source_docstring": "a272c3d38123840bf2a9a9f5afab3e7a09a42034adb74bc28446f7034b6ec9ee"
   },
   "en/src-fastware-routing.md": {
     "content": "1aa8816b0d9cb8cca82c6ae7d2598582a369d40d39f5717fb2deba2b98d807ce",
-    "description": "2bca953e3c590f8017bc5c61ba000b9316f075d16ca05faff9ab2bf036fcc3c8"
+    "description": "2bca953e3c590f8017bc5c61ba000b9316f075d16ca05faff9ab2bf036fcc3c8",
+    "source_docstring": "97b344afebf23e64356f2444a6d46776317824796e5e719fc7c3ae6a7cc1afd5"
   },
   "en/src-fastware-server.md": {
     "content": "ec35f2443971c652be6791b814f9d2d4458ce9c4d1252bd0b32dd0df01e47dec",
-    "description": "0d747f6e0ecc155b23785b8ecad8c56f1a21c3bca47333513ed7b511a9564e6d"
+    "description": "0d747f6e0ecc155b23785b8ecad8c56f1a21c3bca47333513ed7b511a9564e6d",
+    "source_docstring": "0d747f6e0ecc155b23785b8ecad8c56f1a21c3bca47333513ed7b511a9564e6d"
   },
   "en/src-fastware-sse.md": {
     "content": "f5c44b9d593a2875f900192b45cb7b7113733c254ab0ac4fd3a27d0d2ac1892a",
-    "description": "50451041a10aab4d2ded48a39f21e99f87c3532994c798c6b47f6e707bd16c67"
+    "description": "50451041a10aab4d2ded48a39f21e99f87c3532994c798c6b47f6e707bd16c67",
+    "source_docstring": "7ca011e966e8046e6430cf4bc527d73698d0e9a6fd81d61f2d7a656b2c1e45ad"
   },
   "en/src-fastware-tasks.md": {
     "content": "965dec483b0c65e89344ed6add276b758dab0cd986321f85e1c34d0dff724ad0",
-    "description": "ce77759ce5d8a0f504f61004e2c001433d4edab8e67374bf68b6f405dc92ff0c"
+    "description": "ce77759ce5d8a0f504f61004e2c001433d4edab8e67374bf68b6f405dc92ff0c",
+    "source_docstring": "ac76150c4a9aafc6477e8eb6087b616847cb5cf46addfd0feea666d43eb7d4c0"
   },
   "en/src-fastware-testing.md": {
     "content": "1013180491c5011daa8507c904b82311653215598f36a10a63b7a044c924be73",
-    "description": "04f2662b892425903058318b4badce4195f91191a4a0d4913923c9389ed00789"
+    "description": "04f2662b892425903058318b4badce4195f91191a4a0d4913923c9389ed00789",
+    "source_docstring": "1b4b3720ccf341a12a94eaf0edb6160b7bd2dbf8b32f796388e9f824f9751c34"
   },
   "en/src-fastware-types.md": {
     "content": "8ba0a2f5551e38c1f401af0c3e546129f049d889ff525c75d1321e9ce0f9e748",
-    "description": "67c9ef8d10a6ac79fca1e96c37bd06076a2b563fd0555c482f750c0589d83779"
+    "description": "67c9ef8d10a6ac79fca1e96c37bd06076a2b563fd0555c482f750c0589d83779",
+    "source_docstring": "7c4c2689852e7e58e6e2f117db34b8cd78769c9c75bec5a8caf8ca7c9e1ccd4c"
   },
   "en/src-fastware-websocket.md": {
     "content": "bc7dcb2243833f7acaf9b9f617b94964e27e97cc316229b5ada30f80069de4d9",
-    "description": "8ed811cabe5fe1329dc922fc6c9a239bc24d3857a004579fa38bd13903ce9690"
+    "description": "8ed811cabe5fe1329dc922fc6c9a239bc24d3857a004579fa38bd13903ce9690",
+    "source_docstring": "2d7d94929aada92bf8c5b9e5382be8f5c8849278b5c076e3fbf062cf37f5145e"
   },
   "en/sse-guide.md": {
     "content": "684000c8c7b1b6ea7687f252c51a49ec7f9c4dfe0471a275a8019023ad9574ea",
-    "description": "130613236bec449d094d9b0c294e7e3f2b770986f1be1a633753188470220fc2"
+    "description": "130613236bec449d094d9b0c294e7e3f2b770986f1be1a633753188470220fc2",
+    "source_docstring": "7ca011e966e8046e6430cf4bc527d73698d0e9a6fd81d61f2d7a656b2c1e45ad"
   },
   "en/vite-guide.md": {
     "content": "9d542b4003813c73e28126b6690fa5e5fb763177880499c8c8916050e3748606",
-    "description": "47ff5dc215b4ed9d4c9832c308d36e3070e07668e060295cd052def53a7f2a73"
+    "description": "47ff5dc215b4ed9d4c9832c308d36e3070e07668e060295cd052def53a7f2a73",
+    "source_docstring": "ac4f0d4baf4543795a2b2aa4bcd3f7f1d15a3bc22181d39b7784072665f426a6"
   },
   "en/vs-fastapi.md": {
     "content": "64d9dc3b931ba51207da7059eb55343848583247cd72b60f20a08ca5e02b15be",
