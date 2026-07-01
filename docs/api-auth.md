@@ -7,6 +7,7 @@ date: 2026-07-01
 # Auth API Reference
 
 :<: callout-warning
+:=:
 ::: The auth module requires the `fastware[auth]` extra, which installs `PyJWT` and `bcrypt`. Install with:
 :::
 ::: ```bash
