@@ -183,7 +183,7 @@ def test_list_users():
 
 ## Error handling during resolution
 
-If a factory raises an exception during resolution, all generator cleanups that have already yielded are run before the exception propagates. This ensures resources are not leaked even when resolution fails partway through.
+If a factory raises an exception during resolution, all generator cleanups that have already yielded are run before the exception propagates. For example, if 5 generators have yielded and the 6th factory raises, all 5 are cleaned up in reverse order. This ensures resources are not leaked even when resolution fails partway through.
 
 ## Complete example
 

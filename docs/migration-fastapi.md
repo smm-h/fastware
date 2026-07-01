@@ -16,7 +16,7 @@ This guide walks through converting a FastAPI application to fastware, covering 
 
 ## Import mapping
 
-The table below maps 9 common FastAPI imports to their fastware equivalents:
+The table below maps 9 common FastAPI imports to their fastware equivalents. Most imports become shorter because fastware re-exports response types and the test client from the top-level package, eliminating the need for nested submodule imports:
 
 | FastAPI | fastware |
 |---|---|

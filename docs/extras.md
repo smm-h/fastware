@@ -72,7 +72,7 @@ pip install fastware[dev]
 
 ### `testing` -- test client
 
-**Installs:** `httpx`, an async-capable HTTP client that provides `ASGITransport` for sending requests directly to an ASGI application in-process, bypassing the network stack entirely for zero-overhead test execution.
+**Installs:** `httpx`, an async-capable HTTP client that provides `ASGITransport` for sending requests directly to an ASGI application in-process, bypassing the network stack entirely for zero-overhead test execution. Both the `AsyncTestClient` (for async/await tests) and `TestClient` (for synchronous tests) depend on this single package.
 
 **Required by:** `fastware.testing` -- the `AsyncTestClient` and `TestClient` classes that wrap httpx with `ASGITransport` for testing route handlers, middleware, and lifespan without starting a real network server.
 
