@@ -1,6 +1,6 @@
 ---
 title: src.fastware.testing
-description: "Test client utilities for fastware apps."
+description: "Sync and async test clients for fastware apps, wrapping httpx with ASGITransport to exercise routes without starting a real network server."
 generated: true
 nav_group: "API Reference"
 nav_order: 19

@@ -1,6 +1,6 @@
 ---
 title: src.fastware.request
-description: "HTTP request wrapper with lazy body parsing, query parameters, and state."
+description: "HTTP request wrapper providing lazy body parsing, query parameter extraction, JSON deserialization via msgspec, header access, and per-request state."
 generated: true
 nav_group: "API Reference"
 nav_order: 13

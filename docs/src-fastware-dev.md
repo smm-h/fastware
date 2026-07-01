@@ -1,6 +1,6 @@
 ---
 title: src.fastware.dev
-description: "Development mode: Vite + fastware server in a single command."
+description: "Development mode combining Vite frontend dev server and fastware ASGI backend in a single command with hot reload and proxy routing."
 generated: true
 nav_group: "API Reference"
 nav_order: 6

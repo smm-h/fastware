@@ -1,6 +1,6 @@
 ---
 title: src.fastware.error_log
-description: "SQLite-backed error log for 5xx responses."
+description: "SQLite-backed error log for recording and querying 5xx server responses with request context, tracebacks, and timestamps for post-mortem analysis."
 generated: true
 nav_group: "API Reference"
 nav_order: 8

@@ -1,6 +1,6 @@
 ---
 title: src.fastware.responses
-description: "HTTP response types, cookie helpers, and low-level ASGI send functions."
+description: "HTTP response types including JSON, text, HTML, bytes, and streaming responses, plus cookie helpers and low-level ASGI send functions."
 generated: true
 nav_group: "API Reference"
 nav_order: 14

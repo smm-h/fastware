@@ -1,6 +1,6 @@
 ---
 title: src.fastware.types
-description: "ASGI type aliases used throughout fastware."
+description: "ASGI type aliases (Scope, Receive, Send, ASGIApp, Middleware) used throughout fastware for consistent type-checked request and response handling."
 generated: true
 nav_group: "API Reference"
 nav_order: 20

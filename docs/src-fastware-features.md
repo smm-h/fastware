@@ -1,6 +1,6 @@
 ---
 title: src.fastware.features
-description: "Boolean feature flags with optional per-machine overrides via JSON file."
+description: "Boolean feature flags with per-machine JSON overrides, providing enabled/disabled checks, runtime toggle, and hot reload for gradual rollouts."
 generated: true
 nav_group: "API Reference"
 nav_order: 9

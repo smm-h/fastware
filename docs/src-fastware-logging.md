@@ -1,6 +1,6 @@
 ---
 title: src.fastware.logging
-description: "Structured logging configuration using structlog."
+description: "Structured logging configuration using structlog with automatic JSON output in production and colored console rendering in development mode."
 generated: true
 nav_group: "API Reference"
 nav_order: 10

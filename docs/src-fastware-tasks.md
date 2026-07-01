@@ -1,6 +1,6 @@
 ---
 title: src.fastware.tasks
-description: "Background task registry with feature-gated lifecycle."
+description: "Background task registry with feature-gated lifecycle management, supporting start/stop protocol, factory registration, and graceful shutdown ordering."
 generated: true
 nav_group: "API Reference"
 nav_order: 18

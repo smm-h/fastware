@@ -1,6 +1,6 @@
 ---
 title: src.fastware.mcp
-description: "MCP server for per-role agent tool provisioning."
+description: "MCP (Model Context Protocol) server factory providing per-role agent tool provisioning, tool filtering, and stdio-based server lifecycle management."
 generated: true
 nav_group: "API Reference"
 nav_order: 11

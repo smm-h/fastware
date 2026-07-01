@@ -1,6 +1,6 @@
 ---
 title: src.fastware.routing
-description: "Path-based HTTP router with {param} placeholders and type coercion."
+description: "Path-based HTTP router with curly-brace parameter placeholders, automatic type coercion, method-based dispatch, and route group composition."
 generated: true
 nav_group: "API Reference"
 nav_order: 15

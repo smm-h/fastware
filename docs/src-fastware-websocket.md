@@ -1,6 +1,6 @@
 ---
 title: src.fastware.websocket
-description: "WebSocket helper class wrapping the raw ASGI triple."
+description: "WebSocket helper class wrapping the raw ASGI scope/receive/send triple with typed accept, send, receive, and close methods for ergonomic usage."
 generated: true
 nav_group: "API Reference"
 nav_order: 21

@@ -1,6 +1,6 @@
 ---
 title: src.fastware.config
-description: "Config loading utility for fastware apps."
+description: "Config loading utility providing standalone TOML config file parsing with optional Pydantic validation and environment variable overrides."
 generated: true
 nav_group: "API Reference"
 nav_order: 5
