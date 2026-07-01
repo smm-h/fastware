@@ -44,6 +44,10 @@
       "strictcli": "https://docs.smmh.dev/strictcli"
     }
   },
+  "deploy": {
+    "provider": "cloudflare-pages",
+    "project": "fastware"
+  },
   "assembly": {
     "repo": "smm-h/selfdoc-cache"
   }
