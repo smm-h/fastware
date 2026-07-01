@@ -1,0 +1,50 @@
+{
+  "version": "0.1.0",
+  "description": "A fast, batteries-included ASGI framework. The FastAPI alternative.",
+  "source": [
+    {
+      "path": "src/fastware/",
+      "language": "python"
+    }
+  ],
+  "docs": "docs/",
+  "output": "docs/_build/",
+  "base_url": "https://fastware.smmh.dev",
+  "root_files": {
+    "README.md": "docs/_README.md",
+    "CLAUDE.md": "docs/_CLAUDE.md"
+  },
+  "versions": [
+    {
+      "version": "0.1.0",
+      "indexed": true
+    }
+  ],
+  "locales": [
+    {
+      "code": "en",
+      "label": "English",
+      "default": true
+    }
+  ],
+  "gen": {
+    "exclude": [
+      "src.fastware"
+    ]
+  },
+  "topology": {
+    "slug": "fastware",
+    "docs_base": "https://docs.smmh.dev",
+    "posts_base": "https://blog.smmh.dev",
+    "assembly": "smm-h/selfdoc-cache",
+    "projects": {
+      "wesktop": "https://docs.smmh.dev/wesktop",
+      "rlsbl": "https://docs.smmh.dev/rlsbl",
+      "selfdoc": "https://docs.smmh.dev/selfdoc",
+      "strictcli": "https://docs.smmh.dev/strictcli"
+    }
+  },
+  "assembly": {
+    "repo": "smm-h/selfdoc-cache"
+  }
+}
