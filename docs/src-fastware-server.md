@@ -1,6 +1,6 @@
 ---
 title: src.fastware.server
-description: "Granian ASGI server lifecycle -- PID file management, port checks, serve/stop/status."
+description: "Granian ASGI server lifecycle management with PID file tracking, port availability checks, foreground and background serve modes, and graceful stop."
 generated: true
 nav_group: "API Reference"
 nav_order: 16

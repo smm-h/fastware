@@ -68,7 +68,7 @@ if __name__ == "__main__":
 - **request**: HTTP request wrapper providing lazy body parsing, query parameter extraction, JSON deserialization via msgspec, header access, and per-request state.
 - **responses**: HTTP response types including JSON, text, HTML, bytes, and streaming responses, plus cookie helpers and low-level ASGI send functions.
 - **routing**: Path-based HTTP router with curly-brace parameter placeholders, automatic type coercion, method-based dispatch, and route group composition.
-- **server**: Granian ASGI server lifecycle -- PID file management, port checks, serve/stop/status.
+- **server**: Granian ASGI server lifecycle management with PID file tracking, port availability checks, foreground and background serve modes, and graceful stop.
 - **sse**: SSE (Server-Sent Events) broadcaster with typed event registration, per-client async queues, automatic disconnect pruning, and strict mode enforcement.
 - **tasks**: Background task registry with feature-gated lifecycle management, supporting start/stop protocol, factory registration, and graceful shutdown ordering.
 - **testing**: Sync and async test clients for fastware apps, wrapping httpx with ASGITransport to exercise routes without starting a real network server.

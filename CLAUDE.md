@@ -47,7 +47,7 @@ fastware is a modular ASGI framework extracted from a monolithic `asgi.py` into 
 - **src.fastware.request** (`src/fastware/request.py`): HTTP request wrapper providing lazy body parsing, query parameter extraction, JSON deserialization via msgspec, header access, and per-request state.
 - **src.fastware.responses** (`src/fastware/responses.py`): HTTP response types including JSON, text, HTML, bytes, and streaming responses, plus cookie helpers and low-level ASGI send functions.
 - **src.fastware.routing** (`src/fastware/routing.py`): Path-based HTTP router with curly-brace parameter placeholders, automatic type coercion, method-based dispatch, and route group composition.
-- **src.fastware.server** (`src/fastware/server.py`): Granian ASGI server lifecycle -- PID file management, port checks, serve/stop/status.
+- **src.fastware.server** (`src/fastware/server.py`): Granian ASGI server lifecycle management with PID file tracking, port availability checks, foreground and background serve modes, and graceful stop.
 - **src.fastware.sse** (`src/fastware/sse.py`): SSE (Server-Sent Events) broadcaster with typed event registration, per-client async queues, automatic disconnect pruning, and strict mode enforcement.
 - **src.fastware.tasks** (`src/fastware/tasks.py`): Background task registry with feature-gated lifecycle management, supporting start/stop protocol, factory registration, and graceful shutdown ordering.
 - **src.fastware.testing** (`src/fastware/testing.py`): Sync and async test clients for fastware apps, wrapping httpx with ASGITransport to exercise routes without starting a real network server.
