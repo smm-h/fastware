@@ -15,6 +15,10 @@ build/
 *.egg-info/
 *.egg
 
+# Docs build output and Cloudflare wrangler cache
+docs/_build/
+.wrangler/
+
 # Testing
 .pytest_cache/
 .coverage
