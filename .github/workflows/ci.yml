@@ -7,6 +7,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Per-SHA group: re-runs of the same commit dedupe, but a new commit never
+# cancels an earlier commit's in-flight run (release CI conclusions stay intact).
+concurrency:
+  group: ${{ github.workflow_ref }}-${{ github.sha }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -18,5 +24,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v7
       - run: uv python install ${{ matrix.python-version }}
-      - run: uv sync
+      - run: uv sync --locked
       - run: uv run python -c "import fastware"
+      - run: uv run pytest
