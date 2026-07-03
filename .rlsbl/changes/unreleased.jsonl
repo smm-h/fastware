@@ -7,3 +7,4 @@
 {"commits":["fcec3f590641fc247c37a78d15cbc8df72e57369"],"user_facing":false}
 {"commits":["fbfff4c0f6715d494175054a82d2e1a2323d8d3a"],"user_facing":true,"description":"**New.** Documentation site (guides, quickstart, API reference, framework comparisons) deployed via Cloudflare Pages.","type":"feature"}
 {"commits":["05433dd1c073d19c899ca5be0a66a21d2f0d282e"],"user_facing":false}
+{"commits":["269066161630c007129cd2608e34b3db15c79c80"],"user_facing":false}
