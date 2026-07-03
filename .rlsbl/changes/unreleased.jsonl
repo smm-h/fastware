@@ -5,3 +5,4 @@
 {"commits":["98149216b3cc83d4f31c270d55c81b0e3f5daa60","7bb26df77f2c432ae8b6fbbbcf7e2ffad87a6464","8ec29d8c1eb7d0d7c3a8df83607af6de1bdac2d5","17628b4c15fc39ceea3bdd1c556cef2550654642"],"user_facing":false}
 {"commits":["0a368ae42d6122e04d0a24bae086b4870266b8fe"],"user_facing":false}
 {"commits":["fcec3f590641fc247c37a78d15cbc8df72e57369"],"user_facing":false}
+{"commits":["fbfff4c0f6715d494175054a82d2e1a2323d8d3a"],"user_facing":true,"description":"**New.** Documentation site (guides, quickstart, API reference, framework comparisons) deployed via Cloudflare Pages.","type":"feature"}
