@@ -57,10 +57,14 @@ class Broadcaster:
     def _format_sse(self, event: str, data: dict[str, Any] | str) -> str:
         """Format a payload as an SSE wire message.
 
-        Dict payloads are serialized with msgspec (project convention).
+        Dict payloads are serialized with msgspec (project convention). A
+        multi-line payload is emitted as one ``data:`` line per line, per the
+        SSE spec, so a stray newline in the payload cannot terminate the event
+        early or inject additional SSE fields.
         """
         payload = msgspec.json.encode(data).decode() if isinstance(data, dict) else data
-        return f"event: {event}\ndata: {payload}\n\n"
+        data_lines = "".join(f"data: {line}\n" for line in payload.split("\n"))
+        return f"event: {event}\n{data_lines}\n"
 
     def broadcast(self, event: str, data: dict[str, Any] | str) -> None:
         """Send an event to all connected clients.

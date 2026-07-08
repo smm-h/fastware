@@ -262,6 +262,47 @@ class TestSSERoute:
 
 
 # ---------------------------------------------------------------------------
+# Multi-line data framing (SSE spec compliance)
+# ---------------------------------------------------------------------------
+
+
+class TestMultiLineDataFraming:
+    def test_string_with_newline_emits_repeated_data_lines(self):
+        b = Broadcaster(strict=False)
+        msg = b._format_sse("log", "line1\nline2")
+        assert msg == "event: log\ndata: line1\ndata: line2\n\n"
+
+    def test_three_line_payload(self):
+        b = Broadcaster(strict=False)
+        msg = b._format_sse("log", "a\nb\nc")
+        assert msg == "event: log\ndata: a\ndata: b\ndata: c\n\n"
+
+    def test_newline_cannot_inject_a_second_event(self):
+        """A stray newline in the payload must not terminate the event early
+        nor inject fresh SSE fields; every content line stays a ``data:`` line."""
+        b = Broadcaster(strict=False)
+        payload = "safe\n\nevent: hijack\ndata: injected"
+        msg = b._format_sse("real", payload)
+        expected = (
+            "event: real\n"
+            "data: safe\n"
+            "data: \n"
+            "data: event: hijack\n"
+            "data: data: injected\n"
+            "\n"
+        )
+        assert msg == expected
+        # The only blank line is the terminator at the very end.
+        assert msg.count("\n\n") == 1
+        assert msg.endswith("\n\n")
+
+    def test_single_line_string_unchanged(self):
+        b = Broadcaster(strict=False)
+        msg = b._format_sse("raw", "plain text")
+        assert msg == "event: raw\ndata: plain text\n\n"
+
+
+# ---------------------------------------------------------------------------
 # msgspec serialization (project convention)
 # ---------------------------------------------------------------------------
 
