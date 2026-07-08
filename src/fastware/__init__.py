@@ -19,7 +19,7 @@ from fastware.responses import (
     send_error,
     set_cookie,
 )
-from fastware.routing import ParsedSegment, Router
+from fastware.routing import Router
 from fastware.sse import Broadcaster, sse_route
 
 # -- Tier 1: Core symbols (eager imports -- lightweight modules) -------------
@@ -77,7 +77,6 @@ __all__ = [
     "Request",
     # routing
     "Router",
-    "ParsedSegment",
     # websocket
     "WebSocket",
     "WebSocketDisconnect",

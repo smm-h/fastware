@@ -74,7 +74,7 @@ The export system has two tiers:
 
 **Tier 1 -- `from fastware import X` (core symbols, eagerly imported):**
 
-- Router, ParsedSegment -- routing
+- Router -- routing
 - Request, State -- request handling
 - WebSocket, WebSocketDisconnect -- WebSocket connections
 - JSONResponse, TextResponse, HTMLResponse, BytesResponse, StreamResponse, FileResponse -- response types
