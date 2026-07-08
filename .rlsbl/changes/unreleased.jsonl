@@ -6,3 +6,4 @@
 {"id":"18c03cf82f2e056c319c70f85c2b4fc090cbfeb4aefbdcb3","commits":["5193effeb1daf7e1f97d27f305ea29f2cc600c84"],"user_facing":true,"description":"A foreground `serve()` after a background `serve()` in the same process no longer silently loses SIGTERM/SIGINT handling","type":"fix"}
 {"id":"18c03cf83b41696111450bd48d104eacb1699494fb1b6c91","commits":["71d0ea03738df932890ba3c5586d5081c094023d"],"user_facing":true,"description":"Single-instance `serve()` creates the PID file atomically (`O_CREAT|O_EXCL`), so two concurrent starts can no longer both pass the already-running check","type":"fix"}
 {"id":"18c03cfa82728df37de99ca8870a4dceb80eb6f03a770fed","commits":["c3ece2b89e9c262b8365bb0502381ef31efebaef"],"user_facing":true,"description":"`check_already_running()` no longer accepts the unused `name` parameter","type":"breaking"}
+{"id":"18c03cfa8d811569aa6780c379a54ec0bb2eb867d0bd365d","commits":["4c088df0db63f68b8b5fe57a5f8a9665853f41ad"],"user_facing":false}
