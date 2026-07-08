@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import asyncio
-import http.cookies
 from typing import Any, Callable
 from urllib.parse import parse_qs
 
 import msgspec
 
+from fastware import _scope
 from fastware.responses import HTTPError
 
 __all__ = [
@@ -206,14 +206,10 @@ class Request:
         """Return a request header by name (case-insensitive).
 
         ASGI headers arrive as a list of ``(bytes, bytes)`` tuples. This
-        helper decodes both to ``str`` and looks the name up
-        case-insensitively, matching HTTP semantics.
+        decodes to ``str`` and looks the name up case-insensitively, matching
+        HTTP semantics.
         """
-        target = name.lower().encode()
-        for k, v in self.scope.get("headers", []):
-            if k.lower() == target:
-                return v.decode("latin-1")
-        return default
+        return _scope.header_str(self.scope, name, default)
 
     @property
     def body_size(self) -> int:
@@ -274,14 +270,7 @@ class Request:
     def cookies(self) -> dict[str, str]:
         """Parse Cookie header and return a dict of cookie name-value pairs."""
         if not self._cookies_parsed:
-            cookie_header = self.header("cookie", "")
-            result: dict[str, str] = {}
-            if cookie_header:
-                sc = http.cookies.SimpleCookie()
-                sc.load(cookie_header)
-                for key, morsel in sc.items():
-                    result[key] = morsel.value
-            self._cookies = result
+            self._cookies = _scope.cookies(self.scope)
             self._cookies_parsed = True
         return self._cookies  # type: ignore[return-value]
 

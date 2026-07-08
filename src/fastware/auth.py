@@ -15,10 +15,10 @@ import tempfile
 import threading
 import time
 from datetime import UTC, datetime, timedelta
-from http.cookies import SimpleCookie
 from pathlib import Path
 from typing import Any, Callable
 
+from fastware import _scope
 from fastware.responses import HTTPError, delete_cookie, send_error, set_cookie
 
 __all__ = [
@@ -268,29 +268,6 @@ def require_role(role: str) -> Callable:
 _SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 
 
-def _get_asgi_header(
-    headers: list[tuple[bytes, bytes]], name: bytes,
-) -> bytes:
-    """Return the first header value matching *name* (lowercase), or b""."""
-    for hdr_name, hdr_value in headers:
-        if hdr_name == name:
-            return hdr_value
-    return b""
-
-
-def _get_asgi_cookie(
-    headers: list[tuple[bytes, bytes]], cookie_name: str,
-) -> str:
-    """Parse the Cookie header and return a single cookie value, or ""."""
-    raw = _get_asgi_header(headers, b"cookie")
-    if not raw:
-        return ""
-    sc: SimpleCookie = SimpleCookie()
-    sc.load(raw.decode("latin-1"))
-    morsel = sc.get(cookie_name)
-    return morsel.value if morsel else ""
-
-
 class CSRFMiddleware:
     """Double-submit cookie CSRF protection (pure ASGI).
 
@@ -329,7 +306,6 @@ class CSRFMiddleware:
             await self.app(scope, receive, send)
             return
 
-        headers: list[tuple[bytes, bytes]] = scope["headers"]
         method: str = scope["method"]
         path: str = scope["path"]
 
@@ -340,7 +316,7 @@ class CSRFMiddleware:
 
         # Bearer token callers are not vulnerable to CSRF (cookie-only attack).
         # Structural check: a real JWT has exactly 3 dot-separated segments.
-        auth_header = _get_asgi_header(headers, b"authorization")
+        auth_header = _scope.header_bytes(scope, b"authorization")
         if auth_header.startswith(b"Bearer "):
             token_bytes = auth_header[7:]
             parts = token_bytes.split(b".")
@@ -354,9 +330,9 @@ class CSRFMiddleware:
             return
 
         # Validate double-submit: cookie value must match header value.
-        cookie_token = _get_asgi_cookie(headers, "csrf_token")
-        header_token = _get_asgi_header(
-            headers, b"x-csrf-token",
+        cookie_token = _scope.cookie(scope, "csrf_token")
+        header_token = _scope.header_bytes(
+            scope, b"x-csrf-token",
         ).decode("latin-1")
 
         if not cookie_token or not header_token:

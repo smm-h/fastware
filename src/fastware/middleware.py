@@ -20,6 +20,7 @@ import uuid
 from collections import deque
 from typing import Any, Callable
 
+from fastware import _scope
 from fastware.responses import send_error
 from fastware.types import Receive, Scope, Send
 
@@ -36,18 +37,6 @@ __all__ = [
     "TrustedHostMiddleware",
     "ViteDevProxy",
 ]
-
-
-def _header_value(scope: Scope, name: bytes) -> bytes:
-    """Return the first value of header *name* via a single linear scan.
-
-    ASGI header names are lowercase bytes.  Avoids allocating a dict of
-    all headers just to read one of them.
-    """
-    for key, value in scope.get("headers", []):
-        if key == name:
-            return value
-    return b""
 
 
 # ---------------------------------------------------------------------------
@@ -77,7 +66,7 @@ class RequestIDMiddleware:
 
         # Extract or generate request ID.
         request_id = (
-            _header_value(scope, b"x-request-id").decode("latin-1")
+            _scope.header_bytes(scope, b"x-request-id").decode("latin-1")
             or str(uuid.uuid4())
         )
 
@@ -265,7 +254,7 @@ class CORSMiddleware:
             await self.app(scope, receive, send)
             return
 
-        origin = _header_value(scope, b"origin").decode("latin-1")
+        origin = _scope.header_bytes(scope, b"origin").decode("latin-1")
 
         # No Origin header — not a CORS request, pass through.
         if not origin:
@@ -282,7 +271,7 @@ class CORSMiddleware:
         # Preflight: only an OPTIONS request that carries
         # Access-Control-Request-Method.  Plain OPTIONS requests fall
         # through to the app so app-defined OPTIONS routes stay reachable.
-        if method == "OPTIONS" and _header_value(
+        if method == "OPTIONS" and _scope.header_bytes(
             scope, b"access-control-request-method"
         ):
             response_headers = cors_headers[:]
@@ -337,7 +326,7 @@ class TrustedHostMiddleware:
             await self.app(scope, receive, send)
             return
 
-        host = _header_value(scope, b"host").decode("latin-1")
+        host = _scope.header_bytes(scope, b"host").decode("latin-1")
 
         if host not in self.allowed_hosts:
             if scope["type"] == "websocket":
