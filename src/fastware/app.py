@@ -21,6 +21,7 @@ from fastware.responses import (
     JSONResponse,
     StreamResponse,
     TextResponse,
+    _build_headers,
     _send_response,
 )
 from fastware.routing import Router
@@ -48,13 +49,7 @@ async def _send_stream(send: Callable, resp: StreamResponse) -> None:
     Generator errors are NOT swallowed; they propagate to the caller
     (which must not attempt a second response after start).
     """
-    headers = [
-        [b"content-type", resp.content_type.encode()],
-    ]
-    for key, value in resp.headers.items():
-        headers.append([key.encode(), value.encode()])
-    for cookie in resp.cookies:
-        headers.append([b"set-cookie", cookie.encode()])
+    headers = _build_headers(resp.content_type, resp.headers, resp.cookies)
     await send({"type": "http.response.start", "status": resp.status, "headers": headers})
     async for chunk in resp.generator:
         payload = chunk.encode() if isinstance(chunk, str) else chunk

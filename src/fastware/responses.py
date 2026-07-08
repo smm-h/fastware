@@ -180,6 +180,31 @@ class FileResponse:
 # ASGI send helpers
 # ---------------------------------------------------------------------------
 
+def _build_headers(
+    content_type: str,
+    extra_headers: dict[str, str] | None = None,
+    cookies: list[str] | None = None,
+) -> list[list[bytes]]:
+    """Assemble the ASGI response header list from content type, extra headers,
+    and Set-Cookie values.
+
+    Returns headers in the order: content-type, then each extra header, then
+    each cookie as a separate ``set-cookie`` entry. Callers that know the body
+    length (buffered responses) insert ``content-length`` after content-type;
+    streaming responses omit it.
+    """
+    headers: list[list[bytes]] = [
+        [b"content-type", content_type.encode()],
+    ]
+    if extra_headers:
+        for k, v in extra_headers.items():
+            headers.append([k.encode(), v.encode()])
+    if cookies:
+        for cookie in cookies:
+            headers.append([b"set-cookie", cookie.encode()])
+    return headers
+
+
 async def _send_response(
     send: Callable,
     status: int,
@@ -189,16 +214,9 @@ async def _send_response(
     cookies: list[str] | None = None,
 ) -> None:
     """Send a complete HTTP response (headers + body)."""
-    headers: list[list[bytes]] = [
-        [b"content-type", content_type.encode()],
-        [b"content-length", str(len(body)).encode()],
-    ]
-    if extra_headers:
-        for k, v in extra_headers.items():
-            headers.append([k.encode(), v.encode()])
-    if cookies:
-        for cookie in cookies:
-            headers.append([b"set-cookie", cookie.encode()])
+    headers = _build_headers(content_type, extra_headers, cookies)
+    # content-length follows content-type for buffered (known-length) bodies.
+    headers.insert(1, [b"content-length", str(len(body)).encode()])
     await send({
         "type": "http.response.start",
         "status": status,
