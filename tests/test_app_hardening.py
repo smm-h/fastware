@@ -507,3 +507,43 @@ class TestUnboundRequestGuard:
                 assert not isinstance(record.exc_info[1], NameError), (
                     "unbound 'request' leaked into exception-handler dispatch"
                 )
+
+
+# ---------------------------------------------------------------------------
+# Accepted-param sets precomputed (no per-request inspect.signature)
+# ---------------------------------------------------------------------------
+
+
+class TestPrecomputedHandlerParams:
+    @pytest.mark.anyio
+    async def test_no_signature_introspection_per_request(self, monkeypatch):
+        """The accepted-param set for dep filtering must be computed once
+        (at app creation), not via inspect.signature on every request."""
+        import inspect as inspect_mod
+
+        router = Router()
+
+        async def auth_dep(request):
+            return {"sub": "u1"}
+
+        @router.get("/items", deps={"user": auth_dep})
+        async def items(req):  # does not accept 'user' -> filtering applies
+            return {"items": []}
+
+        app = create_app(router, request_id=False, request_timing=False)
+
+        introspected = []
+        orig_signature = inspect_mod.signature
+
+        def counting_signature(obj, *args, **kwargs):
+            introspected.append(obj)
+            return orig_signature(obj, *args, **kwargs)
+
+        monkeypatch.setattr(inspect_mod, "signature", counting_signature)
+
+        for _ in range(2):
+            sent = await _run_http(app, _http_scope("/items"))
+            assert _response_status(sent) == 200
+
+        # The route handler must never be introspected at request time
+        assert items not in introspected
