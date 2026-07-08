@@ -30,7 +30,7 @@ fastware is a modular ASGI framework extracted from a monolithic `asgi.py` into 
 - **error_log.py** -- SQLite-backed append-only error log for 5xx responses. Thread-safe writes with recent() query.
 - **audit.py** -- JSONL append-only audit log with ISO timestamps and event types. Thread-safe.
 - **config.py** -- TOML config loader with optional Pydantic schema validation.
-- **mcp.py** -- MCP server factory with configurable role-based tool provisioning. Roles dict and default_role are parameters, not hardcoded constants.
+- **mcp.py** -- MCP server factory with caller-supplied role-based tool provisioning. The `roles` mapping is a required parameter (with an optional `default_role`); the framework ships no built-in roles.
 - **dev.py** -- Development mode orchestrator: spawns Vite as a subprocess, waits for readiness, wraps the ASGI app with ViteDevProxy, and runs `serve()` in foreground. Clean Vite shutdown on exit.
 
 ## Module Layout
@@ -102,7 +102,7 @@ The export system has two tiers:
 - `fastware.error_log` -- ErrorLog
 - `fastware.tasks` -- BackgroundTask, TaskRegistry
 - `fastware.config` -- load_config
-- `fastware.mcp` -- create_mcp_server, register_tools_for_role, ROLES
+- `fastware.mcp` -- create_mcp_server, register_tools_for_role
 - `fastware.dev` -- dev()
 
 ## Development
@@ -120,7 +120,7 @@ selfdoc check               # Lint docs for SEO and staleness
 - **Lazy imports for optional dependencies.** Modules that depend on optional packages (pydantic, structlog, pyjwt, bcrypt, mcp, sentry-sdk, httpx, watchfiles, websockets) import them inside functions, not at module level. This ensures `import fastware` works with only the core dependencies (msgspec, granian).
 - **Server raises exceptions, never sys.exit().** PortInUseError and AlreadyRunningError are raised for programmatic handling. Callers decide how to present errors.
 - **ViteDevProxy backend_prefixes is configurable.** Default is `["/events"]`. Consumers pass their own list if they have different SSE/backend paths.
-- **MCP ROLES is configurable via parameter.** Both `create_mcp_server` and `register_tools_for_role` accept `roles` and `default_role` parameters, falling back to module-level constants only when not provided.
+- **MCP roles are caller-supplied, never built in.** The role/tool domain model belongs to the caller: both `create_mcp_server` and `register_tools_for_role` take the `roles` mapping explicitly (required when tools are registered), with an optional `default_role` fallback. There are no module-level `ROLES`/`DEFAULT_ROLE` constants and no `SA_ROLE` env fallback -- an unknown role with no `default_role` is a hard error.
 - **DI factories are introspected.** The resolver checks whether a factory accepts a `request` parameter. Zero-arg factories (useful for test overrides) are called without arguments.
 - **Response dispatch auto-wraps.** Plain dicts/lists returned from handlers are auto-wrapped as JSONResponse. Pydantic BaseModel instances are serialized via `model_dump(mode="json")`. Nested Pydantic models inside dicts/lists are recursively converted.
 - **SSE strict mode by default.** Broadcaster requires event types to be registered via `register_event()` before `broadcast()`. Pass `strict=False` to disable.
