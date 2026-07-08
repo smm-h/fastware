@@ -34,8 +34,18 @@ __all__ = [
 # ASGI send helpers (stream + result dispatch)
 # ---------------------------------------------------------------------------
 
+_log = logging.getLogger("fastware")
+
+
 async def _send_stream(send: Callable, resp: StreamResponse) -> None:
-    """Send a streaming HTTP response, iterating the async generator."""
+    """Send a streaming HTTP response, iterating the async generator.
+
+    Once the response has started, send() errors (client disconnected
+    mid-stream) are swallowed cleanly -- the response can no longer be
+    changed, so there is nothing useful to do but stop streaming.
+    Generator errors are NOT swallowed; they propagate to the caller
+    (which must not attempt a second response after start).
+    """
     headers = [
         [b"content-type", resp.content_type.encode()],
     ]
@@ -46,8 +56,19 @@ async def _send_stream(send: Callable, resp: StreamResponse) -> None:
     await send({"type": "http.response.start", "status": resp.status, "headers": headers})
     async for chunk in resp.generator:
         payload = chunk.encode() if isinstance(chunk, str) else chunk
-        await send({"type": "http.response.body", "body": payload, "more_body": True})
-    await send({"type": "http.response.body", "body": b"", "more_body": False})
+        try:
+            await send({"type": "http.response.body", "body": payload, "more_body": True})
+        except Exception:
+            _log.debug("Client disconnected during streaming response; stopping stream")
+            try:
+                await resp.generator.aclose()
+            except Exception:
+                pass
+            return
+    try:
+        await send({"type": "http.response.body", "body": b"", "more_body": False})
+    except Exception:
+        _log.debug("Client disconnected before streaming response finished")
 
 
 def _deep_convert_pydantic(obj: Any) -> Any:
@@ -333,6 +354,17 @@ def create_app(
         match = router._match_with_deps(method, path)
         if match:
             handler, path_params, route_deps, response_model = match
+
+            # Track whether http.response.start has been sent so error
+            # paths never attempt a second response (protocol violation).
+            response_started = False
+
+            async def tracked_send(message: dict) -> None:
+                nonlocal response_started
+                if message["type"] == "http.response.start":
+                    response_started = True
+                await send(message)
+
             try:
                 # Read body for all methods (GET with empty body costs nothing)
                 body = b""
@@ -387,27 +419,42 @@ def create_app(
                             method, path, ve,
                         )
                         await _send_response(
-                            send, 500,
+                            tracked_send, 500,
                             msgspec.json.encode({"detail": str(ve)}),
                             "application/json",
                         )
                         return
 
-                await _send_result(send, result)
+                await _send_result(tracked_send, result)
             except HTTPError as exc:
+                if response_started:
+                    # Response already started -- cannot change it now
+                    log.debug(
+                        "HTTPError after response started on %s %s: %s",
+                        method, path, exc,
+                    )
+                    return
                 await _send_response(
-                    send, exc.status_code,
+                    tracked_send, exc.status_code,
                     msgspec.json.encode({"detail": exc.detail}),
                     "application/json",
                 )
             except Exception as exc:
+                if response_started:
+                    # Never attempt a 500 after http.response.start -- a
+                    # second start is an ASGI protocol violation.
+                    log.exception(
+                        "Handler error after response started on %s %s",
+                        method, path,
+                    )
+                    return
                 # Check registered exception handlers (most specific first)
                 handled = False
                 for exc_type, exc_handler in _exc_handlers:
                     if isinstance(exc, exc_type):
                         try:
                             result = await exc_handler(request, exc)
-                            await _send_result(send, result)
+                            await _send_result(tracked_send, result)
                             handled = True
                         except Exception:
                             log.exception(
@@ -418,7 +465,7 @@ def create_app(
                 if not handled:
                     log.exception("Handler error on %s %s", method, path)
                     await _send_response(
-                        send, 500,
+                        tracked_send, 500,
                         msgspec.json.encode({"detail": "Internal server error"}),
                         "application/json",
                     )

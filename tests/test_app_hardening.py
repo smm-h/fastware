@@ -210,3 +210,78 @@ class TestLifespanFailureMessaging:
             {"type": "lifespan.shutdown.complete"},
         ]
         assert state == {"up": True, "down": True}
+
+
+# ---------------------------------------------------------------------------
+# Streaming: no double response after http.response.start
+# ---------------------------------------------------------------------------
+
+
+def _stream_app():
+    from fastware import StreamResponse
+
+    router = Router()
+
+    @router.get("/sse")
+    async def sse(req):
+        async def gen():
+            yield "one"
+            yield "two"
+            yield "three"
+
+        return StreamResponse(gen(), content_type="text/event-stream")
+
+    return create_app(router, request_id=False, request_timing=False)
+
+
+class TestStreamBrokenClient:
+    @pytest.mark.anyio
+    async def test_client_disconnect_mid_stream_no_second_start(self):
+        """When send() starts failing mid-stream (client gone), the app must
+        neither raise nor attempt a second http.response.start (500)."""
+        app = _stream_app()
+        sent: list[dict] = []
+        body_count = 0
+
+        async def receive():
+            return {"type": "http.request", "body": b"", "more_body": False}
+
+        async def send(msg):
+            nonlocal body_count
+            if msg["type"] == "http.response.body":
+                body_count += 1
+                if body_count >= 2:
+                    raise ConnectionResetError("client disconnected")
+            elif sent and body_count >= 2:
+                raise ConnectionResetError("client disconnected")
+            sent.append(msg)
+
+        # Must not raise even though the client vanished mid-stream
+        await app(_http_scope("/sse"), receive, send)
+
+        starts = [m for m in sent if m["type"] == "http.response.start"]
+        assert len(starts) == 1
+        assert starts[0]["status"] == 200
+
+    @pytest.mark.anyio
+    async def test_generator_error_after_start_no_second_start(self):
+        """A generator bug after the response started cannot be turned into
+        a 500 -- there must never be a second http.response.start."""
+        from fastware import StreamResponse
+
+        router = Router()
+
+        @router.get("/boom")
+        async def boom(req):
+            async def gen():
+                yield "first"
+                raise RuntimeError("generator bug")
+
+            return StreamResponse(gen(), content_type="text/event-stream")
+
+        app = create_app(router, request_id=False, request_timing=False)
+        sent = await _run_http(app, _http_scope("/boom"))
+
+        starts = [m for m in sent if m["type"] == "http.response.start"]
+        assert len(starts) == 1
+        assert starts[0]["status"] == 200
