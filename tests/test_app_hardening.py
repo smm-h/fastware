@@ -345,3 +345,109 @@ class TestMaxBodySize:
             body_messages=[{"type": "http.request", "body": b"y" * 1000, "more_body": False}],
         )
         assert _response_status(sent) == 200
+
+
+# ---------------------------------------------------------------------------
+# WebSocket: dep failures, dep filtering, disconnect handling
+# ---------------------------------------------------------------------------
+
+
+async def _run_ws(app, path, incoming=None):
+    """Drive a websocket scope; returns messages sent by the app."""
+    messages = [{"type": "websocket.connect"}] + list(incoming or [])
+
+    async def receive():
+        if messages:
+            return messages.pop(0)
+        return {"type": "websocket.disconnect", "code": 1000}
+
+    sent: list[dict] = []
+
+    async def send(msg):
+        sent.append(msg)
+
+    scope = {"type": "websocket", "path": path, "headers": [], "query_string": b""}
+    await app(scope, receive, send)
+    return sent
+
+
+class TestWebSocketDepAndDisconnect:
+    @pytest.mark.anyio
+    async def test_dep_http_error_closes_socket(self):
+        """An HTTPError from a WebSocket dependency (e.g. auth) must close
+        the socket instead of escaping as a server traceback."""
+        from fastware import HTTPError
+
+        router = Router()
+
+        async def failing_dep(request):
+            raise HTTPError(401, "no auth")
+
+        @router.ws("/ws/secure", deps={"user": failing_dep})
+        async def handler(ws, user):
+            await ws.accept()
+
+        app = create_app(router, request_id=False, request_timing=False)
+        sent = await _run_ws(app, "/ws/secure")
+
+        closes = [m for m in sent if m["type"] == "websocket.close"]
+        assert len(closes) == 1
+        assert closes[0]["code"] == 1008
+
+    @pytest.mark.anyio
+    async def test_dep_generic_error_closes_socket(self):
+        router = Router()
+
+        async def broken_dep(request):
+            raise RuntimeError("db down")
+
+        @router.ws("/ws/broken", deps={"db": broken_dep})
+        async def handler(ws, db):
+            await ws.accept()
+
+        app = create_app(router, request_id=False, request_timing=False)
+        sent = await _run_ws(app, "/ws/broken")
+
+        closes = [m for m in sent if m["type"] == "websocket.close"]
+        assert len(closes) == 1
+        assert closes[0]["code"] == 1011
+
+    @pytest.mark.anyio
+    async def test_deps_filtered_to_handler_signature(self):
+        """Router-level deps not named in the handler signature must be
+        filtered out (the HTTP path already does this)."""
+        router = Router()
+        seen = {}
+
+        async def extra_dep(request):
+            return "extra-value"
+
+        async def wanted_dep(request):
+            return "wanted-value"
+
+        @router.ws("/ws/filtered", deps={"extra": extra_dep, "wanted": wanted_dep})
+        async def handler(ws, wanted):
+            seen["wanted"] = wanted
+            await ws.accept()
+            await ws.close()
+
+        app = create_app(router, request_id=False, request_timing=False)
+        await _run_ws(app, "/ws/filtered")
+
+        assert seen == {"wanted": "wanted-value"}
+
+    @pytest.mark.anyio
+    async def test_client_disconnect_does_not_raise(self):
+        """A normal client disconnect (WebSocketDisconnect escaping the
+        handler) must not produce a server traceback."""
+        router = Router()
+
+        @router.ws("/ws/dc")
+        async def handler(ws):
+            await ws.accept()
+            await ws.receive_json()  # client disconnects here
+
+        app = create_app(router, request_id=False, request_timing=False)
+        # Must not raise
+        sent = await _run_ws(app, "/ws/dc", incoming=[{"type": "websocket.disconnect", "code": 1001}])
+        assert any(m["type"] == "websocket.accept" for m in sent)

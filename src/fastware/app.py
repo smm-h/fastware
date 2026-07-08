@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+import inspect
 import logging
 import mimetypes
 from pathlib import Path
@@ -22,7 +23,7 @@ from fastware.responses import (
     _send_response,
 )
 from fastware.routing import Router
-from fastware.websocket import WebSocket
+from fastware.websocket import WebSocket, WebSocketDisconnect
 
 __all__ = [
     "AppConfig",
@@ -69,6 +70,15 @@ async def _send_stream(send: Callable, resp: StreamResponse) -> None:
         await send({"type": "http.response.body", "body": b"", "more_body": False})
     except Exception:
         _log.debug("Client disconnected before streaming response finished")
+
+
+def _accepted_params(handler: Callable) -> frozenset[str] | None:
+    """Return the set of keyword names *handler* accepts, or None if it
+    takes ``**kwargs`` (accepts everything)."""
+    params = inspect.signature(handler).parameters
+    if any(p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()):
+        return None
+    return frozenset(params)
 
 
 def _deep_convert_pydantic(obj: Any) -> Any:
@@ -270,6 +280,30 @@ def create_app(
         )
     _lifespan_state: dict[str, Any] = {}
 
+    # Precompute accepted-parameter sets for handlers with deps so the hot
+    # path never calls inspect.signature per request. Routes registered
+    # after create_app() are computed once on first use and cached.
+    _handler_params: dict[Callable, frozenset[str] | None] = {}
+    for _rt in router._routes:
+        _rt_handler, _rt_deps = _rt[2], _rt[3]
+        if _rt_deps and _rt_handler not in _handler_params:
+            _handler_params[_rt_handler] = _accepted_params(_rt_handler)
+    for _wt in router._ws_routes:
+        _wt_handler, _wt_deps = _wt[1], _wt[2]
+        if _wt_deps and _wt_handler not in _handler_params:
+            _handler_params[_wt_handler] = _accepted_params(_wt_handler)
+
+    def _filter_to_handler(handler: Callable, resolved: dict[str, Any]) -> dict[str, Any]:
+        """Drop resolved deps the handler does not accept, so router-level
+        deps (e.g. auth) don't cause TypeError on handlers that don't
+        need the resolved value."""
+        if handler not in _handler_params:
+            _handler_params[handler] = _accepted_params(handler)
+        accepted = _handler_params[handler]
+        if accepted is None:
+            return resolved
+        return {k: v for k, v in resolved.items() if k in accepted}
+
     async def app(scope: dict, receive: Callable, send: Callable) -> None:
         nonlocal _lifespan_state
 
@@ -330,13 +364,35 @@ def create_app(
                 scope["path_params"] = ws_params
                 ws = WebSocket(scope, receive, send)
                 if ws_deps:
-                    resolved, cleanups = await _resolver.resolve(ws_deps, ws)
                     try:
-                        await ws_handler(ws, **resolved)
+                        resolved, cleanups = await _resolver.resolve(ws_deps, ws)
+                    except HTTPError as exc:
+                        # A dependency rejected the connection (e.g. auth).
+                        # Consume websocket.connect per ASGI spec, then close
+                        # with 1008 (policy violation).
+                        await receive()
+                        await send({
+                            "type": "websocket.close",
+                            "code": 1008,
+                            "reason": exc.detail,
+                        })
+                        return
+                    except Exception:
+                        log.exception("WebSocket dependency error on %s", path)
+                        await receive()
+                        await send({"type": "websocket.close", "code": 1011})
+                        return
+                    try:
+                        await ws_handler(ws, **_filter_to_handler(ws_handler, resolved))
+                    except WebSocketDisconnect:
+                        pass  # normal client disconnect, not an error
                     finally:
                         await DependencyResolver.cleanup(cleanups)
                 else:
-                    await ws_handler(ws)
+                    try:
+                        await ws_handler(ws)
+                    except WebSocketDisconnect:
+                        pass  # normal client disconnect, not an error
             else:
                 # Reject unknown WebSocket paths
                 await receive()  # consume websocket.connect per ASGI spec
