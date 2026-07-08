@@ -43,6 +43,28 @@ class AlreadyRunningError(RuntimeError):
     """Raised when a single-instance server is already running."""
 
 
+def _probe_health(url: str, timeout: float) -> int | None:
+    """Probe *url* over HTTP within *timeout* seconds.
+
+    Returns the HTTP status code if the server answered at the HTTP level --
+    including error statuses like 404, which still prove the server is up and
+    listening. Returns ``None`` if the connection failed outright (refused,
+    reset, timed out, DNS failure): the server is not reachable.
+
+    Callers pick their own health criterion from the result: "answered at all"
+    (``code is not None``) proves the process is up; "answered with a success
+    status" (``200 <= code < 400``) proves the endpoint is healthy.
+    """
+    try:
+        req = urllib.request.Request(url, method="GET")
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.status
+    except urllib.error.HTTPError as exc:
+        return exc.code
+    except Exception:
+        return None
+
+
 # Counter for generating unique synthetic module names when serving callables.
 _callable_counter = 0
 _callable_counter_lock = threading.Lock()
@@ -537,17 +559,13 @@ def serve_background(
         url = f"http://{host}:{port}"
         deadline = time.monotonic() + 10
         while time.monotonic() < deadline:
-            try:
-                urllib.request.urlopen(f"{url}/health", timeout=1)
-                break
-            except urllib.error.HTTPError:
-                break  # the server answered -- it is up
-            except Exception:
-                if proc.poll() is not None:
-                    raise RuntimeError(
-                        f"Server process exited with code {proc.returncode}"
-                    )
-                time.sleep(0.3)
+            if _probe_health(f"{url}/health", 1) is not None:
+                break  # the server answered (any status) -- it is up
+            if proc.poll() is not None:
+                raise RuntimeError(
+                    f"Server process exited with code {proc.returncode}"
+                )
+            time.sleep(0.3)
         else:
             proc.terminate()
             raise RuntimeError("Server did not start within 10 seconds")
@@ -826,11 +844,7 @@ def status(pid_path: Path, health_url: str | None = None) -> ServerStatus:
     # Process is running -- check health if URL provided
     healthy: bool | None = None
     if health_url is not None:
-        try:
-            req = urllib.request.Request(health_url, method="GET")
-            with urllib.request.urlopen(req, timeout=2) as resp:
-                healthy = 200 <= resp.status < 400
-        except Exception:
-            healthy = False
+        code = _probe_health(health_url, 2)
+        healthy = code is not None and 200 <= code < 400
 
     return ServerStatus(running=True, pid=pid, healthy=healthy)
