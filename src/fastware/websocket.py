@@ -58,12 +58,18 @@ class WebSocket:
         return self.scope.get("query_string", b"").decode()
 
     async def accept(self, subprotocol: str | None = None) -> None:
-        # Consume the websocket.connect message per ASGI spec
-        await self._receive()
-        msg: dict[str, Any] = {"type": "websocket.accept"}
+        # Consume the websocket.connect message per ASGI spec. The client may
+        # disconnect before the handshake completes, in which case the ASGI
+        # server delivers websocket.disconnect here instead of websocket.connect.
+        # Sending websocket.accept in that case is a protocol error, so raise
+        # WebSocketDisconnect and let the handler unwind.
+        msg = await self._receive()
+        if msg.get("type") == "websocket.disconnect":
+            raise WebSocketDisconnect(code=msg.get("code", 1000))
+        accept_msg: dict[str, Any] = {"type": "websocket.accept"}
         if subprotocol:
-            msg["subprotocol"] = subprotocol
-        await self._send(msg)
+            accept_msg["subprotocol"] = subprotocol
+        await self._send(accept_msg)
 
     async def close(self, code: int = 1000) -> None:
         await self._send({"type": "websocket.close", "code": code})

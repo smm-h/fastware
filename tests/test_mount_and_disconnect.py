@@ -332,3 +332,75 @@ class TestWebSocketDisconnect:
 
         exc_default = WebSocketDisconnect()
         assert exc_default.code == 1000
+
+
+# ---------------------------------------------------------------------------
+# WebSocket accept() must handle a disconnect delivered before the handshake
+# ---------------------------------------------------------------------------
+
+
+class TestWebSocketAcceptDisconnect:
+    @pytest.mark.anyio
+    async def test_accept_raises_on_disconnect_before_connect(self):
+        """accept() must raise WebSocketDisconnect (not send websocket.accept)
+        when the first ASGI message is websocket.disconnect."""
+        sent: list[dict] = []
+
+        async def receive():
+            return {"type": "websocket.disconnect", "code": 1006}
+
+        async def send(msg):
+            sent.append(msg)
+
+        ws = WebSocket({"type": "websocket"}, receive, send)
+        with pytest.raises(WebSocketDisconnect) as exc_info:
+            await ws.accept()
+        assert exc_info.value.code == 1006
+        # Must NOT have blindly proceeded to send an accept frame.
+        assert not any(m.get("type") == "websocket.accept" for m in sent)
+
+    @pytest.mark.anyio
+    async def test_accept_disconnect_default_code(self):
+        """A disconnect without an explicit code defaults to 1000."""
+
+        async def receive():
+            return {"type": "websocket.disconnect"}
+
+        async def send(msg):
+            pass
+
+        ws = WebSocket({"type": "websocket"}, receive, send)
+        with pytest.raises(WebSocketDisconnect) as exc_info:
+            await ws.accept()
+        assert exc_info.value.code == 1000
+
+    @pytest.mark.anyio
+    async def test_accept_proceeds_on_connect(self):
+        """accept() still sends websocket.accept for a normal websocket.connect."""
+        sent: list[dict] = []
+
+        async def receive():
+            return {"type": "websocket.connect"}
+
+        async def send(msg):
+            sent.append(msg)
+
+        ws = WebSocket({"type": "websocket"}, receive, send)
+        await ws.accept()
+        assert sent[0]["type"] == "websocket.accept"
+
+    @pytest.mark.anyio
+    async def test_accept_with_subprotocol_still_works(self):
+        """Subprotocol negotiation is unaffected by the disconnect check."""
+        sent: list[dict] = []
+
+        async def receive():
+            return {"type": "websocket.connect"}
+
+        async def send(msg):
+            sent.append(msg)
+
+        ws = WebSocket({"type": "websocket"}, receive, send)
+        await ws.accept(subprotocol="graphql-ws")
+        assert sent[0]["type"] == "websocket.accept"
+        assert sent[0]["subprotocol"] == "graphql-ws"
