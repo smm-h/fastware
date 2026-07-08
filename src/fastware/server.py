@@ -11,6 +11,7 @@ import sys
 import threading
 import time
 import types
+import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -385,14 +386,17 @@ def serve_background(
         start_new_session=True,
     )
 
-    # Wait for server to be ready by polling the health endpoint
+    # Wait for the server to be ready by polling it over HTTP. Any HTTP
+    # response -- including an error status like 404 (no /health route) --
+    # proves the server is up; only connection-level failures mean not-ready.
     url = f"http://{host}:{port}"
     deadline = time.monotonic() + 10
     while time.monotonic() < deadline:
         try:
-            resp = urllib.request.urlopen(f"{url}/health", timeout=1)
-            if resp.status == 200:
-                break
+            urllib.request.urlopen(f"{url}/health", timeout=1)
+            break
+        except urllib.error.HTTPError:
+            break  # the server answered -- it is up
         except Exception:
             if proc.poll() is not None:
                 raise RuntimeError(
