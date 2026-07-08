@@ -83,12 +83,17 @@ def _install_thread_aware_granian_signals() -> None:
     _granian_common.set_main_signals = _thread_aware_set_main_signals
 
 
-def _write_pid(pid_path: Path) -> None:
+def _write_pid(pid_path: Path, *, exclusive: bool = False) -> None:
     """Write the current PID to disk, become process group leader, and register cleanup.
 
     Becoming a process group leader (via os.setpgid(0, 0)) lets stop() signal
     our entire process group with os.killpg, so granian worker subprocesses
     die with us instead of being orphaned.
+
+    When *exclusive* is True, the PID file is created atomically with
+    O_CREAT|O_EXCL: if it already exists, another instance won the race
+    between the single-instance check and PID creation, and
+    AlreadyRunningError is raised instead of overwriting its PID file.
 
     No signal handlers are installed here: Granian installs its own
     SIGTERM/SIGINT handlers during startup (which trigger a graceful shutdown,
@@ -101,7 +106,18 @@ def _write_pid(pid_path: Path) -> None:
         # Already a group leader, or not permitted in this context (e.g. some
         # supervised contexts) -- not fatal.
         pass
-    pid_path.write_text(str(os.getpid()))
+    if exclusive:
+        try:
+            fd = os.open(pid_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+        except FileExistsError:
+            raise AlreadyRunningError(
+                f"PID file {pid_path} already exists -- another instance "
+                f"started concurrently."
+            ) from None
+        with os.fdopen(fd, "w") as f:
+            f.write(str(os.getpid()))
+    else:
+        pid_path.write_text(str(os.getpid()))
     atexit.register(_remove_pid, pid_path)
 
 
@@ -620,7 +636,9 @@ def serve(
             raise AlreadyRunningError(msg)
     ensure_port_available(resolved_host, resolved_port, name, pid_path=pid_path)
     if pid_path is not None:
-        _write_pid(pid_path)
+        # Exclusive creation closes the race window between the
+        # check_already_running probe above and PID file creation.
+        _write_pid(pid_path, exclusive=single_instance)
         _write_port_file(pid_path, resolved_port)
 
     if pre_serve is not None:

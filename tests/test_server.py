@@ -242,6 +242,37 @@ def test_serve_single_instance_false_skips_pid_check(
     mock_instance.serve.assert_called_once()
 
 
+@patch("fastware.server.Granian")
+def test_serve_pid_create_race_raises(mock_granian_cls: MagicMock, tmp_path: Path) -> None:
+    """Two concurrent serve() calls cannot both create the PID file.
+
+    Simulates the race window: the PID file appears after check_already_running
+    passes but before the PID file is created. The loser must raise
+    AlreadyRunningError instead of overwriting the winner's PID file.
+    """
+    mock_granian_cls.return_value = MagicMock()
+    pid_path = tmp_path / "race.pid"
+    pid_path.write_text("54321")  # the other racer already won
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("127.0.0.1", 0))
+        free_port = s.getsockname()[1]
+
+    with patch("fastware.server.check_already_running", return_value=None):
+        with pytest.raises(AlreadyRunningError):
+            serve(
+                "myapp:app",
+                foreground=False,
+                host="127.0.0.1",
+                port=free_port,
+                pid_path=pid_path,
+                single_instance=True,
+            )
+
+    # The winner's PID file is untouched.
+    assert pid_path.read_text() == "54321"
+
+
 def test_write_pid_leaves_signal_handlers_alone(tmp_path: Path) -> None:
     """_write_pid must not install signal handlers.
 
