@@ -37,7 +37,7 @@ __all__ = [
 ]
 
 # ---------------------------------------------------------------------------
-# 4.1 JWT token operations
+# JWT token operations
 # ---------------------------------------------------------------------------
 
 
@@ -76,7 +76,7 @@ def verify_token(token: str, secret: str) -> dict[str, Any] | None:
 
 
 # ---------------------------------------------------------------------------
-# 4.2 Password hashing
+# Password hashing
 # ---------------------------------------------------------------------------
 
 
@@ -107,7 +107,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# 4.3 User storage interface
+# User storage interface
 # ---------------------------------------------------------------------------
 
 
@@ -200,7 +200,7 @@ class JSONFileUserStore(UserStore):
 
 
 # ---------------------------------------------------------------------------
-# 4.4 Auth dependencies (DI-compatible)
+# Auth dependencies (DI-compatible)
 # ---------------------------------------------------------------------------
 
 
@@ -261,7 +261,7 @@ def require_role(role: str) -> Callable:
 
 
 # ---------------------------------------------------------------------------
-# 4.5 CSRF double-submit middleware (pure ASGI)
+# CSRF double-submit middleware (pure ASGI)
 # ---------------------------------------------------------------------------
 
 # Methods that do not change state -- exempt from CSRF checks.
@@ -371,7 +371,7 @@ class CSRFMiddleware:
 
 
 # ---------------------------------------------------------------------------
-# 4.6 Session cookie helpers
+# Session cookie helpers
 # ---------------------------------------------------------------------------
 
 
@@ -397,7 +397,7 @@ def clear_session_cookies() -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# 4.7 Rate limiting
+# Rate limiting
 # ---------------------------------------------------------------------------
 
 # Pattern: "N/unit" where unit is second, minute, or hour
