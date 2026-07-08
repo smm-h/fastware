@@ -71,8 +71,8 @@ class Request:
 
     __slots__ = (
         "scope", "path_params", "_body", "_json", "_json_decoded",
-        "_receive", "_disconnected", "_cookies", "_cookies_parsed",
-        "_query_params", "_state",
+        "_receive", "_disconnected", "_receive_task", "_cookies",
+        "_cookies_parsed", "_query_params", "_state",
     )
 
     def __init__(
@@ -89,6 +89,7 @@ class Request:
         self._json_decoded = False
         self._receive = receive
         self._disconnected = False
+        self._receive_task = None
         self._cookies = None
         self._cookies_parsed = False
         self._query_params = None
@@ -227,18 +228,36 @@ class Request:
         return self.scope.get("path", "")
 
     async def is_disconnected(self) -> bool:
-        """Check whether the client has disconnected."""
+        """Non-blocking check for whether the client has disconnected.
+
+        Peeks at the ASGI receive channel for an ``http.disconnect`` message
+        without blocking. An in-flight ``receive()`` is launched as a task and
+        kept alive across calls rather than cancelled, so a message the
+        coroutine has already dequeued is never dropped -- unlike a
+        ``wait_for(receive(), timeout=0)`` that cancels the receive mid-flight.
+
+        Errors raised by ``receive()`` are intentionally not caught here; they
+        propagate to the caller instead of being silently reported as "still
+        connected".
+        """
         if self._disconnected:
             return True
         if self._receive is None:
             return False
-        try:
-            msg = await asyncio.wait_for(self._receive(), timeout=0.0)
-            if msg.get("type") == "http.disconnect":
-                self._disconnected = True
-                return True
-        except (asyncio.TimeoutError, Exception):
-            pass
+        # Reuse an in-flight receive from a prior check, or start a fresh one.
+        if self._receive_task is None:
+            self._receive_task = asyncio.ensure_future(self._receive())
+        # Yield once so the event loop can resolve the receive if a message is
+        # already available. The task is never cancelled, so a message it has
+        # dequeued stays in the task result instead of being discarded.
+        await asyncio.sleep(0)
+        if not self._receive_task.done():
+            return False
+        task, self._receive_task = self._receive_task, None
+        msg = task.result()
+        if msg.get("type") == "http.disconnect":
+            self._disconnected = True
+            return True
         return False
 
     @property

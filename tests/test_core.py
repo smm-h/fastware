@@ -408,6 +408,51 @@ class TestRequestIsDisconnected:
         req = Request(scope, {}, None, receive=None)
         assert await req.is_disconnected() is False
 
+    @pytest.mark.anyio
+    async def test_is_disconnected_detects_queued_disconnect(self):
+        """A disconnect message already available on the receive channel is
+        detected. The buggy wait_for(timeout=0) implementation cancels
+        receive() before it resolves and reports a false negative."""
+        from fastware import Request
+
+        q: asyncio.Queue = asyncio.Queue()
+        await q.put({"type": "http.disconnect"})
+        scope = {"type": "http", "method": "GET", "path": "/test", "headers": []}
+        req = Request(scope, {}, None, receive=q.get)
+        assert await req.is_disconnected() is True
+
+    @pytest.mark.anyio
+    async def test_is_disconnected_does_not_drop_pending_message(self):
+        """A receive that has not resolved yet must not be cancelled/discarded.
+        The first check (empty channel) returns False; once the disconnect is
+        enqueued, a later check detects it -- proving the in-flight receive was
+        preserved rather than dropped."""
+        from fastware import Request
+
+        q: asyncio.Queue = asyncio.Queue()
+        scope = {"type": "http", "method": "GET", "path": "/test", "headers": []}
+        req = Request(scope, {}, None, receive=q.get)
+        # Channel empty: receive blocks, non-blocking check reports connected.
+        assert await req.is_disconnected() is False
+        # The client disconnects; the message the (preserved) receive picks up
+        # must be delivered on the next check.
+        await q.put({"type": "http.disconnect"})
+        assert await req.is_disconnected() is True
+
+    @pytest.mark.anyio
+    async def test_is_disconnected_does_not_swallow_unexpected_errors(self):
+        """The except must be narrow: a programming error inside receive()
+        should surface, not be silently swallowed as 'still connected'."""
+        from fastware import Request
+
+        async def broken_receive():
+            raise RuntimeError("boom")
+
+        scope = {"type": "http", "method": "GET", "path": "/test", "headers": []}
+        req = Request(scope, {}, None, receive=broken_receive)
+        with pytest.raises(RuntimeError, match="boom"):
+            await req.is_disconnected()
+
 
 # ---------------------------------------------------------------------------
 # 1.12 StreamResponse status code
