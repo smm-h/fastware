@@ -114,9 +114,7 @@ class TestSyncTestClient:
         client.close()
 
     def test_without_lifespan(self):
-        """Basic requests work without lifespan (ASGITransport does not
-        trigger ASGI lifespan events -- lifespan testing requires
-        a real server or a dedicated lifespan runner)."""
+        """Apps with no lifespan handler still work (state stays empty)."""
         router = Router()
 
         @router.get("/api/check")
@@ -130,6 +128,58 @@ class TestSyncTestClient:
             resp = client.get("/api/check")
             assert resp.status_code == 200
             assert resp.json() == {"ok": True}
+
+    def test_lifespan_state_populated_sync(self):
+        """The sync TestClient runs the ASGI lifespan, so handlers see the
+        state yielded by the lifespan context manager."""
+        from contextlib import asynccontextmanager
+
+        @asynccontextmanager
+        async def lifespan(app):
+            yield {"db": "connected", "value": 7}
+
+        router = Router()
+
+        @router.get("/api/state")
+        async def read_state(req):
+            return JSONResponse(
+                {"db": req.state.get("db"), "value": req.state.get("value")}
+            )
+
+        app = create_app(
+            router, lifespan=lifespan, request_id=False, request_timing=False,
+        )
+        with TestClient(app) as client:
+            resp = client.get("/api/state")
+            assert resp.status_code == 200
+            assert resp.json() == {"db": "connected", "value": 7}
+
+    def test_lifespan_startup_and_shutdown_run_sync(self):
+        """Startup runs on enter and shutdown runs on exit."""
+        from contextlib import asynccontextmanager
+
+        events = []
+
+        @asynccontextmanager
+        async def lifespan(app):
+            events.append("startup")
+            yield {}
+            events.append("shutdown")
+
+        router = Router()
+
+        @router.get("/api/health")
+        async def health(req):
+            return JSONResponse({"status": "ok"})
+
+        app = create_app(
+            router, lifespan=lifespan, request_id=False, request_timing=False,
+        )
+        with TestClient(app) as client:
+            assert events == ["startup"]
+            resp = client.get("/api/health")
+            assert resp.status_code == 200
+        assert events == ["startup", "shutdown"]
 
 
 @pytest.mark.anyio
@@ -173,6 +223,58 @@ class TestAsyncTestClient:
             r2 = await client.get("/api/count")
             assert r1.json()["count"] == 1
             assert r2.json()["count"] == 2
+
+    async def test_lifespan_state_populated(self):
+        """The async client runs the ASGI lifespan, so handlers see the
+        state yielded by the lifespan context manager."""
+        from contextlib import asynccontextmanager
+
+        @asynccontextmanager
+        async def lifespan(app):
+            yield {"db": "connected", "value": 42}
+
+        router = Router()
+
+        @router.get("/api/state")
+        async def read_state(req):
+            return JSONResponse(
+                {"db": req.state.get("db"), "value": req.state.get("value")}
+            )
+
+        app = create_app(
+            router, lifespan=lifespan, request_id=False, request_timing=False,
+        )
+        async with AsyncTestClient(app) as client:
+            resp = await client.get("/api/state")
+            assert resp.status_code == 200
+            assert resp.json() == {"db": "connected", "value": 42}
+
+    async def test_lifespan_startup_and_shutdown_run(self):
+        """Startup runs on enter and shutdown runs on exit."""
+        from contextlib import asynccontextmanager
+
+        events = []
+
+        @asynccontextmanager
+        async def lifespan(app):
+            events.append("startup")
+            yield {}
+            events.append("shutdown")
+
+        router = Router()
+
+        @router.get("/api/health")
+        async def health(req):
+            return JSONResponse({"status": "ok"})
+
+        app = create_app(
+            router, lifespan=lifespan, request_id=False, request_timing=False,
+        )
+        async with AsyncTestClient(app) as client:
+            assert events == ["startup"]
+            resp = await client.get("/api/health")
+            assert resp.status_code == 200
+        assert events == ["startup", "shutdown"]
 
 
 # -----------------------------------------------------------------------
