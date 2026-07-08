@@ -449,8 +449,7 @@ class TestServeReload:
             )
 
     @patch("fastware.server.ensure_port_available")
-    @patch("fastware.server._resolve_target", return_value="myapp:app")
-    def test_reload_calls_run_process(self, mock_resolve, mock_port):
+    def test_reload_calls_run_process(self, mock_port):
         """reload=True invokes watchfiles.run_process with correct args."""
         mock_port.return_value = 9999
         mock_run = MagicMock(return_value=0)
@@ -474,8 +473,8 @@ class TestServeReload:
         assert call_kwargs[0][0] == "."
         # target is _run_server
         assert call_kwargs[1]["target"].__name__ == "_run_server"
-        # args pass the resolved target, host, port
-        assert call_kwargs[1]["args"] == ("myapp:app", "127.0.0.1", 9999)
+        # args pass the target, host, port, and (for string targets) no shim dir
+        assert call_kwargs[1]["args"] == ("myapp:app", "127.0.0.1", 9999, None)
 
     @patch("fastware.server.Granian")
     def test_reload_false_does_not_import_watchfiles(self, mock_granian):
