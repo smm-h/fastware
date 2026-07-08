@@ -57,12 +57,17 @@ def create_token(
 
 
 def verify_token(token: str, secret: str) -> dict[str, Any] | None:
-    """Decode and validate a JWT. Returns claims dict or None on any error."""
+    """Decode and validate a JWT. Returns claims dict or None if invalid.
+
+    Only token-validation failures map to None; programming errors
+    (e.g. a None secret) propagate.
+    """
     import jwt
 
     try:
         return jwt.decode(token, secret, algorithms=["HS256"])
-    except (jwt.InvalidTokenError, jwt.ExpiredSignatureError, Exception):
+    except jwt.InvalidTokenError:
+        # Base class of all PyJWT validation errors, incl. ExpiredSignatureError.
         return None
 
 

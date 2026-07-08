@@ -97,6 +97,17 @@ class TestJWTTokens:
         delta = exp - now
         assert timedelta(minutes=55) < delta < timedelta(minutes=65)
 
+    def test_programming_errors_propagate(self):
+        """Only jwt validation errors map to None; bugs must raise.
+
+        Passing None as the secret is a programming error (TypeError from
+        PyJWT), not an invalid token -- it must not be swallowed into a 401.
+        """
+        secret = "test-secret-key-that-is-at-least-thirty-two-bytes-long"
+        token = create_token("alice", "admin", secret)
+        with pytest.raises(TypeError):
+            verify_token(token, None)
+
     def test_default_expiry_is_720_hours(self):
         secret = "test-secret-key-that-is-at-least-thirty-two-bytes-long"
         token = create_token("alice", "admin", secret)
