@@ -128,20 +128,51 @@ class DependencyResolver:
     async def cleanup(cleanups: list[tuple[str, Any]]) -> None:
         """Run generator cleanups in reverse order.
 
-        Cleanup errors are suppressed -- a failing cleanup must not mask the
-        handler's response or exception.
+        Each generator dependency must yield exactly once. If a generator
+        yields a second time during cleanup (a multi-yield generator, like a
+        FastAPI-style dependency written with two ``yield`` statements), that is
+        a programming error: :class:`RuntimeError` is raised after all cleanups
+        have run.
+
+        Errors raised *inside* a generator's cleanup code (e.g. in a ``finally``
+        block) are logged at ERROR level and suppressed -- a failing cleanup
+        must not mask the handler's response or exception. They are never
+        swallowed silently.
         """
+        multi_yield_error: RuntimeError | None = None
         for kind, gen in reversed(cleanups):
             try:
                 if kind == "sync":
                     try:
                         next(gen)
                     except StopIteration:
-                        pass
+                        continue
                 else:
                     try:
                         await gen.__anext__()
                     except StopAsyncIteration:
-                        pass
+                        continue
             except Exception:
-                pass  # swallow cleanup errors
+                logger.exception("Error during dependency generator cleanup")
+                continue
+
+            # Reaching here means the generator yielded a second time: it is a
+            # multi-yield generator, which is not allowed. Close it and remember
+            # to raise once every cleanup has been attempted.
+            if multi_yield_error is None:
+                multi_yield_error = RuntimeError(
+                    "Dependency generator yielded more than once; generator "
+                    "dependencies must yield exactly once."
+                )
+            try:
+                if kind == "sync":
+                    gen.close()
+                else:
+                    await gen.aclose()
+            except Exception:
+                logger.exception(
+                    "Error closing multi-yield dependency generator"
+                )
+
+        if multi_yield_error is not None:
+            raise multi_yield_error

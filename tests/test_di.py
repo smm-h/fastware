@@ -1028,3 +1028,64 @@ class TestFactorySignatureIntrospection:
         resolver = DependencyResolver()
         resolved, _ = await resolver.resolve({"t": get_thing}, "REQ")
         assert resolved == {"t": "REQ-2"}
+
+
+# ---------------------------------------------------------------------------
+# Cleanup: multi-yield detection and error logging (no silent swallow).
+# ---------------------------------------------------------------------------
+
+
+class TestCleanupMultiYieldAndLogging:
+    @pytest.mark.anyio
+    async def test_sync_multi_yield_generator_raises(self):
+        """A sync generator dep that yields more than once is a hard error."""
+
+        def bad(request):
+            yield "first"
+            yield "second"
+
+        resolver = DependencyResolver()
+        resolved, cleanups = await resolver.resolve({"c": bad}, "req")
+        assert resolved == {"c": "first"}
+        with pytest.raises(RuntimeError):
+            await resolver.cleanup(cleanups)
+
+    @pytest.mark.anyio
+    async def test_async_multi_yield_generator_raises(self):
+        """An async generator dep that yields more than once is a hard error."""
+
+        async def bad(request):
+            yield "first"
+            yield "second"
+
+        resolver = DependencyResolver()
+        resolved, cleanups = await resolver.resolve({"c": bad}, "req")
+        assert resolved == {"c": "first"}
+        with pytest.raises(RuntimeError):
+            await resolver.cleanup(cleanups)
+
+    @pytest.mark.anyio
+    async def test_cleanup_error_is_logged_not_silent(self, caplog):
+        """Errors raised inside a generator's cleanup are logged (not swallowed
+        silently) but must not propagate."""
+        import logging
+
+        def bad_cleanup(request):
+            try:
+                yield "value"
+            finally:
+                raise RuntimeError("cleanup boom")
+
+        resolver = DependencyResolver()
+        resolved, cleanups = await resolver.resolve({"v": bad_cleanup}, "req")
+        assert resolved == {"v": "value"}
+
+        with caplog.at_level(logging.ERROR, logger="fastware.di"):
+            # Must not raise -- cleanup errors are suppressed after logging.
+            await resolver.cleanup(cleanups)
+
+        assert any(
+            r.name == "fastware.di" and r.levelname == "ERROR"
+            for r in caplog.records
+        )
+        assert "cleanup boom" in caplog.text
