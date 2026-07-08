@@ -77,10 +77,22 @@ def verify_token(token: str, secret: str) -> dict[str, Any] | None:
 
 
 def hash_password(plain: str) -> str:
-    """Hash a plaintext password with bcrypt."""
+    """Hash a plaintext password with bcrypt.
+
+    Raises ValueError for passwords longer than 72 bytes (UTF-8): bcrypt
+    ignores everything past byte 72, so accepting them would silently
+    weaken the password.
+    """
     import bcrypt
 
-    return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
+    encoded = plain.encode()
+    if len(encoded) > 72:
+        raise ValueError(
+            f"Password exceeds bcrypt's 72-byte limit "
+            f"(got {len(encoded)} bytes); longer passwords would be "
+            f"silently truncated."
+        )
+    return bcrypt.hashpw(encoded, bcrypt.gensalt()).decode()
 
 
 def verify_password(plain: str, hashed: str) -> bool:

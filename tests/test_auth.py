@@ -149,6 +149,22 @@ class TestPasswordHashing:
         assert isinstance(hashed, str)
         assert hashed.startswith("$2")
 
+    def test_password_over_72_bytes_rejected(self):
+        with pytest.raises(ValueError, match="72-byte limit"):
+            hash_password("x" * 73)
+
+    def test_password_exactly_72_bytes_accepted(self):
+        pw = "x" * 72
+        hashed = hash_password(pw)
+        assert verify_password(pw, hashed) is True
+
+    def test_multibyte_password_over_72_bytes_rejected(self):
+        # 25 chars but 75 UTF-8 bytes -- the limit is byte-based.
+        pw = "€" * 25  # euro sign, 3 bytes each
+        assert len(pw) < 72
+        with pytest.raises(ValueError, match="72-byte limit"):
+            hash_password(pw)
+
 
 # ---------------------------------------------------------------------------
 # 4.3 User storage interface
