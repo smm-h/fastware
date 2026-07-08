@@ -7,9 +7,10 @@ optional payload dict. Thread-safe via ``threading.Lock``.
 from __future__ import annotations
 
 import json
-import threading
 from datetime import datetime, timezone
 from pathlib import Path
+
+from fastware._fswrite import LockedFileWriter
 
 __all__ = [
     "AuditLog",
@@ -26,8 +27,7 @@ class AuditLog:
     """
 
     def __init__(self, path: str | Path) -> None:
-        self._path = Path(path)
-        self._lock = threading.Lock()
+        self._writer = LockedFileWriter(path)
 
     def log(self, event_type: str, payload: dict | None = None) -> None:
         """Append a single audit entry as a JSON line.
@@ -43,7 +43,4 @@ class AuditLog:
         if payload is not None:
             entry["payload"] = payload
         line = json.dumps(entry, separators=(",", ":"))
-        with self._lock:
-            self._path.parent.mkdir(parents=True, exist_ok=True)
-            with self._path.open("a") as f:
-                f.write(line + "\n")
+        self._writer.append_line(line)

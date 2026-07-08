@@ -11,6 +11,8 @@ import json
 import threading
 from pathlib import Path
 
+from fastware._fswrite import LockedFileWriter
+
 __all__ = [
     "FeatureFlags",
 ]
@@ -35,7 +37,15 @@ class FeatureFlags:
     ) -> None:
         self._defaults = dict(defaults)
         self._overrides_path = Path(overrides_path) if overrides_path else None
+        # self._lock guards the in-memory _overrides dict (and is needed even
+        # when there is no overrides file). The writer serializes the on-disk
+        # persistence; it exists only when a path is configured.
         self._lock = threading.Lock()
+        self._writer = (
+            LockedFileWriter(self._overrides_path)
+            if self._overrides_path is not None
+            else None
+        )
         self._overrides: dict[str, bool] = self._load_overrides()
 
     def _load_overrides(self) -> dict[str, bool]:
@@ -73,10 +83,7 @@ class FeatureFlags:
             raise RuntimeError(msg)
         with self._lock:
             self._overrides[name] = value
-            self._overrides_path.parent.mkdir(parents=True, exist_ok=True)
-            self._overrides_path.write_text(
-                json.dumps(self._overrides, indent=2) + "\n"
-            )
+            self._writer.overwrite(json.dumps(self._overrides, indent=2) + "\n")
 
     def reload(self) -> None:
         """Re-read overrides from the file on disk."""
