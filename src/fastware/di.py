@@ -9,11 +9,44 @@ same resolved instance.
 from __future__ import annotations
 
 import inspect
+import logging
 from typing import Any, Callable
 
 __all__ = [
     "DependencyResolver",
 ]
+
+logger = logging.getLogger("fastware.di")
+
+
+def _request_call_mode(factory: Callable) -> str | None:
+    """Determine how *factory* should receive the request, by introspection.
+
+    Returns:
+    - ``"positional"`` if the factory has a parameter that can accept the
+      request positionally (positional-only, positional-or-keyword, or
+      ``*args``). The request is passed as ``factory(request)``.
+    - ``"keyword"`` if the factory has a keyword-only parameter literally
+      named ``request``. The request is passed as ``factory(request=request)``.
+    - ``None`` if the factory takes no request slot (e.g. ``def f()`` or
+      ``def f(*, x=1)``). The factory is called with no arguments.
+
+    This prevents wrongly calling ``factory(request)`` on a factory whose only
+    parameters are keyword-only (which raises ``TypeError``).
+    """
+    params = inspect.signature(factory).parameters
+    for param in params.values():
+        if param.kind in (
+            inspect.Parameter.POSITIONAL_ONLY,
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.VAR_POSITIONAL,
+        ):
+            return "positional"
+    if "request" in params and (
+        params["request"].kind == inspect.Parameter.KEYWORD_ONLY
+    ):
+        return "keyword"
+    return None
 
 
 class DependencyResolver:
@@ -53,14 +86,18 @@ class DependencyResolver:
                     resolved[name] = cache[factory_id]
                     continue
 
-                # Call the factory with request if it accepts it, otherwise
-                # call with no args. This supports test override factories
-                # like ``async def fake(): return {"sub": "test"}`` that
-                # don't need request context.
-                sig = inspect.signature(actual_factory)
-                params = sig.parameters
-                if params:
+                # Call the factory with request only if its signature actually
+                # has a slot for it, otherwise call with no args. This supports
+                # test override factories like
+                # ``async def fake(): return {"sub": "test"}`` that don't need
+                # request context, as well as factories whose only parameters
+                # are keyword-only with defaults (``def f(*, x=1)``) -- those
+                # must not be called as ``f(request)``.
+                mode = _request_call_mode(actual_factory)
+                if mode == "positional":
                     result = actual_factory(request)
+                elif mode == "keyword":
+                    result = actual_factory(request=request)
                 else:
                     result = actual_factory()
 

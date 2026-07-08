@@ -973,3 +973,58 @@ class TestDIRequestAccess:
 
         shutdown_trigger.set()
         await ls_task
+
+
+# ---------------------------------------------------------------------------
+# Factory signature introspection: keyword-only params must not be treated
+# as a request slot.
+# ---------------------------------------------------------------------------
+
+
+class TestFactorySignatureIntrospection:
+    @pytest.mark.anyio
+    async def test_keyword_only_default_factory_not_called_with_request(self):
+        """A factory with only keyword-only params (def f(*, x=1)) must be called
+        with no positional args -- calling f(request) raises TypeError."""
+
+        def get_settings(*, verbose=True):
+            return {"verbose": verbose}
+
+        resolver = DependencyResolver()
+        resolved, _ = await resolver.resolve(
+            {"settings": get_settings}, "fake_request",
+        )
+        assert resolved == {"settings": {"verbose": True}}
+
+    @pytest.mark.anyio
+    async def test_positional_request_still_passed(self):
+        """A factory with a normal positional param still receives the request."""
+
+        def get_thing(request):
+            return request
+
+        resolver = DependencyResolver()
+        resolved, _ = await resolver.resolve({"t": get_thing}, "REQ")
+        assert resolved == {"t": "REQ"}
+
+    @pytest.mark.anyio
+    async def test_keyword_only_named_request_receives_request(self):
+        """A keyword-only param literally named 'request' still gets the request."""
+
+        def get_thing(*, request):
+            return request
+
+        resolver = DependencyResolver()
+        resolved, _ = await resolver.resolve({"t": get_thing}, "REQ")
+        assert resolved == {"t": "REQ"}
+
+    @pytest.mark.anyio
+    async def test_positional_before_keyword_only(self):
+        """def f(request, *, x=1) receives request positionally, x defaults."""
+
+        def get_thing(request, *, scale=2):
+            return f"{request}-{scale}"
+
+        resolver = DependencyResolver()
+        resolved, _ = await resolver.resolve({"t": get_thing}, "REQ")
+        assert resolved == {"t": "REQ-2"}
