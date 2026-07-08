@@ -347,6 +347,75 @@ class TestStop:
 
 
 # ---------------------------------------------------------------------------
+# Granian signal patch scoping
+# ---------------------------------------------------------------------------
+
+
+class TestGranianSignalPatch:
+    """serve(foreground=False) must not permanently strip granian's signal setup."""
+
+    @patch("fastware.server.Granian")
+    def test_main_thread_signal_handling_survives_background_serve(
+        self, mock_granian_cls: MagicMock
+    ) -> None:
+        """After a background serve(), granian's set_main_signals still installs
+        real handlers when called from the main thread (as a later foreground
+        serve() in the same process would)."""
+        import signal as _signal
+        import threading
+
+        from granian.server import common as granian_common
+
+        mock_granian_cls.return_value = MagicMock()
+        serve("myapp:app", foreground=False, host="127.0.0.1", port=_free_port())
+
+        assert threading.current_thread() is threading.main_thread()
+        before_term = _signal.getsignal(_signal.SIGTERM)
+        before_int = _signal.getsignal(_signal.SIGINT)
+
+        def handler(signum, frame):
+            pass
+
+        try:
+            granian_common.set_main_signals(handler)
+            assert _signal.getsignal(_signal.SIGTERM) is handler
+            assert _signal.getsignal(_signal.SIGINT) is handler
+        finally:
+            _signal.signal(_signal.SIGTERM, before_term)
+            _signal.signal(_signal.SIGINT, before_int)
+
+    @patch("fastware.server.Granian")
+    def test_set_main_signals_is_safe_off_main_thread(
+        self, mock_granian_cls: MagicMock
+    ) -> None:
+        """From a worker thread, granian's set_main_signals must not raise
+        (signal.signal would raise ValueError there) and must not touch handlers."""
+        import signal as _signal
+        import threading
+
+        from granian.server import common as granian_common
+
+        mock_granian_cls.return_value = MagicMock()
+        serve("myapp:app", foreground=False, host="127.0.0.1", port=_free_port())
+
+        before_term = _signal.getsignal(_signal.SIGTERM)
+        errors: list[Exception] = []
+
+        def call_from_thread():
+            try:
+                granian_common.set_main_signals(lambda s, f: None)
+            except Exception as exc:
+                errors.append(exc)
+
+        t = threading.Thread(target=call_from_thread)
+        t.start()
+        t.join()
+
+        assert errors == []
+        assert _signal.getsignal(_signal.SIGTERM) is before_term
+
+
+# ---------------------------------------------------------------------------
 # 2.3 status(pid_path, health_url)
 # ---------------------------------------------------------------------------
 

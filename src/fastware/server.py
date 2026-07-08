@@ -47,6 +47,41 @@ class AlreadyRunningError(RuntimeError):
 _callable_counter = 0
 _callable_counter_lock = threading.Lock()
 
+# Original granian set_main_signals, saved when the thread-aware wrapper is
+# installed (None means the wrapper is not installed).
+_granian_set_main_signals: Callable | None = None
+
+
+def _install_thread_aware_granian_signals() -> None:
+    """Make granian's set_main_signals delegate only on the main thread.
+
+    signal.signal() raises ValueError outside the main thread, so granian's
+    startup() would crash when serve(foreground=False) runs it in a daemon
+    thread. Replacing it with a plain no-op permanently would silently strip
+    signal handling from any later foreground serve() in the same process.
+    Instead, the wrapper checks the calling thread on every call: on the main
+    thread it delegates to the real implementation (foreground serves keep
+    full signal handling), elsewhere it skips the call (daemon-thread serves,
+    which need no handlers -- the thread dies with the main thread).
+    Idempotent.
+    """
+    global _granian_set_main_signals
+    if _granian_set_main_signals is not None:
+        return
+
+    from granian import _signals
+    from granian.server import common as _granian_common
+
+    original = _signals.set_main_signals
+    _granian_set_main_signals = original
+
+    def _thread_aware_set_main_signals(*args, **kwargs):
+        if threading.current_thread() is threading.main_thread():
+            original(*args, **kwargs)
+
+    _signals.set_main_signals = _thread_aware_set_main_signals
+    _granian_common.set_main_signals = _thread_aware_set_main_signals
+
 
 def _write_pid(pid_path: Path) -> None:
     """Write the current PID to disk, become process group leader, and register cleanup.
@@ -627,14 +662,9 @@ def serve(
         return None
     else:
         # Granian registers signal handlers in startup(), which fails in
-        # daemon threads.  Signal handling is unnecessary here -- the daemon
-        # thread dies when the main thread exits.
-        from granian import _signals
-        from granian.server import common as _granian_common
-
-        def _noop(*a, **kw): None
-        _signals.set_main_signals = _noop
-        _granian_common.set_main_signals = _noop
+        # daemon threads. The thread-aware wrapper skips signal setup off the
+        # main thread while keeping it intact for later foreground serves.
+        _install_thread_aware_granian_signals()
 
         thread = threading.Thread(target=server.serve, daemon=True)
         thread.start()
