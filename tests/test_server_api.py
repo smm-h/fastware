@@ -275,6 +275,76 @@ class TestStop:
         assert sigterm_calls[0][0][0] == 12345
         assert not pid_path.exists()
 
+    @patch("fastware.server.os.killpg")
+    @patch("fastware.server.os.getpgid")
+    @patch("fastware.server.os.kill")
+    def test_stop_signals_process_group_of_group_leader(
+        self,
+        mock_kill: MagicMock,
+        mock_getpgid: MagicMock,
+        mock_killpg: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """When the PID is its own group leader, stop() signals the whole group."""
+        pid_path = tmp_path / "test.pid"
+        pid_path.write_text("4242")
+        mock_getpgid.return_value = 4242  # pid == pgid -> group leader
+
+        probes = {"count": 0}
+
+        def kill_side_effect(pid, sig):
+            # Only liveness probes (sig 0) may go through os.kill; signalling
+            # must use os.killpg for a group leader.
+            assert sig == 0
+            probes["count"] += 1
+            if probes["count"] == 1:
+                return  # alive before SIGTERM
+            raise ProcessLookupError  # dead after SIGTERM
+
+        mock_kill.side_effect = kill_side_effect
+
+        stop(pid_path)
+
+        mock_killpg.assert_called_once_with(4242, signal.SIGTERM)
+        assert not pid_path.exists()
+
+    @patch("fastware.server.os.killpg")
+    @patch("fastware.server.os.getpgid")
+    @patch("fastware.server.os.kill")
+    def test_stop_does_not_killpg_non_group_leader(
+        self,
+        mock_kill: MagicMock,
+        mock_getpgid: MagicMock,
+        mock_killpg: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """When the PID leads no group, only that PID is signalled -- its group
+        may contain unrelated processes (e.g. the launching shell)."""
+        pid_path = tmp_path / "test.pid"
+        pid_path.write_text("4242")
+        mock_getpgid.return_value = 1  # pid != pgid -> not a group leader
+
+        probes = {"count": 0}
+
+        def kill_side_effect(pid, sig):
+            if sig == signal.SIGTERM:
+                assert pid == 4242
+                return
+            assert sig == 0
+            probes["count"] += 1
+            if probes["count"] == 1:
+                return
+            raise ProcessLookupError
+
+        mock_kill.side_effect = kill_side_effect
+
+        stop(pid_path)
+
+        mock_killpg.assert_not_called()
+        sigterm_calls = [c for c in mock_kill.call_args_list if c[0][1] == signal.SIGTERM]
+        assert len(sigterm_calls) == 1
+        assert not pid_path.exists()
+
 
 # ---------------------------------------------------------------------------
 # 2.3 status(pid_path, health_url)

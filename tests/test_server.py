@@ -242,6 +242,28 @@ def test_serve_single_instance_false_skips_pid_check(
     mock_instance.serve.assert_called_once()
 
 
+def test_write_pid_leaves_signal_handlers_alone(tmp_path: Path) -> None:
+    """_write_pid must not install signal handlers.
+
+    Granian overwrites SIGTERM/SIGINT handlers during startup anyway, and
+    process-group termination is stop()'s job -- handler-based forwarding
+    would be dead code.
+    """
+    import signal as _signal
+
+    from fastware.server import _write_pid
+
+    before_term = _signal.getsignal(_signal.SIGTERM)
+    before_int = _signal.getsignal(_signal.SIGINT)
+    try:
+        _write_pid(tmp_path / "handlers.pid")
+        assert _signal.getsignal(_signal.SIGTERM) is before_term
+        assert _signal.getsignal(_signal.SIGINT) is before_int
+    finally:
+        _signal.signal(_signal.SIGTERM, before_term)
+        _signal.signal(_signal.SIGINT, before_int)
+
+
 # --- Port file tests ---
 
 

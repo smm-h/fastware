@@ -49,11 +49,16 @@ _callable_counter_lock = threading.Lock()
 
 
 def _write_pid(pid_path: Path) -> None:
-    """Write the current PID to disk, become process group leader, and register cleanup handlers.
+    """Write the current PID to disk, become process group leader, and register cleanup.
 
-    Becoming a process group leader (via os.setpgid(0, 0)) lets the 'stop'
-    subcommand signal our entire process group with os.killpg, so granian
-    worker subprocesses die with us instead of being orphaned.
+    Becoming a process group leader (via os.setpgid(0, 0)) lets stop() signal
+    our entire process group with os.killpg, so granian worker subprocesses
+    die with us instead of being orphaned.
+
+    No signal handlers are installed here: Granian installs its own
+    SIGTERM/SIGINT handlers during startup (which trigger a graceful shutdown,
+    after which the atexit hook removes the PID file), and group-wide
+    termination is stop()'s responsibility.
     """
     try:
         os.setpgid(0, 0)  # 0,0 = current process becomes its own group leader
@@ -63,9 +68,6 @@ def _write_pid(pid_path: Path) -> None:
         pass
     pid_path.write_text(str(os.getpid()))
     atexit.register(_remove_pid, pid_path)
-    # Clean up PID file on SIGTERM and SIGINT (Ctrl+C).
-    for sig in (signal.SIGTERM, signal.SIGINT):
-        signal.signal(sig, lambda signum, _frame: _signal_handler(signum, _frame, pid_path))
 
 
 def _remove_pid(pid_path: Path) -> None:
@@ -74,19 +76,6 @@ def _remove_pid(pid_path: Path) -> None:
         pid_path.unlink(missing_ok=True)
     except OSError:
         pass
-
-
-def _signal_handler(signum: int, _frame: object, pid_path: Path) -> None:
-    """Handle SIGTERM/SIGINT: forward to our process group, clean up, exit."""
-    # Restore default disposition so the forwarded signal doesn't recurse into us.
-    signal.signal(signum, signal.SIG_DFL)
-    try:
-        os.killpg(os.getpgrp(), signum)
-    except (ProcessLookupError, PermissionError):
-        pass
-    _remove_pid(pid_path)
-    _remove_port_file(_port_file_path(pid_path))
-    raise SystemExit(0)
 
 
 def check_already_running(pid_path: Path, name: str = "server") -> int | None:
@@ -672,8 +661,14 @@ def _cleanup_pid_and_port(pid_path: Path) -> None:
 def stop(pid_path: Path) -> None:
     """Stop a server by reading its PID file.
 
-    Sends SIGTERM, waits up to 10s polling with os.kill(pid, 0), then
-    escalates to SIGKILL. Cleans up the PID file and port file.
+    Sends SIGTERM to the server's process group when the server is its own
+    group leader (as arranged by _write_pid), so granian worker subprocesses
+    die with it. If the server does not lead its group (setpgid failed at
+    startup), only the single PID is signalled -- a group the server does not
+    lead may contain unrelated processes such as the launching shell.
+
+    Waits up to 10s polling with os.kill(pid, 0), then escalates to SIGKILL.
+    Cleans up the PID file and port file.
 
     Raises FileNotFoundError if PID file does not exist.
     If the process is already gone (stale PID file), removes the PID file
@@ -692,16 +687,27 @@ def stop(pid_path: Path) -> None:
     try:
         os.kill(pid, 0)
     except ProcessLookupError:
-        pid_path.unlink(missing_ok=True)
-        _remove_port_file(_port_file_path(pid_path))
+        _cleanup_pid_and_port(pid_path)
         log.info("Process %d is not running (stale PID file removed)", pid)
         return
     except PermissionError:
         pass  # process exists but we can't probe -- proceed with SIGTERM
 
+    # Signal the whole group only when the server leads it (pid == pgid).
+    try:
+        use_group = os.getpgid(pid) == pid
+    except OSError:
+        use_group = False
+
+    def _signal_server(sig: int) -> None:
+        if use_group:
+            os.killpg(pid, sig)
+        else:
+            os.kill(pid, sig)
+
     # Send SIGTERM
     try:
-        os.kill(pid, signal.SIGTERM)
+        _signal_server(signal.SIGTERM)
     except ProcessLookupError:
         _cleanup_pid_and_port(pid_path)
         return
@@ -724,7 +730,7 @@ def stop(pid_path: Path) -> None:
 
     # Escalate to SIGKILL
     try:
-        os.kill(pid, signal.SIGKILL)
+        _signal_server(signal.SIGKILL)
     except ProcessLookupError:
         _cleanup_pid_and_port(pid_path)
         return
