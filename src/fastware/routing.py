@@ -350,35 +350,7 @@ class Router:
         """
         segments = path.strip("/").split("/")
         for pattern, handler, route_deps in self._ws_routes:
-            # Check for :path segments
-            path_seg_idx = None
-            for i, (lit, name, conv) in enumerate(pattern):
-                if name is not None and lit is None and conv is None:
-                    path_seg_idx = i
-                    break
-
-            if path_seg_idx is not None:
-                result = self._match_with_path_param(pattern, segments, path_seg_idx)
-                if result is not None:
-                    return handler, result, route_deps
-                continue
-
-            if len(pattern) != len(segments):
-                continue
-
-            params: dict[str, Any] = {}
-            matched = True
-            for (lit, name, conv), req_seg in zip(pattern, segments):
-                if lit is not None:
-                    if lit != req_seg:
-                        matched = False
-                        break
-                else:
-                    try:
-                        params[name] = conv(req_seg)
-                    except (ValueError, TypeError):
-                        matched = False
-                        break
-            if matched:
-                return handler, params, route_deps
+            result = self._match_pattern(pattern, segments)
+            if result is not None:
+                return handler, result, route_deps
         return None

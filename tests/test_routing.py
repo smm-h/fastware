@@ -212,3 +212,85 @@ class TestMethodDecorators:
         _handler, _params, deps, resp_model = result
         assert deps == {"d": dep}
         assert resp_model is Model
+
+
+# ---------------------------------------------------------------------------
+# WebSocket matching routes through the shared _match_pattern core
+# ---------------------------------------------------------------------------
+
+
+class TestWebSocketMatching:
+    """WS matching must behave identically to HTTP matching now that both
+    share Router._match_pattern -- literals, typed coercion, and greedy
+    :path params all included."""
+
+    def test_ws_literal_match(self):
+        router = Router()
+
+        @router.ws("/chat")
+        async def chat(ws):
+            return None
+
+        result = router.match_ws("/chat")
+        assert result is not None
+        handler, params = result
+        assert handler is chat
+        assert params == {}
+
+    def test_ws_typed_param_coerced(self):
+        router = Router()
+
+        @router.ws("/room/{id:int}")
+        async def room(ws):
+            return None
+
+        result = router.match_ws("/room/42")
+        assert result is not None
+        _handler, params = result
+        assert params == {"id": 42}
+        assert isinstance(params["id"], int)
+
+    def test_ws_typed_param_coercion_failure_does_not_match(self):
+        router = Router()
+
+        @router.ws("/room/{id:int}")
+        async def room(ws):
+            return None
+
+        assert router.match_ws("/room/notanint") is None
+
+    def test_ws_greedy_path_param(self):
+        router = Router()
+
+        @router.ws("/files/{rest:path}")
+        async def files(ws):
+            return None
+
+        result = router.match_ws("/files/a/b/c")
+        assert result is not None
+        _handler, params = result
+        assert params == {"rest": "a/b/c"}
+
+    def test_ws_no_match_returns_none(self):
+        router = Router()
+
+        @router.ws("/chat")
+        async def chat(ws):
+            return None
+
+        assert router.match_ws("/nope") is None
+
+    def test_ws_deps_forwarded(self):
+        router = Router()
+
+        def dep():
+            return 1
+
+        @router.ws("/chat", deps={"d": dep})
+        async def chat(ws):
+            return None
+
+        result = router._match_ws_with_deps("/chat")
+        assert result is not None
+        _handler, _params, deps = result
+        assert deps == {"d": dep}
