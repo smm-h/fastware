@@ -32,3 +32,20 @@ def test_all_public_symbols_resolve():
     # exercises the lazy server-symbol __getattr__ path).
     for name in fastware.__all__:
         assert hasattr(fastware, name), f"{name} in __all__ but not accessible"
+
+
+def test_types_all_is_exactly_scope_receive_send():
+    """fastware.types must declare __all__ so star-imports don't leak helpers."""
+    from fastware import types
+
+    assert types.__all__ == ["Scope", "Receive", "Send"]
+
+
+def test_types_star_import_does_not_leak():
+    """'from fastware.types import *' must yield only the ASGI aliases --
+    not typing helpers (Any, Awaitable, Callable) or the 'annotations' future
+    flag bound at module level."""
+    ns: dict = {}
+    exec("from fastware.types import *", ns)
+    names = {n for n in ns if not n.startswith("__")}
+    assert names == {"Scope", "Receive", "Send"}

@@ -5,6 +5,12 @@ from __future__ import annotations
 from collections.abc import Awaitable
 from typing import Any, Callable
 
+__all__ = [
+    "Scope",
+    "Receive",
+    "Send",
+]
+
 # ---------------------------------------------------------------------------
 # ASGI type aliases
 # ---------------------------------------------------------------------------
