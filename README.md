@@ -53,11 +53,13 @@ if __name__ == "__main__":
 
 ## Feature overview
 
-- **__main__**: Enable running fastware as a module with `python -m fastware`, providing CLI access to diagnostics, config, and server commands.
+- **__main__**: Enable running fastware as a module with `python -m fastware`.
+- **_fswrite**: A small thread-safe file writer shared by the append/overwrite call sites.
+- **_scope**: Scope-level header and cookie access shared across the ASGI layer.
 - **app**: ASGI application factory with middleware chain composition, static file serving, SPA fallback routing, async lifespan hooks, and WebSocket support.
 - **audit**: Append-only JSONL audit log writer for recording timestamped application events with structured payloads, using thread-safe file writes.
 - **auth**: Authentication module providing JWT token creation and verification, bcrypt password hashing, user storage, CSRF protection, and rate limiting.
-- **config**: Config loading utility providing standalone TOML config file parsing with optional Pydantic validation and environment variable overrides.
+- **config**: Config loading utility providing standalone TOML config file parsing with optional Pydantic validation.
 - **dev**: Development mode combining Vite frontend dev server and fastware ASGI backend in a single command with hot reload and proxy routing.
 - **di**: Dependency injection container providing per-request resolution with automatic caching, generator cleanup, and scope-aware dependency override support.
 - **error_log**: SQLite-backed error log for recording and querying 5xx server responses with request context, tracebacks, and timestamps for post-mortem analysis.
@@ -72,7 +74,7 @@ if __name__ == "__main__":
 - **sse**: SSE (Server-Sent Events) broadcaster with typed event registration, per-client async queues, automatic disconnect pruning, and strict mode enforcement.
 - **tasks**: Background task registry with feature-gated lifecycle management, supporting start/stop protocol, factory registration, and graceful shutdown ordering.
 - **testing**: Sync and async test clients for fastware apps, wrapping httpx with ASGITransport to exercise routes without starting a real network server.
-- **types**: ASGI type aliases (Scope, Receive, Send, ASGIApp, Middleware) used throughout fastware for consistent type-checked request and response handling.
+- **types**: ASGI type aliases (Scope, Receive, Send) used throughout fastware for consistent type-checked request and response handling.
 - **websocket**: WebSocket helper class wrapping the raw ASGI scope/receive/send triple with typed accept, send, receive, and close methods for ergonomic usage.
 
 ## Installation
@@ -119,6 +121,8 @@ pip install fastware[all]       # everything
 fastware/
 ├── __init__.py
 ├── __main__.py
+├── _fswrite.py
+├── _scope.py
 ├── app.py
 ├── audit.py
 ├── auth.py

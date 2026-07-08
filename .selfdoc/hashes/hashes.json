@@ -55,6 +55,14 @@
     "description": "24fd595bdbfbb6ef5881cf8688978c778c8382f5868165cebcdd95228df38f55",
     "source_docstring": "24fd595bdbfbb6ef5881cf8688978c778c8382f5868165cebcdd95228df38f55"
   },
+  "en/src-fastware-_fswrite.md": {
+    "content": "73ab4a88a11313cb2e7bba1c5ed11189138f9c2faaf371856717389a14cac72a",
+    "description": "c3538baa50ae61c1ca6440014fd6ac5a562f0977c94cef78f9523353174601a7"
+  },
+  "en/src-fastware-_scope.md": {
+    "content": "c094933ccc3dca77ab1b9a16806b2066dad7469edaf3b77c81002c284acc65b9",
+    "description": "6aa48cb38e9135f9a827ff021d4729bfa8e2fc65624fddc48a2c45448599e2b2"
+  },
   "en/src-fastware-app.md": {
     "content": "f1a7a1249e95af3f180cf33e4b335cf1ed2219dca044b0d03d915de765686b29",
     "description": "074bf08f4076f3a9f0a712b3683b74b8cca04fd4d96ca8bde74a1da4b26bd90a",
@@ -62,8 +70,7 @@
   },
   "en/src-fastware-audit.md": {
     "content": "f94a48c7da13afa1dce159cfbbd4a85111c668bd51ba940a63cdc9831895d5fe",
-    "description": "ec75bbe99fe7784b8bd741250c7291aa33581dac48577d1b5c1cfe18d34abbec",
-    "source_docstring": "58d1e90d578cc9560c2591cbf6d8e382aaf2ed4f00e4c851febd05044292ee75"
+    "description": "ec75bbe99fe7784b8bd741250c7291aa33581dac48577d1b5c1cfe18d34abbec"
   },
   "en/src-fastware-auth.md": {
     "content": "d4df5892b5a8e71ff35e98b59274fbce030dd5d93ad18b6e92787d3174082023",
@@ -77,8 +84,7 @@
   },
   "en/src-fastware-dev.md": {
     "content": "0b7ff82a22e1af51ddee2c2dd64587f71c6125389079dae2e44b19c54b7f599d",
-    "description": "2b06e00714049495f1f02ee5dc60c5b0e7ff9b122c6a67be625b6f87131ef11d",
-    "source_docstring": "2b06e00714049495f1f02ee5dc60c5b0e7ff9b122c6a67be625b6f87131ef11d"
+    "description": "2b06e00714049495f1f02ee5dc60c5b0e7ff9b122c6a67be625b6f87131ef11d"
   },
   "en/src-fastware-di.md": {
     "content": "f781562e3d135c1d2bbcb02dd0f541083793df7debefe451f3c5b948667af87b",
@@ -92,18 +98,15 @@
   },
   "en/src-fastware-features.md": {
     "content": "5a1edc8bd882a84a4c5ce27b4e3b80bb9b26d3ee90c3d87d70927bb28b4de24c",
-    "description": "24ccb95bd92385a69eda24272ab49531cd3bce0a1c9cde30348ec6868ccd5bf6",
-    "source_docstring": "16fc4e959c47f193092e0b42c394faa879e79e3a479e5730e7e17c64c7cfc470"
+    "description": "24ccb95bd92385a69eda24272ab49531cd3bce0a1c9cde30348ec6868ccd5bf6"
   },
   "en/src-fastware-logging.md": {
     "content": "9d925ee339a533ae3db83727cfdf4616cb4954f8bd53113c3a27eedadf277a2f",
-    "description": "93002403b3dd0020363f51de1feade47dafd18c7e153fedafdf63201805325ef",
-    "source_docstring": "138f195068db3f32ecee6aa7874f6cf59fc38d940b5ccbc8762f574d9a961fda"
+    "description": "93002403b3dd0020363f51de1feade47dafd18c7e153fedafdf63201805325ef"
   },
   "en/src-fastware-mcp.md": {
     "content": "f593f031564ecf1041149eb8366cdb1a7dd711469e3c909948efa61d6ff3f340",
-    "description": "204201e43ee4e0a54db2f4b433d2eb3a4b6ecf7a43d0fc801f5ba0c67d6c5cd7",
-    "source_docstring": "9899273654dd798d4a5584d2d8c4bfb4195cc05cba5aae786a7f9164215bbaea"
+    "description": "204201e43ee4e0a54db2f4b433d2eb3a4b6ecf7a43d0fc801f5ba0c67d6c5cd7"
   },
   "en/src-fastware-middleware.md": {
     "content": "d5da8d6ed880a397d1fa92d44f6b63e73fdad5773af4a3dc9b6436efa42f13a4",
@@ -137,8 +140,7 @@
   },
   "en/src-fastware-tasks.md": {
     "content": "965dec483b0c65e89344ed6add276b758dab0cd986321f85e1c34d0dff724ad0",
-    "description": "0fe79385fa700a6334eea108665279a9fc0397f44394ab10c7cf5b4a4d8ed86f",
-    "source_docstring": "ac76150c4a9aafc6477e8eb6087b616847cb5cf46addfd0feea666d43eb7d4c0"
+    "description": "0fe79385fa700a6334eea108665279a9fc0397f44394ab10c7cf5b4a4d8ed86f"
   },
   "en/src-fastware-testing.md": {
     "content": "1013180491c5011daa8507c904b82311653215598f36a10a63b7a044c924be73",
@@ -152,8 +154,7 @@
   },
   "en/src-fastware-websocket.md": {
     "content": "bc7dcb2243833f7acaf9b9f617b94964e27e97cc316229b5ada30f80069de4d9",
-    "description": "2d7d94929aada92bf8c5b9e5382be8f5c8849278b5c076e3fbf062cf37f5145e",
-    "source_docstring": "2d7d94929aada92bf8c5b9e5382be8f5c8849278b5c076e3fbf062cf37f5145e"
+    "description": "2d7d94929aada92bf8c5b9e5382be8f5c8849278b5c076e3fbf062cf37f5145e"
   },
   "en/sse-guide.md": {
     "content": "9dd88070d81c2d4ee5d96201192b8dabfabbb0e2403f7e1304cff5368881cfc5",

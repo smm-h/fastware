@@ -2,7 +2,7 @@
   "schema_version": 1,
   "name": "fastware",
   "slug": "fastware",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A fast, batteries-included ASGI framework. The FastAPI alternative.",
   "language": "python",
   "base_url": "https://fastware.smmh.dev",
@@ -65,6 +65,16 @@
     {
       "path": "src-fastware-__main__.md",
       "title": "src.fastware.__main__",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-_fswrite.md",
+      "title": "src.fastware._fswrite",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-_scope.md",
+      "title": "src.fastware._scope",
       "type": "doc"
     },
     {
@@ -199,5 +209,5 @@
     }
   ],
   "posts": [],
-  "last_gen": "2026-07-03T01:46:32.833871+00:00"
+  "last_gen": "2026-07-08T06:53:24.423139+00:00"
 }
