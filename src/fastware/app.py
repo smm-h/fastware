@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import dataclasses
 import inspect
 import logging
@@ -133,7 +134,8 @@ async def _send_result(send: Callable, result: Any) -> None:
         if content_type is None:
             mime, _ = mimetypes.guess_type(str(result.path))
             content_type = mime or "application/octet-stream"
-        body = result.path.read_bytes()
+        # Offload the blocking file read so it doesn't stall the event loop
+        body = await asyncio.to_thread(result.path.read_bytes)
         await _send_response(
             send, result.status, body, content_type,
             extra_headers=result.headers, cookies=result.cookies,
@@ -159,7 +161,8 @@ async def _serve_static(send: Callable, static_dir: Path, rel_path: str) -> bool
     if not file_path.is_file():
         return False
     mime, _ = mimetypes.guess_type(str(file_path))
-    body = file_path.read_bytes()
+    # Offload the blocking file read so it doesn't stall the event loop
+    body = await asyncio.to_thread(file_path.read_bytes)
     await _send_response(send, 200, body, mime or "application/octet-stream")
     return True
 
@@ -167,7 +170,7 @@ async def _serve_static(send: Callable, static_dir: Path, rel_path: str) -> bool
 async def _serve_spa_fallback(send: Callable, spa_fallback: Path) -> None:
     """Serve the SPA fallback file (typically index.html)."""
     if spa_fallback.is_file():
-        body = spa_fallback.read_bytes()
+        body = await asyncio.to_thread(spa_fallback.read_bytes)
         await _send_response(send, 200, body, "text/html")
     else:
         await _send_response(send, 404, msgspec.json.encode({"detail": "Not found"}), "application/json")

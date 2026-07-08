@@ -547,3 +547,68 @@ class TestPrecomputedHandlerParams:
 
         # The route handler must never be introspected at request time
         assert items not in introspected
+
+
+# ---------------------------------------------------------------------------
+# File reads offloaded to a thread (event loop not blocked)
+# ---------------------------------------------------------------------------
+
+
+class TestFileReadsOffloaded:
+    @pytest.mark.anyio
+    async def test_static_read_uses_to_thread(self, tmp_path, monkeypatch):
+        import asyncio as asyncio_mod
+
+        static = tmp_path / "static"
+        static.mkdir()
+        (static / "big.bin").write_bytes(b"z" * 100)
+
+        offloaded = []
+        orig_to_thread = asyncio_mod.to_thread
+
+        async def spying_to_thread(fn, *args, **kwargs):
+            offloaded.append(fn)
+            return await orig_to_thread(fn, *args, **kwargs)
+
+        monkeypatch.setattr(asyncio_mod, "to_thread", spying_to_thread)
+
+        sent: list[dict] = []
+
+        async def send(msg):
+            sent.append(msg)
+
+        served = await _serve_static(send, static, "big.bin")
+        assert served is True
+        assert _response_body(sent) == b"z" * 100
+        assert offloaded, "static file read must be offloaded via asyncio.to_thread"
+
+    @pytest.mark.anyio
+    async def test_file_response_read_uses_to_thread(self, tmp_path, monkeypatch):
+        import asyncio as asyncio_mod
+
+        from fastware import FileResponse
+
+        payload = tmp_path / "report.pdf"
+        payload.write_bytes(b"%PDF fake")
+
+        router = Router()
+
+        @router.get("/report")
+        async def report(req):
+            return FileResponse(payload)
+
+        app = create_app(router, request_id=False, request_timing=False)
+
+        offloaded = []
+        orig_to_thread = asyncio_mod.to_thread
+
+        async def spying_to_thread(fn, *args, **kwargs):
+            offloaded.append(fn)
+            return await orig_to_thread(fn, *args, **kwargs)
+
+        monkeypatch.setattr(asyncio_mod, "to_thread", spying_to_thread)
+
+        sent = await _run_http(app, _http_scope("/report"))
+        assert _response_status(sent) == 200
+        assert _response_body(sent) == b"%PDF fake"
+        assert offloaded, "FileResponse read must be offloaded via asyncio.to_thread"
