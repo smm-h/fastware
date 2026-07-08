@@ -76,8 +76,10 @@ class RequestIDMiddleware:
             return
 
         # Extract or generate request ID.
-        headers = dict(scope.get("headers", []))
-        request_id = headers.get(b"x-request-id", b"").decode() or str(uuid.uuid4())
+        request_id = (
+            _header_value(scope, b"x-request-id").decode("latin-1")
+            or str(uuid.uuid4())
+        )
 
         scope.setdefault("state", {})["request_id"] = request_id
 

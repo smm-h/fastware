@@ -14,6 +14,7 @@ Covers:
 from __future__ import annotations
 
 import sqlite3
+import threading
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -134,6 +135,18 @@ class TestRequestIDMiddleware:
                 headers={"x-request-id": "my-custom-id"},
             )
             assert resp.headers["x-request-id"] == "my-custom-id"
+
+    @pytest.mark.anyio
+    async def test_duplicate_header_first_value_wins(self):
+        """With duplicate X-Request-Id headers, the first value is used."""
+        app = _make_app()
+        inner = RequestIDMiddleware(app)
+        async with _client(inner) as client:
+            resp = await client.get(
+                "/health",
+                headers=[("x-request-id", "first-id"), ("x-request-id", "second-id")],
+            )
+            assert resp.headers["x-request-id"] == "first-id"
 
     @pytest.mark.anyio
     async def test_stores_in_scope_state(self):
@@ -1025,3 +1038,62 @@ class TestErrorLog:
 
         entries = log.recent(limit=100)
         assert len(entries) == 20
+
+    def test_append_offloads_write_and_does_not_block_caller(self, tmp_path):
+        """append() offloads the SQLite write to a background worker thread.
+
+        Regression: append() used to connect + INSERT + commit synchronously
+        on the calling thread (the event loop), blocking every request during
+        5xx bursts. The write must now happen off-thread, so append() returns
+        immediately even when the underlying commit is slow or blocked.
+        """
+        log = ErrorLog(tmp_path / "errors.db")
+
+        release = threading.Event()
+        insert_threads: list = []
+        real_connect = sqlite3.connect
+
+        class _GatedConn(sqlite3.Connection):
+            """Connection whose INSERT commit blocks until ``release`` is set."""
+
+            _pending_insert = False
+
+            def execute(self, sql, *args, **kwargs):
+                if isinstance(sql, str) and sql.lstrip().upper().startswith("INSERT"):
+                    self._pending_insert = True
+                return super().execute(sql, *args, **kwargs)
+
+            def commit(self):
+                if self._pending_insert:
+                    insert_threads.append(threading.current_thread())
+                    release.wait(5)
+                    self._pending_insert = False
+                return super().commit()
+
+        def gated_connect(*args, **kwargs):
+            kwargs["factory"] = _GatedConn
+            return real_connect(*args, **kwargs)
+
+        append_thread: dict = {}
+        done = threading.Event()
+
+        def do_append():
+            append_thread["t"] = threading.current_thread()
+            log.append(method="GET", path="/boom", status_code=500)
+            done.set()
+
+        with patch("fastware.error_log.sqlite3.connect", gated_connect):
+            t = threading.Thread(target=do_append, daemon=True)
+            t.start()
+            # append() must return promptly even though the worker's INSERT
+            # commit is gated (blocked) below. If append blocks, this times out.
+            assert done.wait(2), "append() blocked on the DB write (not offloaded)"
+            release.set()
+            t.join(5)
+
+        entries = log.recent()
+        assert len(entries) == 1
+        assert entries[0]["path"] == "/boom"
+        # The write executed on a background worker thread, not the caller.
+        assert insert_threads
+        assert all(th is not append_thread["t"] for th in insert_threads)
