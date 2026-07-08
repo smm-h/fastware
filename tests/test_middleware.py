@@ -531,6 +531,164 @@ class TestTrustedHostMiddleware:
 
 
 # ---------------------------------------------------------------------------
+# 5.5b ViteDevProxy HTTP path
+# ---------------------------------------------------------------------------
+
+def _http_scope(path: str, method: str = "GET") -> dict:
+    return {
+        "type": "http",
+        "method": method,
+        "path": path,
+        "query_string": b"",
+        "headers": [],
+    }
+
+
+class TestViteDevProxyHTTP:
+
+    @pytest.mark.anyio
+    async def test_streams_response_chunks_without_buffering(self):
+        """SSE-style responses stream through chunk by chunk.
+
+        The inner app blocks after its first chunk until that chunk has
+        been observed downstream.  A proxy that buffers the whole response
+        never forwards the chunk, so this times out (red before the fix).
+        """
+        import asyncio
+
+        from fastware.middleware import ViteDevProxy
+
+        proceed = asyncio.Event()
+
+        async def inner_app(scope, receive, send):
+            await send({
+                "type": "http.response.start",
+                "status": 200,
+                "headers": [(b"content-type", b"text/event-stream")],
+            })
+            await send({
+                "type": "http.response.body",
+                "body": b"data: 1\n\n",
+                "more_body": True,
+            })
+            await proceed.wait()
+            await send({
+                "type": "http.response.body",
+                "body": b"data: 2\n\n",
+                "more_body": False,
+            })
+
+        proxy = ViteDevProxy(inner_app, vite_port=1)  # port never contacted
+        sent: list[dict] = []
+
+        async def receive():
+            return {"type": "http.request", "body": b"", "more_body": False}
+
+        async def send(message):
+            sent.append(message)
+
+        task = asyncio.ensure_future(proxy(_http_scope("/stream"), receive, send))
+        try:
+
+            async def first_chunk_forwarded():
+                while not any(m["type"] == "http.response.body" for m in sent):
+                    await asyncio.sleep(0.01)
+
+            await asyncio.wait_for(first_chunk_forwarded(), timeout=2)
+        finally:
+            proceed.set()
+        await asyncio.wait_for(task, timeout=2)
+
+        assert sent[0]["type"] == "http.response.start"
+        bodies = [m for m in sent if m["type"] == "http.response.body"]
+        assert bodies[0]["body"] == b"data: 1\n\n"
+        assert bodies[-1]["body"] == b"data: 2\n\n"
+
+    @pytest.mark.anyio
+    async def test_backend_prefix_404_not_proxied(self):
+        """A 404 from a backend-prefixed path returns as-is, never hits Vite."""
+        from fastware.middleware import ViteDevProxy
+
+        async def inner_app(scope, receive, send):
+            await send({"type": "http.response.start", "status": 404, "headers": []})
+            await send({"type": "http.response.body", "body": b"nope"})
+
+        proxy = ViteDevProxy(inner_app, vite_port=1, backend_prefixes=["/events"])
+        sent: list[dict] = []
+
+        async def receive():
+            return {"type": "http.request", "body": b"", "more_body": False}
+
+        async def send(message):
+            sent.append(message)
+
+        await proxy(_http_scope("/events/missing"), receive, send)
+        assert sent[0]["type"] == "http.response.start"
+        assert sent[0]["status"] == 404  # not a 502 from a Vite connect attempt
+        assert sent[1]["body"] == b"nope"
+
+    @pytest.mark.anyio
+    async def test_unread_request_body_replayed_to_vite(self, monkeypatch):
+        """A 404ing backend that never reads the body doesn't lose it for Vite."""
+        from fastware.middleware import ViteDevProxy
+
+        async def inner_app(scope, receive, send):
+            # 404 without ever reading the request body.
+            await send({"type": "http.response.start", "status": 404, "headers": []})
+            await send({"type": "http.response.body", "body": b""})
+
+        proxy = ViteDevProxy(inner_app, vite_port=1)
+        captured: dict = {}
+
+        async def fake_proxy_http(scope, send, *, body=b""):
+            captured["body"] = body
+
+        monkeypatch.setattr(proxy, "_proxy_http", fake_proxy_http)
+
+        chunks = [
+            {"type": "http.request", "body": b"hello ", "more_body": True},
+            {"type": "http.request", "body": b"world", "more_body": False},
+        ]
+
+        async def receive():
+            return chunks.pop(0)
+
+        async def send(message):
+            pass
+
+        await proxy(_http_scope("/app-page", method="POST"), receive, send)
+        assert captured["body"] == b"hello world"
+
+    @pytest.mark.anyio
+    async def test_404_swallowed_then_proxied(self, monkeypatch):
+        """On a non-backend 404, nothing from the backend reaches the client."""
+        from fastware.middleware import ViteDevProxy
+
+        async def inner_app(scope, receive, send):
+            await send({"type": "http.response.start", "status": 404, "headers": []})
+            await send({"type": "http.response.body", "body": b"backend 404 page"})
+
+        proxy = ViteDevProxy(inner_app, vite_port=1)
+        proxied = {}
+
+        async def fake_proxy_http(scope, send, *, body=b""):
+            proxied["called"] = True
+
+        monkeypatch.setattr(proxy, "_proxy_http", fake_proxy_http)
+        sent: list[dict] = []
+
+        async def receive():
+            return {"type": "http.request", "body": b"", "more_body": False}
+
+        async def send(message):
+            sent.append(message)
+
+        await proxy(_http_scope("/index.html"), receive, send)
+        assert proxied.get("called")
+        assert sent == []  # backend's 404 messages were discarded
+
+
+# ---------------------------------------------------------------------------
 # 5.6 Built-in middleware wiring
 # ---------------------------------------------------------------------------
 

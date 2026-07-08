@@ -357,20 +357,26 @@ class TrustedHostMiddleware:
 class ViteDevProxy:
     """ASGI middleware that proxies unmatched requests to a Vite dev server.
 
-    Uses a backend-first routing strategy for HTTP: every request hits the
-    backend first.  If the backend returns 404 (no route matched), the
-    request is proxied to Vite instead.  This means backend routes like
-    ``/health`` or ``/metrics`` work without being under an API prefix.
+    Uses a backend-first routing strategy for HTTP: requests hit the
+    backend first, streaming the response through message-by-message
+    (SSE-safe).  Only the ``http.response.start`` message is held back
+    until the status is known; if the backend returns 404 (no route
+    matched), the backend's response is discarded and the request is
+    replayed to Vite instead.  This means backend routes like ``/health``
+    or ``/metrics`` work without being under an API prefix.
 
-    WebSocket upgrades cannot be retried, so they still use prefix-based
-    routing: paths matching *api_prefix* or ``/events`` go to the backend;
-    everything else is proxied to Vite (for HMR).
+    Paths matching *api_prefix* or *backend_prefixes* always go straight
+    to the backend with no 404-retry — their 404s belong to the client.
+    WebSocket upgrades cannot be retried, so they use the same prefix
+    rule: matching paths go to the backend; everything else is proxied
+    to Vite (for HMR).
 
     Args:
         app: The inner ASGI application.
         vite_port: Port the Vite dev server is listening on.
-        api_prefix: Path prefix for backend WebSocket routes (default
-            ``"/api"``).  Only used for WebSocket routing decisions.
+        api_prefix: Path prefix for backend routes (default ``"/api"``).
+        backend_prefixes: Additional backend path prefixes (default
+            ``["/events"]``).
     """
 
     def __init__(
@@ -410,36 +416,59 @@ class ViteDevProxy:
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] == "http":
-            # Backend-first: buffer the response to check the status code.
-            # If the backend returns 404, proxy to Vite instead.
-            #
-            # We also capture the request body via a wrapping receive so it
-            # can be replayed to Vite when the backend doesn't match.
-            response_parts: list[dict[str, Any]] = []
+            # Backend paths go straight to the app with no 404-retry:
+            # their 404s belong to the client, and streaming passes
+            # through untouched.
+            if self._is_api_request(scope.get("path", "")):
+                await self.app(scope, receive, send)
+                return
+
+            # Backend-first, streaming.  Only http.response.start is
+            # inspected: a non-404 response is forwarded message-by-message
+            # (SSE-safe, no buffering); a 404 response is discarded and the
+            # request replayed to Vite.  The request body is captured via a
+            # wrapping receive so it can be replayed.
             captured_body = bytearray()
+            body_complete = False
+            disconnected = False
+            is_404 = False
 
             async def capture_receive() -> dict[str, Any]:
+                nonlocal body_complete, disconnected
                 msg = await receive()
-                if msg.get("type") == "http.request":
+                msg_type = msg.get("type")
+                if msg_type == "http.request":
                     captured_body.extend(msg.get("body", b""))
+                    if not msg.get("more_body"):
+                        body_complete = True
+                elif msg_type == "http.disconnect":
+                    disconnected = True
+                    body_complete = True
                 return msg
 
-            async def buffer_send(message: dict[str, Any]) -> None:
-                response_parts.append(message)
+            async def peek_send(message: dict[str, Any]) -> None:
+                nonlocal is_404
+                if (
+                    message["type"] == "http.response.start"
+                    and message["status"] == 404
+                ):
+                    is_404 = True
+                    return
+                if is_404:
+                    return  # discard the backend's 404 body
+                await send(message)
 
-            await self.app(scope, capture_receive, buffer_send)
+            await self.app(scope, capture_receive, peek_send)
 
-            status = None
-            for part in response_parts:
-                if part["type"] == "http.response.start":
-                    status = part["status"]
-                    break
-
-            if status == 404:
-                await self._proxy_http(scope, send, body=bytes(captured_body))
-            else:
-                for part in response_parts:
-                    await send(part)
+            if is_404 and not disconnected:
+                # Drain any request body the backend never read so the
+                # full body can be replayed to Vite.
+                while not body_complete:
+                    await capture_receive()
+                if not disconnected:
+                    await self._proxy_http(
+                        scope, send, body=bytes(captured_body),
+                    )
             return
 
         elif scope["type"] == "websocket":
