@@ -129,7 +129,7 @@ def _remove_pid(pid_path: Path) -> None:
         pass
 
 
-def check_already_running(pid_path: Path, name: str = "server") -> int | None:
+def check_already_running(pid_path: Path) -> int | None:
     """Check if another instance is running. Returns the PID if running, None otherwise.
 
     Stale PID files (process dead) are cleaned up automatically.
@@ -626,7 +626,7 @@ def serve(
         resolved_port = _find_free_port(resolved_host)
 
     if pid_path is not None and single_instance:
-        existing_pid = check_already_running(pid_path, name)
+        existing_pid = check_already_running(pid_path)
         if existing_pid is not None:
             msg = (
                 f"{name} is already running (PID {existing_pid}). "
