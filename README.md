@@ -65,7 +65,7 @@ if __name__ == "__main__":
 - **error_log**: SQLite-backed error log for recording and querying 5xx server responses with request context, tracebacks, and timestamps for post-mortem analysis.
 - **features**: Boolean feature flags with per-machine JSON overrides, providing enabled/disabled checks, runtime toggle, and hot reload for gradual rollouts.
 - **logging**: Structured logging configuration using structlog with automatic JSON output in production and colored console rendering in development mode.
-- **mcp**: MCP (Model Context Protocol) server factory providing per-role agent tool provisioning, tool filtering, and stdio-based server lifecycle management.
+- **mcp**: MCP (Model Context Protocol) server factory providing role-based agent tool provisioning, tool filtering, and stdio-based server lifecycle management.
 - **middleware**: Pure ASGI middleware for request tracing, CORS headers, trusted-host validation, and Vite dev proxy routing, all streaming-safe for SSE and WebSocket.
 - **request**: HTTP request wrapper providing lazy body parsing, query parameter extraction, JSON deserialization via msgspec, header access, and per-request state.
 - **responses**: HTTP response types including JSON, text, HTML, bytes, and streaming responses, plus cookie helpers and low-level ASGI send functions.
