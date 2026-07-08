@@ -72,7 +72,7 @@ class Request:
     __slots__ = (
         "scope", "path_params", "_body", "_json", "_json_decoded",
         "_receive", "_disconnected", "_receive_task", "_cookies",
-        "_cookies_parsed", "_query_params", "_state",
+        "_cookies_parsed", "_parsed_qs", "_query_params", "_state",
     )
 
     def __init__(
@@ -92,6 +92,7 @@ class Request:
         self._receive_task = None
         self._cookies = None
         self._cookies_parsed = False
+        self._parsed_qs = None
         self._query_params = None
         self._state = None
 
@@ -111,6 +112,18 @@ class Request:
     def body(self) -> bytes | None:
         """Raw request body bytes."""
         return self._body
+
+    @property
+    def _qs(self) -> dict[str, list[str]]:
+        """Full ``parse_qs`` of the query string (name -> list of values).
+
+        Parsed once on first access and cached, then shared by ``query()``,
+        ``query_list()``, and ``query_params`` so the query string is never
+        re-parsed per call.
+        """
+        if self._parsed_qs is None:
+            self._parsed_qs = parse_qs(self.scope.get("query_string", b"").decode())
+        return self._parsed_qs
 
     def query(
         self,
@@ -141,8 +154,7 @@ class Request:
 
         Raises HTTPError(422) on coercion failure or constraint violation.
         """
-        qs = parse_qs(self.scope.get("query_string", b"").decode())
-        values = qs.get(name)
+        values = self._qs.get(name)
         if not values:
             if default is _MISSING:
                 return None
@@ -172,8 +184,7 @@ class Request:
         Returns an empty list if the key is absent.  Raises
         ``HTTPError(422)`` if any value cannot be converted to *type_*.
         """
-        qs = parse_qs(self.scope.get("query_string", b"").decode())
-        values = qs.get(name)
+        values = self._qs.get(name)
         if not values:
             return []
         try:
@@ -188,8 +199,7 @@ class Request:
     def query_params(self) -> dict[str, str]:
         """Parsed query string as a dict (first value per key). Cached."""
         if self._query_params is None:
-            qs = parse_qs(self.scope.get("query_string", b"").decode())
-            self._query_params = {k: v[0] for k, v in qs.items()}
+            self._query_params = {k: v[0] for k, v in self._qs.items()}
         return self._query_params
 
     def header(self, name: str, default: str | None = None) -> str | None:

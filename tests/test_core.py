@@ -813,6 +813,41 @@ class TestQueryList:
         assert resp.json()["tags"] == ["only"]
 
 
+class TestQueryStringParsedOnce:
+    """The query string must be parsed once and shared across query(),
+    query_list(), and query_params -- not re-parsed on every call."""
+
+    def test_query_string_parsed_only_once(self, monkeypatch):
+        from fastware import Request
+        import fastware.request as reqmod
+
+        calls = 0
+        orig = reqmod.parse_qs
+
+        def counting_parse_qs(*args, **kwargs):
+            nonlocal calls
+            calls += 1
+            return orig(*args, **kwargs)
+
+        monkeypatch.setattr(reqmod, "parse_qs", counting_parse_qs)
+
+        scope = {
+            "type": "http",
+            "method": "GET",
+            "path": "/test",
+            "headers": [],
+            "query_string": b"a=1&a=2&b=3",
+        }
+        req = Request(scope, {}, None)
+        assert req.query("b") == "3"
+        assert req.query_list("a") == ["1", "2"]
+        assert req.query_params == {"a": "1", "b": "3"}
+        # Repeat calls to ensure nothing re-parses.
+        assert req.query("b") == "3"
+        assert req.query_list("a") == ["1", "2"]
+        assert calls == 1
+
+
 # ---------------------------------------------------------------------------
 # 1.3 Query parameter validation (constraints)
 # ---------------------------------------------------------------------------
