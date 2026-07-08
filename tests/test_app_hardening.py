@@ -612,3 +612,131 @@ class TestFileReadsOffloaded:
         assert _response_status(sent) == 200
         assert _response_body(sent) == b"%PDF fake"
         assert offloaded, "FileResponse read must be offloaded via asyncio.to_thread"
+
+
+# ---------------------------------------------------------------------------
+# Mounted sub-apps: lifespan forwarding and state merging
+# ---------------------------------------------------------------------------
+
+
+async def _start_lifespan(app):
+    """Start lifespan in a background task; returns (task, shutdown, sent)."""
+    import asyncio
+
+    started = asyncio.Event()
+    shutdown_event = asyncio.Event()
+    calls = {"n": 0}
+
+    async def ls_receive():
+        if calls["n"] == 0:
+            calls["n"] += 1
+            return {"type": "lifespan.startup"}
+        await shutdown_event.wait()
+        return {"type": "lifespan.shutdown"}
+
+    sent: list[dict] = []
+
+    async def ls_send(msg):
+        sent.append(msg)
+        if msg["type"] in ("lifespan.startup.complete", "lifespan.startup.failed"):
+            started.set()
+
+    task = asyncio.create_task(app({"type": "lifespan"}, ls_receive, ls_send))
+    await started.wait()
+    return task, shutdown_event.set, sent
+
+
+def _lifespan_sub_app(events, state_key=None, state_val=None, http_capture=None):
+    async def sub_app(scope, receive, send):
+        if scope["type"] == "lifespan":
+            msg = await receive()
+            events.append(msg["type"])
+            if state_key is not None:
+                scope["state"][state_key] = state_val
+            await send({"type": "lifespan.startup.complete"})
+            msg = await receive()
+            events.append(msg["type"])
+            await send({"type": "lifespan.shutdown.complete"})
+        elif scope["type"] == "http":
+            if http_capture is not None:
+                http_capture.update(scope.get("state") or {})
+            await send({"type": "http.response.start", "status": 200, "headers": []})
+            await send({"type": "http.response.body", "body": b"sub ok"})
+
+    return sub_app
+
+
+class TestMountLifespanAndState:
+    @pytest.mark.anyio
+    async def test_mounted_app_receives_lifespan_events(self):
+        events: list[str] = []
+        router = Router()
+        router.mount("/sub", _lifespan_sub_app(events))
+        app = create_app(router, request_id=False, request_timing=False)
+
+        sent = await _run_lifespan(app)
+
+        assert sent == [
+            {"type": "lifespan.startup.complete"},
+            {"type": "lifespan.shutdown.complete"},
+        ]
+        assert events == ["lifespan.startup", "lifespan.shutdown"]
+
+    @pytest.mark.anyio
+    async def test_mount_state_and_parent_state_merged_into_requests(self):
+        events: list[str] = []
+        captured: dict = {}
+        router = Router()
+        router.mount("/sub", _lifespan_sub_app(events, "sub_key", "sub_val", captured))
+
+        @asynccontextmanager
+        async def lifespan(app):
+            yield {"parent_key": "parent_val"}
+
+        app = create_app(router, lifespan=lifespan, request_id=False, request_timing=False)
+        task, shutdown, sent = await _start_lifespan(app)
+
+        req_sent = await _run_http(app, _http_scope("/sub/hello"))
+        assert _response_body(req_sent) == b"sub ok"
+
+        shutdown()
+        await task
+
+        assert captured.get("sub_key") == "sub_val"
+        assert captured.get("parent_key") == "parent_val"
+
+    @pytest.mark.anyio
+    async def test_mounted_app_startup_failure_fails_parent_startup(self):
+        async def failing_sub(scope, receive, send):
+            if scope["type"] == "lifespan":
+                await receive()
+                await send({"type": "lifespan.startup.failed", "message": "sub boom"})
+
+        router = Router()
+        router.mount("/bad", failing_sub)
+        app = create_app(router, request_id=False, request_timing=False)
+
+        sent = await _run_lifespan(app, shutdown=False)
+        assert sent == [{"type": "lifespan.startup.failed", "message": "sub boom"}]
+
+    @pytest.mark.anyio
+    async def test_mounted_app_without_lifespan_support_is_tolerated(self):
+        """A sub-app that raises on lifespan scope before sending any
+        lifespan message does not support lifespan (ASGI convention) and
+        must not break the parent's startup."""
+
+        async def plain_sub(scope, receive, send):
+            if scope["type"] != "http":
+                raise ValueError("unsupported scope")
+            await send({"type": "http.response.start", "status": 200, "headers": []})
+            await send({"type": "http.response.body", "body": b"plain"})
+
+        router = Router()
+        router.mount("/plain", plain_sub)
+        app = create_app(router, request_id=False, request_timing=False)
+
+        sent = await _run_lifespan(app)
+        assert sent == [
+            {"type": "lifespan.startup.complete"},
+            {"type": "lifespan.shutdown.complete"},
+        ]

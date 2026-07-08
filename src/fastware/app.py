@@ -146,6 +146,90 @@ async def _send_result(send: Callable, result: Any) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Mounted sub-app lifespan driver
+# ---------------------------------------------------------------------------
+
+class _MountLifespan:
+    """Drives the ASGI lifespan protocol for one mounted sub-app.
+
+    The sub-app runs in its own task with private message queues. Per the
+    ASGI lifespan spec, state the sub-app sets on the lifespan scope's
+    ``state`` dict is carried into every request scope forwarded to it.
+    Sub-apps that finish (raise or return) without sending any lifespan
+    message are treated as not supporting lifespan, matching the server
+    convention (e.g. uvicorn).
+    """
+
+    # Internal sentinels (never sent to the server):
+    # __unsupported__ -- app finished without speaking lifespan
+    # __error__       -- app raised after speaking lifespan
+    # __exited__      -- app returned cleanly after speaking lifespan
+
+    def __init__(self, mount_app: Any) -> None:
+        self.app = mount_app
+        self.state: dict[str, Any] = {}
+        self.supports_lifespan = True
+        self._to_app: asyncio.Queue = asyncio.Queue()
+        self._from_app: asyncio.Queue = asyncio.Queue()
+        self._task: asyncio.Task | None = None
+        self._spoke = False
+
+    async def _app_send(self, message: dict) -> None:
+        self._spoke = True
+        await self._from_app.put(message)
+
+    async def _run(self) -> None:
+        scope = {
+            "type": "lifespan",
+            "asgi": {"version": "3.0", "spec_version": "2.0"},
+            "state": self.state,
+        }
+        try:
+            await self.app(scope, self._to_app.get, self._app_send)
+        except BaseException as exc:
+            if self._spoke:
+                await self._from_app.put({"type": "__error__", "message": str(exc)})
+            else:
+                await self._from_app.put({"type": "__unsupported__"})
+        else:
+            await self._from_app.put(
+                {"type": "__exited__"} if self._spoke else {"type": "__unsupported__"}
+            )
+
+    async def startup(self) -> str | None:
+        """Send lifespan.startup; returns an error message on failure, or
+        None on success (including apps that don't support lifespan)."""
+        self._task = asyncio.create_task(self._run())
+        await self._to_app.put({"type": "lifespan.startup"})
+        msg = await self._from_app.get()
+        msg_type = msg["type"]
+        if msg_type == "lifespan.startup.complete":
+            return None
+        if msg_type == "__unsupported__":
+            self.supports_lifespan = False
+            return None
+        if msg_type in ("lifespan.startup.failed", "__error__"):
+            return msg.get("message", "")
+        return f"unexpected lifespan message from mounted app: {msg_type}"
+
+    async def shutdown(self) -> str | None:
+        """Send lifespan.shutdown; returns an error message or None."""
+        if self._task is None or not self.supports_lifespan:
+            return None
+        await self._to_app.put({"type": "lifespan.shutdown"})
+        msg = await self._from_app.get()
+        msg_type = msg["type"]
+        if msg_type in ("lifespan.shutdown.complete", "__exited__"):
+            result = None
+        elif msg_type in ("lifespan.shutdown.failed", "__error__"):
+            result = msg.get("message", "")
+        else:
+            result = f"unexpected lifespan message from mounted app: {msg_type}"
+        await self._task
+        return result
+
+
+# ---------------------------------------------------------------------------
 # Static file + SPA helpers
 # ---------------------------------------------------------------------------
 
@@ -282,6 +366,9 @@ def create_app(
             reverse=True,
         )
     _lifespan_state: dict[str, Any] = {}
+    # Lifespan handles for mounted sub-apps, keyed by id(mount_app);
+    # populated during lifespan.startup, cleared on shutdown.
+    _mount_handles: dict[int, _MountLifespan] = {}
 
     # Precompute accepted-parameter sets for handlers with deps so the hot
     # path never calls inspect.signature per request. Routes registered
@@ -328,17 +415,57 @@ def create_app(
                         return
                     if isinstance(yielded, dict):
                         _lifespan_state = yielded
+
+                # Forward lifespan to mounted sub-apps (started after the
+                # parent lifespan, shut down before it, in reverse order)
+                started_mounts: list[_MountLifespan] = []
+                startup_error: str | None = None
+                for _mount_prefix, mount_app in router._mounts:
+                    handle = _MountLifespan(mount_app)
+                    err = await handle.startup()
+                    if err is not None:
+                        startup_error = err
+                        break
+                    _mount_handles[id(mount_app)] = handle
+                    started_mounts.append(handle)
+                if startup_error is not None:
+                    # Roll back already-started mounts and the parent ctx
+                    for handle in reversed(started_mounts):
+                        await handle.shutdown()
+                    _mount_handles.clear()
+                    if ctx is not None:
+                        try:
+                            await ctx.__aexit__(None, None, None)
+                        except BaseException:
+                            log.exception(
+                                "Lifespan cleanup error after mounted app startup failure"
+                            )
+                    await send({
+                        "type": "lifespan.startup.failed",
+                        "message": startup_error,
+                    })
+                    return
+
                 await send({"type": "lifespan.startup.complete"})
                 await receive()  # blocks until lifespan.shutdown
+
+                shutdown_errors: list[str] = []
+                for handle in reversed(started_mounts):
+                    err = await handle.shutdown()
+                    if err is not None:
+                        shutdown_errors.append(err)
+                _mount_handles.clear()
                 if ctx is not None:
                     try:
                         await ctx.__aexit__(None, None, None)
                     except BaseException as exc:
-                        await send({
-                            "type": "lifespan.shutdown.failed",
-                            "message": str(exc),
-                        })
-                        return
+                        shutdown_errors.append(str(exc))
+                if shutdown_errors:
+                    await send({
+                        "type": "lifespan.shutdown.failed",
+                        "message": "; ".join(shutdown_errors),
+                    })
+                    return
                 await send({"type": "lifespan.shutdown.complete"})
             return
 
@@ -347,9 +474,21 @@ def create_app(
             path = scope.get("path", "")
             for mount_prefix, mount_app in router._mounts:
                 if path == mount_prefix or path.startswith(mount_prefix + "/"):
-                    # Rewrite scope: strip prefix from path, extend root_path
+                    # Rewrite scope: strip prefix from path, extend root_path.
+                    # Merge parent lifespan state and the mount's own lifespan
+                    # state into the forwarded scope.
                     inner_path = path[len(mount_prefix):] or "/"
-                    scope = {**scope, "path": inner_path, "root_path": scope.get("root_path", "") + mount_prefix}
+                    sub_state = dict(scope.get("state") or {})
+                    sub_state.update(_lifespan_state)
+                    mount_handle = _mount_handles.get(id(mount_app))
+                    if mount_handle is not None:
+                        sub_state.update(mount_handle.state)
+                    scope = {
+                        **scope,
+                        "path": inner_path,
+                        "root_path": scope.get("root_path", "") + mount_prefix,
+                        "state": sub_state,
+                    }
                     await mount_app(scope, receive, send)
                     return
 
