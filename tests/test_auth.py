@@ -250,6 +250,49 @@ class TestJSONFileUserStore:
         store.create_user("alice", "pass", "admin")
         assert path.is_file()
 
+    def test_failed_save_preserves_existing_file(self, tmp_path, monkeypatch):
+        """save_users must be atomic: if the final rename fails, the
+        existing file is untouched and no temp files are left behind."""
+        path = tmp_path / "users.json"
+        store = JSONFileUserStore(path)
+        store.create_user("alice", "pass", "admin")
+        original = path.read_text()
+
+        def broken_replace(src, dst, *args, **kwargs):
+            raise OSError("simulated crash during rename")
+
+        monkeypatch.setattr("os.replace", broken_replace)
+        with pytest.raises(OSError, match="simulated crash"):
+            store.save_users([])
+        # Original content intact, no stray temp files.
+        assert path.read_text() == original
+        assert [p.name for p in tmp_path.iterdir()] == ["users.json"]
+
+    def test_concurrent_create_user_no_lost_updates(self, tmp_path):
+        """create_user is a read-modify-write; concurrent calls must not
+        lose users (requires locking)."""
+        import threading
+
+        store = JSONFileUserStore(tmp_path / "users.json")
+        errors: list[Exception] = []
+
+        def worker(i: int) -> None:
+            try:
+                store.create_user(f"user{i}", "pass", "user")
+            except Exception as exc:  # pragma: no cover - failure detail
+                errors.append(exc)
+
+        threads = [threading.Thread(target=worker, args=(i,)) for i in range(5)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        assert errors == []
+        users = store.load_users()
+        assert len(users) == 5
+        assert {u["username"] for u in users} == {f"user{i}" for i in range(5)}
+
 
 # ---------------------------------------------------------------------------
 # 4.4 Auth dependencies

@@ -7,8 +7,11 @@ beyond fastware's own asgi types. Keeps auth logic testable and reusable.
 from __future__ import annotations
 
 import json
+import os
 import re
 import secrets
+import tempfile
+import threading
 import time
 from datetime import UTC, datetime, timedelta
 from http.cookies import SimpleCookie
@@ -108,7 +111,16 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 
 class UserStore:
-    """Abstract user storage interface."""
+    """Abstract user storage interface.
+
+    Subclasses overriding ``__init__`` must call ``super().__init__()``
+    so the read-modify-write lock is set up.
+    """
+
+    def __init__(self) -> None:
+        # Serializes read-modify-write operations (create/delete) so
+        # concurrent callers cannot lose each other's updates.
+        self._lock = threading.Lock()
 
     def load_users(self) -> list[dict[str, str]]:
         raise NotImplementedError
@@ -126,35 +138,38 @@ class UserStore:
         self, username: str, password: str, role: str,
     ) -> dict[str, str]:
         """Create a new user. Raises ValueError if username already exists."""
-        users = self.load_users()
-        for u in users:
-            if u["username"] == username:
-                raise ValueError(f"User '{username}' already exists")
-        user = {
-            "username": username,
-            "password_hash": hash_password(password),
-            "role": role,
-            "created_at": datetime.now(UTC).isoformat(),
-        }
-        users.append(user)
-        self.save_users(users)
-        return user
+        with self._lock:
+            users = self.load_users()
+            for u in users:
+                if u["username"] == username:
+                    raise ValueError(f"User '{username}' already exists")
+            user = {
+                "username": username,
+                "password_hash": hash_password(password),
+                "role": role,
+                "created_at": datetime.now(UTC).isoformat(),
+            }
+            users.append(user)
+            self.save_users(users)
+            return user
 
     def delete_user(self, username: str) -> None:
         """Delete a user by username. Raises LookupError if not found."""
-        users = self.load_users()
-        for i, u in enumerate(users):
-            if u["username"] == username:
-                users.pop(i)
-                self.save_users(users)
-                return
-        raise LookupError(f"User '{username}' not found")
+        with self._lock:
+            users = self.load_users()
+            for i, u in enumerate(users):
+                if u["username"] == username:
+                    users.pop(i)
+                    self.save_users(users)
+                    return
+            raise LookupError(f"User '{username}' not found")
 
 
 class JSONFileUserStore(UserStore):
     """User storage backed by a JSON file."""
 
     def __init__(self, path: str | Path) -> None:
+        super().__init__()
         self.path = Path(path)
 
     def load_users(self) -> list[dict[str, str]]:
@@ -163,8 +178,24 @@ class JSONFileUserStore(UserStore):
         return json.loads(self.path.read_text())
 
     def save_users(self, users: list[dict[str, str]]) -> None:
+        """Atomically write the user list (temp file + os.replace).
+
+        A crash mid-write can never truncate or corrupt the existing file.
+        """
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(users, indent=2) + "\n")
+        data = json.dumps(users, indent=2) + "\n"
+        fd, tmp_path = tempfile.mkstemp(
+            dir=self.path.parent, prefix=self.path.name, suffix=".tmp",
+        )
+        try:
+            with os.fdopen(fd, "w") as f:
+                f.write(data)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp_path, self.path)
+        except BaseException:
+            os.unlink(tmp_path)
+            raise
 
 
 # ---------------------------------------------------------------------------
