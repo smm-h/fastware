@@ -301,15 +301,81 @@ class TestCORSMiddleware:
 
     @pytest.mark.anyio
     async def test_wildcard_origin(self):
-        """allow_origins=["*"] matches any origin."""
+        """allow_origins=["*"] (without credentials) matches any origin."""
         app = _make_app()
-        mw = CORSMiddleware(app, allow_origins=["*"])
+        mw = CORSMiddleware(app, allow_origins=["*"], allow_credentials=False)
         async with _client(mw) as client:
             resp = await client.get(
                 "/health",
                 headers={"origin": "http://anything.example.com"},
             )
             assert resp.headers["access-control-allow-origin"] == "http://anything.example.com"
+
+    def test_wildcard_with_credentials_raises(self):
+        """allow_origins=["*"] + allow_credentials=True is rejected at construction."""
+        app = _make_app()
+        with pytest.raises(ValueError, match="allow_credentials"):
+            CORSMiddleware(app, allow_origins=["*"], allow_credentials=True)
+
+    def test_wildcard_with_default_credentials_raises(self):
+        """The default allow_credentials=True must also be rejected with '*'."""
+        app = _make_app()
+        with pytest.raises(ValueError, match="allow_credentials"):
+            CORSMiddleware(app, allow_origins=["*"])
+
+    @pytest.mark.anyio
+    async def test_vary_origin_on_normal_response(self):
+        """CORS responses carry Vary: Origin so caches key on the origin."""
+        app = _make_app()
+        mw = CORSMiddleware(app, allow_origins=["http://localhost:5173"])
+        async with _client(mw) as client:
+            resp = await client.get(
+                "/health",
+                headers={"origin": "http://localhost:5173"},
+            )
+            assert "origin" in resp.headers.get("vary", "").lower()
+
+    @pytest.mark.anyio
+    async def test_vary_origin_on_preflight(self):
+        """Preflight responses carry Vary: Origin."""
+        app = _make_app()
+        mw = CORSMiddleware(app, allow_origins=["http://localhost:5173"])
+        async with _client(mw) as client:
+            resp = await client.options(
+                "/health",
+                headers={
+                    "origin": "http://localhost:5173",
+                    "access-control-request-method": "POST",
+                },
+            )
+            assert resp.status_code == 204
+            assert "origin" in resp.headers.get("vary", "").lower()
+
+    @pytest.mark.anyio
+    async def test_plain_options_reaches_app_route(self):
+        """OPTIONS without Access-Control-Request-Method is NOT a preflight.
+
+        App-defined OPTIONS routes must remain reachable; only real
+        preflights (which carry Access-Control-Request-Method) are
+        short-circuited by the middleware.
+        """
+        router = Router()
+
+        async def custom_options(req):
+            return JSONResponse({"custom": True})
+
+        router.add_route("OPTIONS", "/thing", custom_options)
+        app = create_app(router, request_id=False, request_timing=False)
+        mw = CORSMiddleware(app, allow_origins=["http://test"])
+        async with _client(mw) as client:
+            resp = await client.options(
+                "/thing",
+                headers={"origin": "http://test"},
+            )
+            assert resp.status_code == 200
+            assert resp.json() == {"custom": True}
+            # CORS headers still injected on the pass-through response.
+            assert resp.headers["access-control-allow-origin"] == "http://test"
 
     @pytest.mark.anyio
     async def test_no_origin_header_passes_through(self):
@@ -354,7 +420,7 @@ class TestCORSMiddleware:
             nonlocal called
             called = True
 
-        mw = CORSMiddleware(inner_app, allow_origins=["*"])
+        mw = CORSMiddleware(inner_app, allow_origins=["*"], allow_credentials=False)
         await mw({"type": "websocket"}, None, None)
         assert called
 

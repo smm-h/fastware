@@ -38,6 +38,18 @@ __all__ = [
 ]
 
 
+def _header_value(scope: Scope, name: bytes) -> bytes:
+    """Return the first value of header *name* via a single linear scan.
+
+    ASGI header names are lowercase bytes.  Avoids allocating a dict of
+    all headers just to read one of them.
+    """
+    for key, value in scope.get("headers", []):
+        if key == name:
+            return value
+    return b""
+
+
 # ---------------------------------------------------------------------------
 # Request ID
 # ---------------------------------------------------------------------------
@@ -195,6 +207,12 @@ class CORSMiddleware:
         allow_headers: Request headers the client may send.  Defaults to
                        common headers.
         allow_credentials: Whether to set ``Access-Control-Allow-Credentials``.
+
+    Raises:
+        ValueError: if ``allow_origins`` contains ``"*"`` while
+            ``allow_credentials`` is True.  Because this middleware echoes
+            the request origin, that combination would grant credentialed
+            cross-origin access to any site.
     """
 
     def __init__(
@@ -206,6 +224,14 @@ class CORSMiddleware:
         allow_headers: list[str] | None = None,
         allow_credentials: bool = True,
     ) -> None:
+        if "*" in allow_origins and allow_credentials:
+            raise ValueError(
+                "allow_origins=['*'] cannot be combined with "
+                "allow_credentials=True: the wildcard echoes any request "
+                "origin, so credentialed cross-origin access would be "
+                "granted to every site. List explicit origins or pass "
+                "allow_credentials=False."
+            )
         self.app = app
         self.allow_origins = allow_origins
         self.allow_methods = allow_methods or list(_DEFAULT_METHODS)
@@ -224,6 +250,9 @@ class CORSMiddleware:
             (b"access-control-allow-origin", origin.encode()),
             (b"access-control-allow-methods", ", ".join(self.allow_methods).encode()),
             (b"access-control-allow-headers", ", ".join(self.allow_headers).encode()),
+            # The allow-origin value depends on the request origin, so
+            # caches must key on it.
+            (b"vary", b"origin"),
         ]
         if self.allow_credentials:
             headers.append((b"access-control-allow-credentials", b"true"))
@@ -234,8 +263,7 @@ class CORSMiddleware:
             await self.app(scope, receive, send)
             return
 
-        raw_headers = dict(scope.get("headers", []))
-        origin = raw_headers.get(b"origin", b"").decode()
+        origin = _header_value(scope, b"origin").decode("latin-1")
 
         # No Origin header — not a CORS request, pass through.
         if not origin:
@@ -249,8 +277,12 @@ class CORSMiddleware:
         method = scope.get("method", "")
         cors_headers = self._cors_headers(origin)
 
-        # Preflight
-        if method == "OPTIONS":
+        # Preflight: only an OPTIONS request that carries
+        # Access-Control-Request-Method.  Plain OPTIONS requests fall
+        # through to the app so app-defined OPTIONS routes stay reachable.
+        if method == "OPTIONS" and _header_value(
+            scope, b"access-control-request-method"
+        ):
             response_headers = cors_headers[:]
             # Max age for preflight cache (1 hour).
             response_headers.append((b"access-control-max-age", b"3600"))
