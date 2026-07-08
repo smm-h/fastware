@@ -326,7 +326,8 @@ class TrustedHostMiddleware:
         self._wildcard = "*" in allowed_hosts
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] != "http":
+        # DNS rebinding applies to ws:// as much as http:// — validate both.
+        if scope["type"] not in ("http", "websocket"):
             await self.app(scope, receive, send)
             return
 
@@ -334,11 +335,16 @@ class TrustedHostMiddleware:
             await self.app(scope, receive, send)
             return
 
-        raw_headers = dict(scope.get("headers", []))
-        host = raw_headers.get(b"host", b"").decode()
+        host = _header_value(scope, b"host").decode("latin-1")
 
         if host not in self.allowed_hosts:
-            await send_error(send, 400, "Invalid host header")
+            if scope["type"] == "websocket":
+                # Consume the connect event, then reject with 1008
+                # (policy violation) instead of accepting the handshake.
+                await receive()
+                await send({"type": "websocket.close", "code": 1008})
+            else:
+                await send_error(send, 400, "Invalid host header")
             return
 
         await self.app(scope, receive, send)

@@ -462,7 +462,7 @@ class TestTrustedHostMiddleware:
 
     @pytest.mark.anyio
     async def test_non_http_passthrough(self):
-        """Non-http scope types pass through without modification."""
+        """Non-http/ws scope types pass through without modification."""
         called = False
 
         async def inner_app(scope, receive, send):
@@ -472,6 +472,62 @@ class TestTrustedHostMiddleware:
         mw = TrustedHostMiddleware(inner_app, allowed_hosts=["localhost"])
         await mw({"type": "lifespan"}, None, None)
         assert called
+
+    @pytest.mark.anyio
+    async def test_websocket_disallowed_host_closed(self):
+        """DNS-rebinding protection applies to ws:// too — bad Host is rejected."""
+        called = False
+
+        async def inner_app(scope, receive, send):
+            nonlocal called
+            called = True
+
+        mw = TrustedHostMiddleware(inner_app, allowed_hosts=["trusted.local"])
+        sent: list[dict] = []
+        incoming = [{"type": "websocket.connect"}]
+
+        async def receive():
+            return incoming.pop(0)
+
+        async def send(message):
+            sent.append(message)
+
+        scope = {
+            "type": "websocket",
+            "path": "/ws",
+            "headers": [(b"host", b"evil.local")],
+        }
+        await mw(scope, receive, send)
+        assert not called
+        assert sent[-1]["type"] == "websocket.close"
+        assert sent[-1]["code"] == 1008  # policy violation
+
+    @pytest.mark.anyio
+    async def test_websocket_allowed_host_passes(self):
+        """A websocket with a trusted Host header reaches the app."""
+        called = False
+
+        async def inner_app(scope, receive, send):
+            nonlocal called
+            called = True
+
+        mw = TrustedHostMiddleware(inner_app, allowed_hosts=["trusted.local"])
+        sent: list[dict] = []
+
+        async def receive():
+            return {"type": "websocket.connect"}
+
+        async def send(message):
+            sent.append(message)
+
+        scope = {
+            "type": "websocket",
+            "path": "/ws",
+            "headers": [(b"host", b"trusted.local")],
+        }
+        await mw(scope, receive, send)
+        assert called
+        assert sent == []  # middleware did not respond on the app's behalf
 
 
 # ---------------------------------------------------------------------------
