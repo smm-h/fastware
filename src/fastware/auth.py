@@ -6,6 +6,7 @@ beyond fastware's own asgi types. Keeps auth logic testable and reusable.
 
 from __future__ import annotations
 
+import functools
 import json
 import os
 import re
@@ -437,13 +438,15 @@ def rate_limit(
 
     # In-memory token bucket: key -> (tokens_remaining, last_refill_time)
     buckets: dict[str, tuple[float, float]] = {}
+    last_sweep = time.monotonic()
 
     def decorator(fn: Callable) -> Callable:
-        async def wrapper(*args: Any, **kwargs: Any) -> Any:
-            # Extract request from first positional arg
-            request = args[0] if args else None
-            if request is None:
-                return await fn(*args, **kwargs)
+        # Explicit (request, **kwargs) signature plus functools.wraps so
+        # create_app's dep filtering sees fn's real signature (via
+        # __wrapped__) instead of a VAR_KEYWORD catch-all.
+        @functools.wraps(fn)
+        async def wrapper(request: Any, **kwargs: Any) -> Any:
+            nonlocal last_sweep
 
             # Derive client key
             if key_func is not None:
@@ -454,6 +457,20 @@ def rate_limit(
 
             now = time.monotonic()
 
+            # Evict stale buckets at most once per window. A bucket idle
+            # for >= window_seconds is fully refilled, so dropping it is
+            # indistinguishable from keeping it -- but keeping every key
+            # ever seen leaks memory under client churn.
+            if now - last_sweep >= window_seconds:
+                stale = [
+                    key
+                    for key, (_, last_refill) in buckets.items()
+                    if now - last_refill >= window_seconds
+                ]
+                for key in stale:
+                    del buckets[key]
+                last_sweep = now
+
             # Refill tokens
             if client_key in buckets:
                 tokens, last_refill = buckets[client_key]
@@ -461,7 +478,6 @@ def rate_limit(
                 tokens = min(max_tokens, tokens + elapsed * refill_rate)
             else:
                 tokens = float(max_tokens)
-                last_refill = now
 
             # Check limit
             if tokens < 1.0:
@@ -470,11 +486,10 @@ def rate_limit(
             # Consume one token
             buckets[client_key] = (tokens - 1.0, now)
 
-            return await fn(*args, **kwargs)
+            return await fn(request, **kwargs)
 
-        # Preserve function name for debugging
-        wrapper.__name__ = getattr(fn, "__name__", "wrapped")
-        wrapper.__qualname__ = getattr(fn, "__qualname__", "wrapped")
+        # Exposed for introspection and tests.
+        wrapper._buckets = buckets
         return wrapper
 
     return decorator

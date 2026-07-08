@@ -840,6 +840,75 @@ class TestRateLimiting:
         rate_limit("1000/hour")
 
     @pytest.mark.anyio
+    async def test_stale_buckets_evicted(self, monkeypatch):
+        """Buckets idle longer than the rate window are evicted, so the
+        bucket dict cannot grow without bound (memory leak / churn-DoS)."""
+        import fastware.auth as auth_mod
+
+        clock = {"now": 1000.0}
+        monkeypatch.setattr(auth_mod.time, "monotonic", lambda: clock["now"])
+
+        class FakeReq:
+            def __init__(self, key):
+                self.key = key
+
+        @rate_limit("5/second", key_func=lambda r: r.key)
+        async def handler(request):
+            return "ok"
+
+        for i in range(100):
+            await handler(FakeReq(f"client-{i}"))
+        assert len(handler._buckets) == 100
+
+        # All 100 clients go idle past the 1-second window.
+        clock["now"] += 2.0
+        await handler(FakeReq("fresh-client"))
+        assert len(handler._buckets) == 1
+        assert set(handler._buckets) == {"fresh-client"}
+
+    @pytest.mark.anyio
+    async def test_wrapper_preserves_signature_for_dep_filtering(self, client_for):
+        """create_app filters resolved deps by handler signature. The
+        rate_limit wrapper must not present a (*args, **kwargs) signature,
+        or router-level deps get force-fed to handlers that don't accept
+        them (TypeError -> 500)."""
+        router = Router()
+
+        @router.get("/limited", deps={"extra": lambda: 42})
+        @rate_limit("5/minute")
+        async def limited(request):
+            return JSONResponse({"ok": True})
+
+        app = create_app(router)
+        async with client_for(app) as client:
+            resp = await client.get("/limited")
+        assert resp.status_code == 200
+
+    @pytest.mark.anyio
+    async def test_wrapper_passes_deps_handler_accepts(self, client_for):
+        router = Router()
+
+        @router.get("/limited", deps={"extra": lambda: 42})
+        @rate_limit("5/minute")
+        async def limited(request, extra=None):
+            return JSONResponse({"extra": extra})
+
+        app = create_app(router)
+        async with client_for(app) as client:
+            resp = await client.get("/limited")
+        assert resp.status_code == 200
+        assert resp.json()["extra"] == 42
+
+    def test_wrapper_uses_functools_wraps(self):
+        async def my_handler(request):
+            """My docstring."""
+
+        decorated = rate_limit("5/minute")(my_handler)
+        assert decorated.__name__ == "my_handler"
+        assert decorated.__doc__ == "My docstring."
+        assert decorated.__wrapped__ is my_handler
+
+    @pytest.mark.anyio
     async def test_per_second_rate(self, client_for):
         router = Router()
 
