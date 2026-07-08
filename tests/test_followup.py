@@ -493,72 +493,62 @@ class TestServeReload:
 
 
 # ---------------------------------------------------------------------------
-# MCP module -- role definitions and server creation
+# MCP module -- role-agnostic tool registration and server creation
 # ---------------------------------------------------------------------------
+
+# The framework ships no built-in role model: tests define their own.
+_TEST_ROLES = {
+    "reader": {"level": "read-only", "tools": ["read_file"]},
+    "writer": {"level": "read-write", "tools": ["read_file", "write_file"]},
+}
+
+
+def _fake_tools_module():
+    from types import ModuleType
+
+    mod = ModuleType("fake_tools")
+    mod.TOOLS = {
+        "read_file": lambda: "read",
+        "write_file": lambda: "write",
+        "git_commit": lambda: "commit",
+    }
+    return mod
+
+
+class _FakeServer:
+    def __init__(self):
+        self.registered = {}
+
+    def add_tool(self, fn, *, name):
+        self.registered[name] = fn
 
 
 class TestMCPModule:
-    def test_roles_importable(self):
-        """ROLES and DEFAULT_ROLE are importable from fastware.mcp."""
-        from fastware.mcp import ROLES, DEFAULT_ROLE
+    def test_no_builtin_role_model(self):
+        """fastware.mcp ships no domain role model (moved to consumers)."""
+        import fastware.mcp as mcp_mod
 
-        assert isinstance(ROLES, dict)
-        assert "implementor" in ROLES
-        assert "auditor" in ROLES
-        assert "reviewer" in ROLES
-        assert "deployer" in ROLES
-        assert DEFAULT_ROLE == "auditor"
+        assert not hasattr(mcp_mod, "ROLES")
+        assert not hasattr(mcp_mod, "DEFAULT_ROLE")
+        assert "ROLES" not in mcp_mod.__all__
+        assert "DEFAULT_ROLE" not in mcp_mod.__all__
 
-    def test_role_tool_sets(self):
-        """Each role has a 'tools' list and a 'level' string."""
-        from fastware.mcp import ROLES
+    def test_import_does_not_load_mcp_package(self):
+        """importing fastware.mcp must not import the heavy optional mcp package."""
+        import subprocess
+        import sys
 
-        for name, config in ROLES.items():
-            assert "level" in config, f"Role {name} missing 'level'"
-            assert "tools" in config, f"Role {name} missing 'tools'"
-            assert isinstance(config["tools"], list)
-            assert len(config["tools"]) > 0
+        code = (
+            "import fastware.mcp, sys; "
+            "assert 'mcp' not in sys.modules, 'mcp package was imported eagerly'"
+        )
+        subprocess.run([sys.executable, "-c", code], check=True)
 
-    def test_implementor_has_write_tools(self):
-        """Implementor role includes write_file and edit_file."""
-        from fastware.mcp import ROLES
+    def test_mcp_available_flag_reflects_installation(self):
+        """_MCP_AVAILABLE is True here (mcp installed in the test env)."""
+        import fastware.mcp as mcp_mod
 
-        impl_tools = ROLES["implementor"]["tools"]
-        assert "write_file" in impl_tools
-        assert "edit_file" in impl_tools
-        assert "git_commit" in impl_tools
-
-    def test_auditor_lacks_write_tools(self):
-        """Auditor role does NOT include write_file or edit_file."""
-        from fastware.mcp import ROLES
-
-        aud_tools = ROLES["auditor"]["tools"]
-        assert "write_file" not in aud_tools
-        assert "edit_file" not in aud_tools
-        assert "git_commit" not in aud_tools
-
-    def test_reviewer_has_post_review_comment(self):
-        """Reviewer role includes post_review_comment."""
-        from fastware.mcp import ROLES
-
-        rev_tools = ROLES["reviewer"]["tools"]
-        assert "post_review_comment" in rev_tools
-
-    def test_deployer_has_pipeline_tools(self):
-        """Deployer role includes deployment tools."""
-        from fastware.mcp import ROLES
-
-        dep_tools = ROLES["deployer"]["tools"]
-        assert "stage_branch" in dep_tools
-        assert "create_prod_pr" in dep_tools
-        assert "check_pipeline" in dep_tools
-
-    def test_all_roles_have_ask_user(self):
-        """Every role includes the ask_user tool."""
-        from fastware.mcp import ROLES
-
-        for name, config in ROLES.items():
-            assert "ask_user" in config["tools"], f"Role {name} missing ask_user"
+        assert mcp_mod._MCP_AVAILABLE is True
 
     def test_create_mcp_server_without_mcp_package(self, monkeypatch):
         """create_mcp_server raises RuntimeError when mcp is not installed."""
@@ -570,70 +560,92 @@ class TestMCPModule:
 
     def test_register_tools_for_role_filters_correctly(self):
         """register_tools_for_role only registers tools allowed by the role."""
-        from types import ModuleType
-
         from fastware.mcp import register_tools_for_role
 
-        # Build a fake module with a TOOLS dict.
-        mod = ModuleType("fake_tools")
-        mod.TOOLS = {
-            "read_file": lambda: "read",
-            "write_file": lambda: "write",
-            "git_commit": lambda: "commit",
-        }
+        mod = _fake_tools_module()
+        server = _FakeServer()
 
-        # Build a fake server that tracks add_tool calls.
-        registered = {}
-
-        class FakeServer:
-            def add_tool(self, fn, *, name):
-                registered[name] = fn
-
-        # Auditor should get read_file but not write_file or git_commit.
-        result = register_tools_for_role(FakeServer(), "auditor", [mod])
+        result = register_tools_for_role(
+            server, "reader", [mod], roles=_TEST_ROLES
+        )
         assert "read_file" in result
         assert "write_file" not in result
         assert "git_commit" not in result
-        assert "read_file" in registered
-        assert "write_file" not in registered
+        assert "read_file" in server.registered
+        assert "write_file" not in server.registered
 
-    def test_register_tools_unknown_role_falls_back_to_default(self):
-        """Unknown role falls back to DEFAULT_ROLE (auditor)."""
-        from types import ModuleType
+    def test_register_tools_for_role_requires_roles(self):
+        """roles is a required keyword argument -- no built-in default."""
+        from fastware.mcp import register_tools_for_role
 
-        from fastware.mcp import ROLES, DEFAULT_ROLE, register_tools_for_role
+        with pytest.raises(TypeError):
+            register_tools_for_role(_FakeServer(), "reader", [_fake_tools_module()])
 
-        mod = ModuleType("fake_tools")
-        mod.TOOLS = {
-            "read_file": lambda: "read",
-            "write_file": lambda: "write",
-        }
+    def test_register_tools_unknown_role_with_default_falls_back(self):
+        """Unknown role falls back to the caller-supplied default_role."""
+        from fastware.mcp import register_tools_for_role
 
-        registered = {}
+        result = register_tools_for_role(
+            _FakeServer(),
+            "nonexistent_role",
+            [_fake_tools_module()],
+            roles=_TEST_ROLES,
+            default_role="reader",
+        )
+        assert set(result) == {"read_file"}
 
-        class FakeServer:
-            def add_tool(self, fn, *, name):
-                registered[name] = fn
+    def test_register_tools_unknown_role_without_default_is_error(self):
+        """Unknown role with no default_role is a hard error, not a fallback."""
+        from fastware.mcp import register_tools_for_role
 
-        result = register_tools_for_role(FakeServer(), "nonexistent_role", [mod])
-        # Should behave like the default role
-        default_tools = set(ROLES[DEFAULT_ROLE]["tools"])
-        for name in result:
-            assert name in default_tools
+        with pytest.raises(KeyError, match="nonexistent_role"):
+            register_tools_for_role(
+                _FakeServer(),
+                "nonexistent_role",
+                [_fake_tools_module()],
+                roles=_TEST_ROLES,
+            )
+
+    def test_create_mcp_server_requires_roles_with_tool_modules(self):
+        """tool_modules without a roles mapping is a hard error."""
+        from fastware.mcp import create_mcp_server
+
+        with pytest.raises(ValueError, match="roles"):
+            create_mcp_server(tool_modules=[_fake_tools_module()])
+
+    def test_create_mcp_server_requires_role_or_default(self):
+        """tool_modules with roles but neither role nor default_role is a hard error."""
+        from fastware.mcp import create_mcp_server
+
+        with pytest.raises(ValueError, match="role"):
+            create_mcp_server(
+                tool_modules=[_fake_tools_module()], roles=_TEST_ROLES
+            )
+
+    def test_create_mcp_server_registers_role_tools(self):
+        """create_mcp_server wires role-filtered tools onto a real FastMCP."""
+        from fastware.mcp import create_mcp_server
+
+        server = create_mcp_server(
+            "test-server",
+            role="reader",
+            tool_modules=[_fake_tools_module()],
+            roles=_TEST_ROLES,
+        )
+        # FastMCP exposes registered tools via its tool manager.
+        tool_names = {t.name for t in server._tool_manager.list_tools()}
+        assert tool_names == {"read_file"}
 
     def test_mcp_exports_from_top_level(self):
-        """MCP symbols are importable from fastware.mcp."""
-        from fastware.mcp import (
-            ROLES,
-            DEFAULT_ROLE,
-            create_mcp_server,
-            register_tools_for_role,
-        )
+        """Only the factory functions are exported from fastware.mcp."""
+        import fastware.mcp as mcp_mod
 
-        assert ROLES is not None
-        assert DEFAULT_ROLE == "auditor"
-        assert callable(create_mcp_server)
-        assert callable(register_tools_for_role)
+        assert sorted(mcp_mod.__all__) == [
+            "create_mcp_server",
+            "register_tools_for_role",
+        ]
+        assert callable(mcp_mod.create_mcp_server)
+        assert callable(mcp_mod.register_tools_for_role)
 
 
 # ---------------------------------------------------------------------------

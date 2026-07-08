@@ -1,103 +1,31 @@
-"""MCP (Model Context Protocol) server factory providing per-role agent tool provisioning, tool filtering, and stdio-based server lifecycle management.
+"""MCP (Model Context Protocol) server factory providing role-based agent tool provisioning, tool filtering, and stdio-based server lifecycle management.
 
-Provides role-based tool filtering and server creation for MCP agent
-processes. The ``mcp`` package is an optional dependency -- this module
-is importable without it, but ``create_mcp_server`` raises a clear
-error if the package is not installed.
+Provides role-filtered tool registration and server creation for MCP agent
+processes. The role/tool domain model belongs to the caller: both
+``create_mcp_server`` and ``register_tools_for_role`` take the *roles*
+mapping explicitly -- the framework ships no built-in roles.
 
-Environment variables consumed by the default server:
-    SA_ROLE          -- agent role (implementor, auditor, reviewer, deployer)
-    SA_TASK_ID       -- unique task identifier
-    SA_SESSION_ID    -- parent session identifier
-    SA_WORKTREE      -- absolute path to the git worktree
-    SA_PROJECT_ROOT  -- absolute path to the project root
-    SA_SERVER_URL    -- server base URL (e.g. http://127.0.0.1:9100)
-    SA_AUTH_TOKEN    -- bearer token for server API calls
+The ``mcp`` package is an optional dependency -- this module is importable
+without it (and never imports it at module level), but ``create_mcp_server``
+raises a clear error if the package is not installed.
 """
 
 from __future__ import annotations
 
-import os
 from collections.abc import Callable
+from importlib.util import find_spec
 from types import ModuleType
 from typing import Any
 
-try:
-    from mcp.server.fastmcp import FastMCP
-
-    _MCP_AVAILABLE = True
-except ModuleNotFoundError:
-    _MCP_AVAILABLE = False
+# Cheap availability probe: find_spec does NOT execute the (heavy) mcp
+# package. create_mcp_server checks this module-level flag, so tests can
+# monkeypatch it to simulate a missing installation.
+_MCP_AVAILABLE = find_spec("mcp") is not None
 
 __all__ = [
     "create_mcp_server",
     "register_tools_for_role",
 ]
-
-# ---------------------------------------------------------------------------
-# Role definitions
-# ---------------------------------------------------------------------------
-
-ROLES: dict[str, dict[str, Any]] = {
-    "implementor": {
-        "level": "read-write",
-        "tools": [
-            "read_file",
-            "write_file",
-            "edit_file",
-            "list_files",
-            "search_files",
-            "git_status",
-            "git_diff",
-            "git_commit",
-            "git_log",
-            "run_tests",
-            "ask_user",
-        ],
-    },
-    "auditor": {
-        "level": "read-only",
-        "tools": [
-            "read_file",
-            "list_files",
-            "search_files",
-            "git_status",
-            "git_diff",
-            "git_log",
-            "run_tests",
-            "ask_user",
-        ],
-    },
-    "reviewer": {
-        "level": "read-only",
-        "tools": [
-            "read_file",
-            "list_files",
-            "search_files",
-            "git_diff",
-            "git_log",
-            "post_review_comment",
-            "ask_user",
-        ],
-    },
-    "deployer": {
-        "level": "everything",
-        "tools": [
-            "read_file",
-            "list_files",
-            "search_files",
-            "git_status",
-            "git_diff",
-            "git_log",
-            "stage_branch",
-            "create_prod_pr",
-            "check_pipeline",
-            "ask_user",
-        ],
-    },
-}
-
-DEFAULT_ROLE = "auditor"
 
 # ---------------------------------------------------------------------------
 # Tool registration
@@ -109,7 +37,7 @@ def register_tools_for_role(
     role: str,
     tool_modules: list[ModuleType],
     *,
-    roles: dict[str, dict[str, Any]] | None = None,
+    roles: dict[str, dict[str, Any]],
     default_role: str | None = None,
 ) -> dict[str, Callable[..., Any]]:
     """Register only the tools allowed by *role* on *server*.
@@ -119,15 +47,23 @@ def register_tools_for_role(
     are registered.
 
     Args:
-        roles: Role definitions dict. If None, uses the module-level ROLES.
-        default_role: Fallback role when *role* is not found. If None, uses
-            the module-level DEFAULT_ROLE.
+        roles: Role definitions dict mapping role name to a config dict
+            with a ``"tools"`` list. Required -- the framework has no
+            built-in role model.
+        default_role: Fallback role used when *role* is not in *roles*.
+            If None, an unknown *role* is a hard error.
 
     Returns the dict of registered tool name -> function.
     """
-    _roles = roles if roles is not None else ROLES
-    _default_role = default_role if default_role is not None else DEFAULT_ROLE
-    role_config = _roles.get(role, _roles[_default_role])
+    if role in roles:
+        role_config = roles[role]
+    elif default_role is not None:
+        role_config = roles[default_role]
+    else:
+        raise KeyError(
+            f"Unknown role {role!r} and no default_role given. "
+            f"Known roles: {sorted(roles)}"
+        )
     allowed = set(role_config["tools"])
 
     registry: dict[str, Callable[..., Any]] = {}
@@ -161,15 +97,16 @@ def create_mcp_server(
     name:
         Server name passed to FastMCP.
     role:
-        Agent role. If *None*, reads ``SA_ROLE`` from environment
-        (falling back to *default_role* or DEFAULT_ROLE).
+        Agent role. If *None*, *default_role* is used (required in that
+        case when *tool_modules* is given).
     tool_modules:
         List of modules that define a ``TOOLS`` dict. If *None*, no
         tools are registered (caller must register manually).
     roles:
-        Role definitions dict. If None, uses the module-level ROLES.
+        Role definitions dict. Required when *tool_modules* is given --
+        the framework has no built-in role model.
     default_role:
-        Fallback role. If None, uses the module-level DEFAULT_ROLE.
+        Fallback role used when *role* is None or unknown.
 
     Returns
     -------
@@ -180,6 +117,9 @@ def create_mcp_server(
     ------
     RuntimeError
         If the ``mcp`` package is not installed.
+    ValueError
+        If *tool_modules* is given without *roles*, or without either
+        *role* or *default_role*.
     """
     if not _MCP_AVAILABLE:
         raise RuntimeError(
@@ -187,17 +127,26 @@ def create_mcp_server(
             "Install it with: pip install mcp"
         )
 
-    _default_role = default_role if default_role is not None else DEFAULT_ROLE
-
-    if role is None:
-        role = os.environ.get("SA_ROLE", _default_role)
+    # Lazy import: the mcp package costs several hundred ms and is optional.
+    from mcp.server.fastmcp import FastMCP
 
     server = FastMCP(name)
 
     if tool_modules is not None:
+        if roles is None:
+            raise ValueError(
+                "roles is required when tool_modules is given -- the framework "
+                "has no built-in role model; pass your application's roles dict."
+            )
+        if role is None:
+            if default_role is None:
+                raise ValueError(
+                    "Either role or default_role must be given when "
+                    "tool_modules is provided."
+                )
+            role = default_role
         register_tools_for_role(
-            server, role, tool_modules,
-            roles=roles, default_role=default_role,
+            server, role, tool_modules, roles=roles, default_role=default_role
         )
 
     return server
