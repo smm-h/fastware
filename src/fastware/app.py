@@ -118,9 +118,12 @@ async def _send_result(send: Callable, result: Any) -> None:
 
 async def _serve_static(send: Callable, static_dir: Path, rel_path: str) -> bool:
     """Serve a static file. Returns True if served, False if not found."""
-    file_path = (static_dir / rel_path).resolve()
-    # Prevent path traversal
-    if not str(file_path).startswith(str(static_dir.resolve())):
+    root = static_dir.resolve()
+    file_path = (root / rel_path).resolve()
+    # Prevent path traversal. A string-prefix check would let sibling dirs
+    # escape (e.g. /srv/static-private passes startswith("/srv/static")),
+    # so compare resolved paths structurally.
+    if not file_path.is_relative_to(root):
         return False
     if not file_path.is_file():
         return False
