@@ -20,6 +20,7 @@ Usage::
 
 from __future__ import annotations
 
+import queue
 import sqlite3
 import threading
 import time
@@ -44,12 +45,34 @@ CREATE TABLE IF NOT EXISTS errors (
 )
 """
 
+_INSERT = (
+    "INSERT INTO errors "
+    "(timestamp, method, path, status_code, detail, request_id, user, traceback) "
+    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+)
+
+# Sentinel enqueued by ``close()`` to stop the background writer cleanly.
+_SHUTDOWN = object()
+
 
 class ErrorLog:
-    """Append-only SQLite error log.
+    """Append-only SQLite error log with non-blocking writes.
 
-    Thread-safe: uses a lock around writes so concurrent ASGI tasks
-    do not conflict.
+    ``append()`` never touches SQLite on the calling thread.  Instead it
+    enqueues the entry and a single dedicated background worker thread
+    performs the ``connect``/``INSERT``/``commit`` off the event loop.  This
+    keeps the ASGI event loop responsive even during 5xx bursts, when the
+    request timing middleware calls ``append()`` on every failing request.
+
+    Ordering and durability:
+
+    - A single FIFO queue and a single writer thread preserve insertion
+      order.  The timestamp is captured at ``append()`` time so it reflects
+      the true event order regardless of write latency.
+    - ``recent()`` (and the explicit ``flush()``) drain the queue before
+      reading, so reads always observe every preceding ``append()``.
+    - Errors raised by the writer (e.g. a bad path) are surfaced -- not
+      swallowed -- the next time ``flush()``/``recent()`` is called.
 
     Args:
         path: Filesystem path for the SQLite database.  Created on
@@ -58,14 +81,49 @@ class ErrorLog:
 
     def __init__(self, path: str | Path) -> None:
         self._path = str(path)
-        self._lock = threading.Lock()
-        self._table_created = False
+        self._queue: queue.Queue = queue.Queue()
+        self._worker: threading.Thread | None = None
+        self._worker_lock = threading.Lock()
+        self._worker_error: BaseException | None = None
 
-    def _ensure_table(self, conn: sqlite3.Connection) -> None:
-        if not self._table_created:
+    def _ensure_worker(self) -> None:
+        with self._worker_lock:
+            if self._worker is not None and self._worker.is_alive():
+                return
+            self._worker_error = None
+            self._worker = threading.Thread(
+                target=self._run_worker,
+                name="fastware-errorlog",
+                daemon=True,
+            )
+            self._worker.start()
+
+    def _run_worker(self) -> None:
+        """Drain the queue, writing each entry with one long-lived connection."""
+        conn: sqlite3.Connection | None = None
+        try:
+            conn = sqlite3.connect(self._path)
             conn.execute(_CREATE_TABLE)
             conn.commit()
-            self._table_created = True
+        except BaseException as exc:  # noqa: BLE001 - surfaced via flush()/recent()
+            self._worker_error = exc
+        try:
+            while True:
+                item = self._queue.get()
+                try:
+                    if item is _SHUTDOWN:
+                        break
+                    if conn is not None and self._worker_error is None:
+                        conn.execute(_INSERT, item)
+                        conn.commit()
+                except BaseException as exc:  # noqa: BLE001 - surfaced on flush()
+                    self._worker_error = exc
+                finally:
+                    # Always mark done so flush()'s join() can never hang.
+                    self._queue.task_done()
+        finally:
+            if conn is not None:
+                conn.close()
 
     def append(
         self,
@@ -78,26 +136,39 @@ class ErrorLog:
         user: str = "",
         traceback: str = "",
     ) -> None:
-        """Append an error entry to the log."""
-        with self._lock:
-            conn = sqlite3.connect(self._path)
-            try:
-                self._ensure_table(conn)
-                conn.execute(
-                    "INSERT INTO errors "
-                    "(timestamp, method, path, status_code, detail, request_id, user, traceback) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    (time.time(), method, path, status_code, detail, request_id, user, traceback),
-                )
-                conn.commit()
-            finally:
-                conn.close()
+        """Enqueue an error entry for non-blocking, off-thread persistence.
+
+        Returns immediately; the actual SQLite write happens on the background
+        worker thread.  The timestamp is captured here so ordering reflects the
+        true event order regardless of write latency.
+        """
+        self._ensure_worker()
+        self._queue.put(
+            (time.time(), method, path, status_code, detail, request_id, user, traceback)
+        )
+
+    def flush(self) -> None:
+        """Block until all queued writes have been committed.
+
+        Raises any error the background writer encountered while persisting
+        entries, so failures are surfaced rather than silently dropped.
+        """
+        if self._worker is not None:
+            self._queue.join()
+        if self._worker_error is not None:
+            raise self._worker_error
 
     def recent(self, limit: int = 50) -> list[dict]:
-        """Return the most recent *limit* error entries, newest first."""
+        """Return the most recent *limit* error entries, newest first.
+
+        Pending queued writes are flushed first, so the result reflects every
+        preceding ``append()``.
+        """
+        self.flush()
         conn = sqlite3.connect(self._path)
         try:
-            self._ensure_table(conn)
+            conn.execute(_CREATE_TABLE)
+            conn.commit()
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
                 "SELECT * FROM errors ORDER BY id DESC LIMIT ?", (limit,)
@@ -105,3 +176,13 @@ class ErrorLog:
             return [dict(r) for r in rows]
         finally:
             conn.close()
+
+    def close(self) -> None:
+        """Gracefully stop the background writer after draining pending writes."""
+        with self._worker_lock:
+            worker = self._worker
+            self._worker = None
+        if worker is None:
+            return
+        self._queue.put(_SHUTDOWN)
+        worker.join(timeout=5)

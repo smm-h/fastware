@@ -1007,6 +1007,7 @@ class TestErrorLog:
         db_path.parent.mkdir(parents=True)
         log = ErrorLog(db_path)
         log.append(method="GET", path="/test", status_code=502)
+        log.flush()  # writes are offloaded to a background thread; wait for them
         assert db_path.exists()
         # Verify table exists
         conn = sqlite3.connect(str(db_path))
