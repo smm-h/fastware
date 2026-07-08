@@ -689,6 +689,75 @@ class TestViteDevProxyHTTP:
 
 
 # ---------------------------------------------------------------------------
+# 5.5c ViteDevProxy WebSocket path
+# ---------------------------------------------------------------------------
+
+class TestViteDevProxyWS:
+
+    @staticmethod
+    def _ws_fixtures():
+        sent: list[dict] = []
+        incoming = [{"type": "websocket.connect"}]
+
+        async def receive():
+            return incoming.pop(0)
+
+        async def send(message):
+            sent.append(message)
+
+        scope = {
+            "type": "websocket",
+            "path": "/hmr",
+            "query_string": b"",
+            "headers": [],
+        }
+        return scope, receive, send, sent
+
+    @pytest.mark.anyio
+    async def test_missing_websockets_closes_with_error_code(self):
+        """Without the websockets library, close with 1011 -- not a clean 1000."""
+        from fastware.middleware import ViteDevProxy
+
+        async def inner_app(scope, receive, send):
+            raise AssertionError("inner app must not be called")
+
+        proxy = ViteDevProxy(inner_app, vite_port=1)
+        scope, receive, send, sent = self._ws_fixtures()
+
+        with patch.dict(
+            "sys.modules",
+            {
+                "websockets": None,
+                "websockets.asyncio": None,
+                "websockets.asyncio.client": None,
+            },
+        ):
+            await proxy._proxy_ws(scope, receive, send)
+
+        close = sent[-1]
+        assert close["type"] == "websocket.close"
+        assert close["code"] == 1011
+
+    @pytest.mark.anyio
+    async def test_vite_unreachable_closes_with_error_code(self):
+        """A failed proxy connection closes with 1011, not a clean 1000."""
+        pytest.importorskip("websockets")
+        from fastware.middleware import ViteDevProxy
+
+        async def inner_app(scope, receive, send):
+            raise AssertionError("inner app must not be called")
+
+        proxy = ViteDevProxy(inner_app, vite_port=1)  # nothing listens here
+        scope, receive, send, sent = self._ws_fixtures()
+
+        await proxy._proxy_ws(scope, receive, send)
+
+        close = sent[-1]
+        assert close["type"] == "websocket.close"
+        assert close["code"] == 1011
+
+
+# ---------------------------------------------------------------------------
 # 5.6 Built-in middleware wiring
 # ---------------------------------------------------------------------------
 

@@ -546,8 +546,10 @@ class ViteDevProxy:
     ) -> None:
         """Bidirectional WebSocket proxy to Vite (for HMR).
 
-        Uses the ``websockets`` library if available. Falls back to
-        closing the connection with an error code if not installed.
+        Uses the ``websockets`` library.  If it is not installed, or the
+        proxy connection fails, the client connection is closed with code
+        1011 (internal error) and a reason -- never a clean 1000 close
+        that would hide the failure.
         """
         import asyncio
 
@@ -575,6 +577,8 @@ class ViteDevProxy:
         await send(accept_msg)
 
         # Connect to Vite's WebSocket.
+        close_code = 1000
+        close_reason = ""
         try:
             from websockets.asyncio.client import connect
 
@@ -616,11 +620,17 @@ class ViteDevProxy:
                 for task in pending:
                     task.cancel()
         except ImportError:
-            pass
-        except Exception:
-            pass
+            close_code = 1011
+            close_reason = "websockets library not installed (fastware[dev])"
+        except Exception as exc:
+            close_code = 1011
+            close_reason = f"Vite WebSocket proxy error: {type(exc).__name__}"
         finally:
             try:
-                await send({"type": "websocket.close", "code": 1000})
+                await send({
+                    "type": "websocket.close",
+                    "code": close_code,
+                    "reason": close_reason,
+                })
             except Exception:
                 pass
