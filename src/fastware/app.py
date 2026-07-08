@@ -191,6 +191,9 @@ class AppConfig:
     request_id: bool = True
     request_timing: bool = True
     vite_dev_port: int | None = None
+    # Maximum request body size in bytes; requests exceeding it get a 413.
+    # None disables the cap (unbounded -- only for trusted deployments).
+    max_body_size: int | None = 10 * 1024 * 1024
 
 
 # ---------------------------------------------------------------------------
@@ -248,6 +251,7 @@ def create_app(
     request_id = effective.request_id
     request_timing = effective.request_timing
     vite_dev_port = effective.vite_dev_port
+    max_body_size = effective.max_body_size
 
     from fastware.di import DependencyResolver
 
@@ -366,14 +370,27 @@ def create_app(
                 await send(message)
 
             try:
-                # Read body for all methods (GET with empty body costs nothing)
-                body = b""
+                # Read body for all methods (GET with empty body costs nothing).
+                # Accumulate chunks in a list (bytes += is O(n^2)) and enforce
+                # the configured size cap to prevent unbounded buffering.
+                chunks: list[bytes] = []
+                body_len = 0
                 while True:
                     msg = await receive()
-                    body += msg.get("body", b"")
+                    chunk = msg.get("body", b"")
+                    if chunk:
+                        body_len += len(chunk)
+                        if max_body_size is not None and body_len > max_body_size:
+                            await _send_response(
+                                tracked_send, 413,
+                                msgspec.json.encode({"detail": "Request body too large"}),
+                                "application/json",
+                            )
+                            return
+                        chunks.append(chunk)
                     if not msg.get("more_body", False):
                         break
-                body = body or None
+                body = b"".join(chunks) or None
 
                 request = Request(scope, path_params, body, receive=receive)
 

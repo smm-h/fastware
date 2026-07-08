@@ -285,3 +285,63 @@ class TestStreamBrokenClient:
         starts = [m for m in sent if m["type"] == "http.response.start"]
         assert len(starts) == 1
         assert starts[0]["status"] == 200
+
+
+# ---------------------------------------------------------------------------
+# Request body size cap
+# ---------------------------------------------------------------------------
+
+
+class TestMaxBodySize:
+    def _echo_app(self, **kwargs):
+        router = Router()
+
+        @router.post("/echo")
+        async def echo(req):
+            return {"size": len(req.body or b"")}
+
+        return create_app(router, request_id=False, request_timing=False, **kwargs)
+
+    @pytest.mark.anyio
+    async def test_body_over_limit_returns_413(self):
+        app = self._echo_app(max_body_size=16)
+        sent = await _run_http(
+            app,
+            _http_scope("/echo", method="POST"),
+            body_messages=[{"type": "http.request", "body": b"x" * 64, "more_body": False}],
+        )
+        assert _response_status(sent) == 413
+
+    @pytest.mark.anyio
+    async def test_streamed_body_over_limit_returns_413(self):
+        """The cap applies to the accumulated total across chunks, and the
+        app stops buffering as soon as the limit is crossed."""
+        app = self._echo_app(max_body_size=16)
+        chunks = [
+            {"type": "http.request", "body": b"x" * 10, "more_body": True},
+            {"type": "http.request", "body": b"x" * 10, "more_body": True},
+            {"type": "http.request", "body": b"x" * 10, "more_body": False},
+        ]
+        sent = await _run_http(app, _http_scope("/echo", method="POST"), body_messages=chunks)
+        assert _response_status(sent) == 413
+
+    @pytest.mark.anyio
+    async def test_body_under_limit_passes_through(self):
+        app = self._echo_app(max_body_size=1024)
+        chunks = [
+            {"type": "http.request", "body": b"a" * 10, "more_body": True},
+            {"type": "http.request", "body": b"b" * 10, "more_body": False},
+        ]
+        sent = await _run_http(app, _http_scope("/echo", method="POST"), body_messages=chunks)
+        assert _response_status(sent) == 200
+        assert b'"size":20' in _response_body(sent)
+
+    @pytest.mark.anyio
+    async def test_default_limit_allows_normal_bodies(self):
+        app = self._echo_app()
+        sent = await _run_http(
+            app,
+            _http_scope("/echo", method="POST"),
+            body_messages=[{"type": "http.request", "body": b"y" * 1000, "more_body": False}],
+        )
+        assert _response_status(sent) == 200
