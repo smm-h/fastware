@@ -556,10 +556,19 @@ def create_app(
             # paths never attempt a second response (protocol violation).
             response_started = False
 
+            # HEAD is served by the matched GET handler, but the entity body
+            # must not be transmitted (RFC 7231 4.3.2). Strip the body from
+            # every http.response.body message while preserving the start
+            # message headers (content-type, content-length, etc.) so the
+            # HEAD response headers match the GET response.
+            is_head = method == "HEAD"
+
             async def tracked_send(message: dict) -> None:
                 nonlocal response_started
                 if message["type"] == "http.response.start":
                     response_started = True
+                elif is_head and message["type"] == "http.response.body":
+                    message = {**message, "body": b""}
                 await send(message)
 
             # Bound before the try so error paths can tell whether the
@@ -671,6 +680,22 @@ def create_app(
                         msgspec.json.encode({"detail": "Internal server error"}),
                         "application/json",
                     )
+            return
+
+        # -- 405 Method Not Allowed --
+        # No route matched this method. If the path matches one or more routes
+        # under other methods, this is a method mismatch (405), not a missing
+        # resource -- return 405 with an Allow header rather than falling
+        # through to static/SPA/404. Genuinely-unmatched paths (empty set)
+        # continue to the static/SPA/404 handling below.
+        allowed = router.allowed_methods(path)
+        if allowed:
+            await _send_response(
+                send, 405,
+                msgspec.json.encode({"detail": "Method not allowed"}),
+                "application/json",
+                extra_headers={"Allow": ", ".join(sorted(allowed))},
+            )
             return
 
         # -- Static files --

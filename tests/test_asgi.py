@@ -487,12 +487,14 @@ async def test_404_on_unknown_route():
 
 
 @pytest.mark.anyio
-async def test_404_on_method_mismatch():
-    """GET to a POST-only route should 404."""
+async def test_405_on_method_mismatch():
+    """GET to a POST-only route returns 405 with an Allow header."""
     app = _make_test_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
         resp = await c.get("/api/echo")
-    assert resp.status_code == 404
+    assert resp.status_code == 405
+    methods = {m.strip() for m in resp.headers["allow"].split(",")}
+    assert methods == {"POST"}
 
 
 @pytest.mark.anyio
