@@ -80,40 +80,42 @@ class Router:
         prefix = prefix.rstrip("/")
         self._mounts.append((prefix, app))
 
-    def get(self, path: str, *, deps: dict[str, Callable] | None = None, response_model: type | None = None) -> Callable:
-        """Decorator to register a GET handler."""
+    def _method_decorator(
+        self,
+        method: str,
+        path: str,
+        *,
+        deps: dict[str, Callable] | None = None,
+        response_model: type | None = None,
+    ) -> Callable:
+        """Return a decorator that registers a handler for *method* at *path*.
+
+        Shared factory backing the get/post/put/patch/delete decorators.
+        """
         def decorator(fn: Callable) -> Callable:
-            self.add_route("GET", path, fn, deps=deps, response_model=response_model)
+            self.add_route(method, path, fn, deps=deps, response_model=response_model)
             return fn
         return decorator
+
+    def get(self, path: str, *, deps: dict[str, Callable] | None = None, response_model: type | None = None) -> Callable:
+        """Decorator to register a GET handler."""
+        return self._method_decorator("GET", path, deps=deps, response_model=response_model)
 
     def post(self, path: str, *, deps: dict[str, Callable] | None = None, response_model: type | None = None) -> Callable:
         """Decorator to register a POST handler."""
-        def decorator(fn: Callable) -> Callable:
-            self.add_route("POST", path, fn, deps=deps, response_model=response_model)
-            return fn
-        return decorator
+        return self._method_decorator("POST", path, deps=deps, response_model=response_model)
 
     def delete(self, path: str, *, deps: dict[str, Callable] | None = None, response_model: type | None = None) -> Callable:
         """Decorator to register a DELETE handler."""
-        def decorator(fn: Callable) -> Callable:
-            self.add_route("DELETE", path, fn, deps=deps, response_model=response_model)
-            return fn
-        return decorator
+        return self._method_decorator("DELETE", path, deps=deps, response_model=response_model)
 
     def put(self, path: str, *, deps: dict[str, Callable] | None = None, response_model: type | None = None) -> Callable:
         """Decorator to register a PUT handler."""
-        def decorator(fn: Callable) -> Callable:
-            self.add_route("PUT", path, fn, deps=deps, response_model=response_model)
-            return fn
-        return decorator
+        return self._method_decorator("PUT", path, deps=deps, response_model=response_model)
 
     def patch(self, path: str, *, deps: dict[str, Callable] | None = None, response_model: type | None = None) -> Callable:
         """Decorator to register a PATCH handler."""
-        def decorator(fn: Callable) -> Callable:
-            self.add_route("PATCH", path, fn, deps=deps, response_model=response_model)
-            return fn
-        return decorator
+        return self._method_decorator("PATCH", path, deps=deps, response_model=response_model)
 
     def add_route(
         self,
@@ -194,6 +196,43 @@ class Router:
         handler, params, _deps, _resp_model = result
         return handler, params
 
+    @classmethod
+    def _match_pattern(
+        cls, pattern: list[ParsedSegment], segments: list[str],
+    ) -> dict[str, Any] | None:
+        """Return coerced path params if *pattern* matches *segments*, else None.
+
+        Handles both greedy ``{param:path}`` patterns and normal
+        segment-count patterns. Shared by HTTP and method-agnostic matching.
+        """
+        # Check for :path segments -- they change matching semantics
+        path_seg_idx = None
+        for i, (lit, name, conv) in enumerate(pattern):
+            if name is not None and lit is None and conv is None:
+                path_seg_idx = i
+                break
+
+        if path_seg_idx is not None:
+            return cls._match_with_path_param(pattern, segments, path_seg_idx)
+
+        # Normal segment-count matching
+        if len(pattern) != len(segments):
+            return None
+
+        params: dict[str, Any] = {}
+        for (lit, name, conv), req_seg in zip(pattern, segments):
+            if lit is not None:
+                # Literal segment
+                if lit != req_seg:
+                    return None
+            else:
+                # Parameterized segment -- attempt type coercion
+                try:
+                    params[name] = conv(req_seg)
+                except (ValueError, TypeError):
+                    return None
+        return params
+
     def _match_with_deps(
         self, method: str, path: str,
     ) -> tuple[Callable, dict[str, Any], dict[str, Callable], type | None] | None:
@@ -202,50 +241,44 @@ class Router:
         Internal variant of :meth:`match` that also returns the merged
         dependency dict and response_model for the matched route. Used by
         ``create_app`` for DI resolution and response validation.
+
+        A ``HEAD`` request with no explicit ``HEAD`` route falls back to the
+        matching ``GET`` route (the caller is responsible for sending an empty
+        body). Callers wanting to distinguish a missing path (404) from a
+        method mismatch (405) can consult :meth:`allowed_methods`.
         """
         segments = path.strip("/").split("/")
-        for route_method, pattern, handler, route_deps, resp_model in self._routes:
-            if route_method != method:
-                continue
+        # HEAD is served by the GET handler unless an explicit HEAD route
+        # is registered. Try the request method first, then GET for HEAD.
+        candidate_methods = [method]
+        if method == "HEAD":
+            candidate_methods.append("GET")
 
-            # Check for :path segments -- they change matching semantics
-            path_seg_idx = None
-            for i, (lit, name, conv) in enumerate(pattern):
-                if name is not None and lit is None and conv is None:
-                    path_seg_idx = i
-                    break
-
-            if path_seg_idx is not None:
-                # Greedy :path matching
-                result = self._match_with_path_param(
-                    pattern, segments, path_seg_idx
-                )
+        for effective_method in candidate_methods:
+            for route_method, pattern, handler, route_deps, resp_model in self._routes:
+                if route_method != effective_method:
+                    continue
+                result = self._match_pattern(pattern, segments)
                 if result is not None:
                     return handler, result, route_deps, resp_model
-                continue
-
-            # Normal segment-count matching
-            if len(pattern) != len(segments):
-                continue
-
-            params: dict[str, Any] = {}
-            matched = True
-            for (lit, name, conv), req_seg in zip(pattern, segments):
-                if lit is not None:
-                    # Literal segment
-                    if lit != req_seg:
-                        matched = False
-                        break
-                else:
-                    # Parameterized segment -- attempt type coercion
-                    try:
-                        params[name] = conv(req_seg)
-                    except (ValueError, TypeError):
-                        matched = False
-                        break
-            if matched:
-                return handler, params, route_deps, resp_model
         return None
+
+    def allowed_methods(self, path: str) -> set[str]:
+        """Return the set of HTTP methods registered for routes matching *path*.
+
+        Used to distinguish a missing path (empty set -> 404) from a method
+        mismatch (non-empty set -> 405). When ``GET`` is registered for a
+        matching route, ``HEAD`` is included as well, since HEAD is served by
+        the GET handler.
+        """
+        segments = path.strip("/").split("/")
+        methods: set[str] = set()
+        for route_method, pattern, _handler, _deps, _resp_model in self._routes:
+            if self._match_pattern(pattern, segments) is not None:
+                methods.add(route_method)
+        if "GET" in methods:
+            methods.add("HEAD")
+        return methods
 
     @staticmethod
     def _match_with_path_param(
