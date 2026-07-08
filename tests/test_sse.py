@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import asyncio
-import json
 
+import msgspec
 import pytest
 
 from fastware.sse import Broadcaster, sse_route
-
 
 # ---------------------------------------------------------------------------
 # Event registration
@@ -80,7 +79,7 @@ class TestBroadcastDeliversToClient:
         assert not q.empty()
         msg = q.get_nowait()
         assert msg.startswith("event: ping\n")
-        assert '"ts": 1' in msg
+        assert '"ts":1' in msg
 
     def test_multiple_clients_receive_message(self):
         b = Broadcaster()
@@ -172,7 +171,8 @@ class TestSSEWireFormat:
     def test_dict_data_is_json_serialized(self):
         b = Broadcaster(strict=False)
         msg = b._format_sse("update", {"key": "value"})
-        assert msg == f'event: update\ndata: {json.dumps({"key": "value"})}\n\n'
+        payload = msgspec.json.encode({"key": "value"}).decode()
+        assert msg == f"event: update\ndata: {payload}\n\n"
 
     def test_string_data_sent_as_is(self):
         b = Broadcaster(strict=False)
@@ -259,3 +259,22 @@ class TestSSERoute:
         b = Broadcaster()
         handler = sse_route(b)
         assert callable(handler)
+
+
+# ---------------------------------------------------------------------------
+# msgspec serialization (project convention)
+# ---------------------------------------------------------------------------
+
+
+class TestMsgspecSerialization:
+    def test_dict_serialized_with_msgspec(self):
+        b = Broadcaster(strict=False)
+        msg = b._format_sse("update", {"key": "value"})
+        expected_payload = msgspec.json.encode({"key": "value"}).decode()
+        assert msg == f"event: update\ndata: {expected_payload}\n\n"
+
+    def test_msgspec_compact_output_no_space_after_colon(self):
+        b = Broadcaster(strict=False)
+        msg = b._format_sse("update", {"key": "value"})
+        # msgspec emits compact JSON: no space after the colon (json.dumps adds one).
+        assert 'data: {"key":"value"}' in msg

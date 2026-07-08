@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 from collections.abc import AsyncGenerator
 from typing import Any
+
+import msgspec
 
 from fastware.request import Request
 from fastware.responses import StreamResponse
@@ -54,8 +55,11 @@ class Broadcaster:
     # -- Broadcasting ---------------------------------------------------------
 
     def _format_sse(self, event: str, data: dict[str, Any] | str) -> str:
-        """Format a payload as an SSE wire message."""
-        payload = json.dumps(data) if isinstance(data, dict) else data
+        """Format a payload as an SSE wire message.
+
+        Dict payloads are serialized with msgspec (project convention).
+        """
+        payload = msgspec.json.encode(data).decode() if isinstance(data, dict) else data
         return f"event: {event}\ndata: {payload}\n\n"
 
     def broadcast(self, event: str, data: dict[str, Any] | str) -> None:
