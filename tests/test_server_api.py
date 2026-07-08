@@ -14,6 +14,7 @@ import pytest
 from fastware.server import (
     AlreadyRunningError,
     ServerStatus,
+    _materialize_target,
     _resolve_host_port,
     _resolve_target,
     serve,
@@ -159,6 +160,58 @@ class TestResolveTarget:
         name1 = _resolve_target(app1)
         name2 = _resolve_target(app2)
         assert name1 != name2
+
+
+class TestMaterializeTarget:
+    """Tests for cross-process target materialization."""
+
+    def test_string_passthrough(self) -> None:
+        """String targets pass through with no shim directory."""
+        target_str, shim_dir = _materialize_target("myapp:app")
+        assert target_str == "myapp:app"
+        assert shim_dir is None
+
+    def test_module_level_callable_writes_importable_shim(self) -> None:
+        """A module-level callable produces a shim file that re-imports it."""
+        import sys
+
+        from tests.target_app_module import app
+
+        target_str, shim_dir = _materialize_target(app)
+        try:
+            assert shim_dir is not None and shim_dir.is_dir()
+            mod_name, _, attr = target_str.partition(":")
+            assert attr == "app"
+            shim_file = shim_dir / f"{mod_name}.py"
+            assert shim_file.exists()
+            # Import the shim the way a child process would.
+            sys.path.insert(0, str(shim_dir))
+            try:
+                import importlib
+
+                shim = importlib.import_module(mod_name)
+                assert shim.app is app
+            finally:
+                sys.path.remove(str(shim_dir))
+                sys.modules.pop(mod_name, None)
+        finally:
+            import shutil
+
+            shutil.rmtree(shim_dir, ignore_errors=True)
+
+    def test_local_callable_rejected(self) -> None:
+        """Local functions are rejected with a clear error."""
+
+        async def local_app(scope, receive, send):
+            pass
+
+        with pytest.raises(ValueError, match="importable"):
+            _materialize_target(local_app)
+
+    def test_lambda_rejected(self) -> None:
+        """Lambdas are rejected with a clear error."""
+        with pytest.raises(ValueError, match="importable"):
+            _materialize_target(lambda scope, receive, send: None)
 
 
 # ---------------------------------------------------------------------------
