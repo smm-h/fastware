@@ -1,1 +1,2 @@
 {"commits":["872228246365b117eda3354fe418a89e5814af13"],"user_facing":false}
+{"id":"18c03cf5af27bbd3dc553e113b3246d6adaad7ac4eb72819","commits":["453003dae88986fb216b1ec90ab500ae3b24d77b"],"user_facing":true,"description":"`serve_background` readiness no longer requires a `/health` route: any HTTP response (including 404) counts as server-ready","type":"fix"}
