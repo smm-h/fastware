@@ -1,4 +1,4 @@
-"""Config loading utility providing standalone TOML config file parsing with optional Pydantic validation and environment variable overrides.
+"""Config loading utility providing standalone TOML config file parsing with optional Pydantic validation.
 
 Provides a standalone TOML config loader with optional Pydantic validation.
 Not tied to strictcli's config system -- apps call ``load_config()`` at

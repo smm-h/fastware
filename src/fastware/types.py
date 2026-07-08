@@ -1,4 +1,4 @@
-"""ASGI type aliases (Scope, Receive, Send, ASGIApp, Middleware) used throughout fastware for consistent type-checked request and response handling."""
+"""ASGI type aliases (Scope, Receive, Send) used throughout fastware for consistent type-checked request and response handling."""
 
 from __future__ import annotations
 
