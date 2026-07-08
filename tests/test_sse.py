@@ -7,6 +7,7 @@ import asyncio
 import msgspec
 import pytest
 
+from fastware.request import Request
 from fastware.sse import Broadcaster, sse_route
 
 # ---------------------------------------------------------------------------
@@ -319,3 +320,43 @@ class TestMsgspecSerialization:
         msg = b._format_sse("update", {"key": "value"})
         # msgspec emits compact JSON: no space after the colon (json.dumps adds one).
         assert 'data: {"key":"value"}' in msg
+
+
+# ---------------------------------------------------------------------------
+# Subscriber queue registration lifecycle (leak fix)
+# ---------------------------------------------------------------------------
+
+
+class TestQueueRegistrationLifecycle:
+    @pytest.mark.anyio
+    async def test_queue_registered_on_iteration_not_on_creation(self):
+        b = Broadcaster(strict=False)
+        q: asyncio.Queue[str] = asyncio.Queue(maxsize=8)
+        q.put_nowait("event: x\ndata: 1\n\n")
+        gen = b._event_generator(q)
+        # Merely creating the generator must not register the queue.
+        assert b.client_count == 0
+        await gen.__anext__()
+        # Registration happens once iteration begins.
+        assert b.client_count == 1
+        # Closing the generator guarantees cleanup.
+        await gen.aclose()
+        assert b.client_count == 0
+
+    @pytest.mark.anyio
+    async def test_stream_does_not_leak_when_response_never_consumed(self):
+        b = Broadcaster(strict=False)
+        scope = {
+            "type": "http",
+            "method": "GET",
+            "path": "/events",
+            "query_string": b"",
+            "headers": [],
+        }
+        req = Request(scope, {}, None)
+        resp = await b.stream(req)
+        # The StreamResponse exists but its generator was never iterated:
+        # nothing should be registered, so there is nothing to leak.
+        assert b.client_count == 0
+        await resp.generator.aclose()
+        assert b.client_count == 0

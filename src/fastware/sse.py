@@ -97,9 +97,16 @@ class Broadcaster:
     async def _event_generator(self, queue: asyncio.Queue[str]) -> AsyncGenerator[str, None]:
         """Yield SSE messages from a per-client queue.
 
+        The queue is registered as a client only once iteration begins, and the
+        ``finally`` block guarantees it is unregistered when the generator is
+        closed (e.g. client disconnect). Registering here — rather than in
+        ``stream()`` — ensures a ``StreamResponse`` whose body is never consumed
+        does not leak a queue into ``self._clients``.
+
         When heartbeat_interval is set, yields SSE comment heartbeats
         (": heartbeat\\n\\n") if no real message arrives within the interval.
         """
+        self._clients.append(queue)
         try:
             while True:
                 if self._heartbeat_interval is not None:
@@ -122,11 +129,12 @@ class Broadcaster:
     async def stream(self, request: Request) -> StreamResponse:
         """Return a ``StreamResponse`` for an SSE endpoint.
 
-        Creates a per-client queue, registers it, and wraps the async
-        generator in the framework's streaming response type.
+        Creates a per-client queue and wraps the async generator in the
+        framework's streaming response type. The queue is registered as a
+        client by ``_event_generator`` when iteration starts, not here, so an
+        unconsumed response never leaks a queue.
         """
         queue: asyncio.Queue[str] = asyncio.Queue(maxsize=self._buffer_size)
-        self._clients.append(queue)
         return StreamResponse(
             self._event_generator(queue),
             content_type="text/event-stream",
