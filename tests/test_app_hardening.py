@@ -3,9 +3,12 @@
 Covers:
 - Static file path traversal via sibling-prefix directories (startswith flaw)
 - SPA-root serving path reusing the same traversal guard
+- Lifespan startup/shutdown failure messaging (ASGI lifespan.*.failed)
 """
 
 from __future__ import annotations
+
+from contextlib import asynccontextmanager
 
 import pytest
 
@@ -137,3 +140,73 @@ class TestStaticPathTraversal:
         body = _response_body(sent)
         assert b"secret" not in body
         assert body == b"<html>index</html>"
+
+
+# ---------------------------------------------------------------------------
+# Lifespan failure messaging
+# ---------------------------------------------------------------------------
+
+
+async def _run_lifespan(app, *, shutdown: bool = True):
+    """Drive the ASGI lifespan protocol; returns messages sent by the app."""
+    messages = [{"type": "lifespan.startup"}]
+    if shutdown:
+        messages.append({"type": "lifespan.shutdown"})
+
+    async def receive():
+        return messages.pop(0)
+
+    sent: list[dict] = []
+
+    async def send(msg):
+        sent.append(msg)
+
+    await app({"type": "lifespan"}, receive, send)
+    return sent
+
+
+class TestLifespanFailureMessaging:
+    @pytest.mark.anyio
+    async def test_startup_failure_sends_failed_message(self):
+        @asynccontextmanager
+        async def lifespan(app):
+            raise RuntimeError("db unreachable")
+            yield
+
+        app = create_app(Router(), lifespan=lifespan, request_id=False, request_timing=False)
+        sent = await _run_lifespan(app, shutdown=False)
+
+        assert sent == [{"type": "lifespan.startup.failed", "message": "db unreachable"}]
+
+    @pytest.mark.anyio
+    async def test_shutdown_failure_sends_failed_message(self):
+        @asynccontextmanager
+        async def lifespan(app):
+            yield
+            raise RuntimeError("teardown exploded")
+
+        app = create_app(Router(), lifespan=lifespan, request_id=False, request_timing=False)
+        sent = await _run_lifespan(app)
+
+        assert sent[0] == {"type": "lifespan.startup.complete"}
+        assert sent[1]["type"] == "lifespan.shutdown.failed"
+        assert "teardown exploded" in sent[1]["message"]
+
+    @pytest.mark.anyio
+    async def test_clean_lifespan_still_completes(self):
+        state = {}
+
+        @asynccontextmanager
+        async def lifespan(app):
+            state["up"] = True
+            yield {"answer": 42}
+            state["down"] = True
+
+        app = create_app(Router(), lifespan=lifespan, request_id=False, request_timing=False)
+        sent = await _run_lifespan(app)
+
+        assert sent == [
+            {"type": "lifespan.startup.complete"},
+            {"type": "lifespan.shutdown.complete"},
+        ]
+        assert state == {"up": True, "down": True}

@@ -252,18 +252,31 @@ def create_app(
         if scope["type"] == "lifespan":
             message = await receive()
             if message["type"] == "lifespan.startup":
+                ctx = None
                 if lifespan is not None:
                     # Enter the context manager; it stays open until shutdown
                     ctx = lifespan(app)
-                    yielded = await ctx.__aenter__()
+                    try:
+                        yielded = await ctx.__aenter__()
+                    except BaseException as exc:
+                        await send({
+                            "type": "lifespan.startup.failed",
+                            "message": str(exc),
+                        })
+                        return
                     if isinstance(yielded, dict):
                         _lifespan_state = yielded
-                    await send({"type": "lifespan.startup.complete"})
-                    await receive()  # blocks until lifespan.shutdown
-                    await ctx.__aexit__(None, None, None)
-                else:
-                    await send({"type": "lifespan.startup.complete"})
-                    await receive()
+                await send({"type": "lifespan.startup.complete"})
+                await receive()  # blocks until lifespan.shutdown
+                if ctx is not None:
+                    try:
+                        await ctx.__aexit__(None, None, None)
+                    except BaseException as exc:
+                        await send({
+                            "type": "lifespan.shutdown.failed",
+                            "message": str(exc),
+                        })
+                        return
                 await send({"type": "lifespan.shutdown.complete"})
             return
 
