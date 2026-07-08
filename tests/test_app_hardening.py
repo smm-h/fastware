@@ -451,3 +451,59 @@ class TestWebSocketDepAndDisconnect:
         # Must not raise
         sent = await _run_ws(app, "/ws/dc", incoming=[{"type": "websocket.disconnect", "code": 1001}])
         assert any(m["type"] == "websocket.accept" for m in sent)
+
+
+# ---------------------------------------------------------------------------
+# Unbound 'request' in exception-handler path
+# ---------------------------------------------------------------------------
+
+
+class TestUnboundRequestGuard:
+    @pytest.mark.anyio
+    async def test_receive_error_before_request_bound_returns_500(self, caplog):
+        """If receive() raises before Request is constructed, the exception
+        handler must not be invoked with an unbound 'request' (previously an
+        UnboundLocalError/NameError fired inside the handler-dispatch block,
+        logged misleadingly as an 'Exception handler error'). The app must
+        skip handlers cleanly and respond 500."""
+        import logging as _logging
+
+        router = Router()
+
+        @router.post("/upload")
+        async def upload(req):
+            return {"ok": True}
+
+        handler_called = {}
+
+        async def handle_runtime(request, exc):
+            handler_called["yes"] = True
+            return {"handled": True}
+
+        app = create_app(
+            router,
+            exception_handlers={RuntimeError: handle_runtime},
+            request_id=False,
+            request_timing=False,
+        )
+
+        async def receive():
+            raise RuntimeError("transport exploded")
+
+        sent: list[dict] = []
+
+        async def send(msg):
+            sent.append(msg)
+
+        with caplog.at_level(_logging.DEBUG, logger="fastware"):
+            # Must not raise
+            await app(_http_scope("/upload", method="POST"), receive, send)
+
+        assert _response_status(sent) == 500
+        assert handler_called == {}
+        # No NameError/UnboundLocalError anywhere in the logged tracebacks
+        for record in caplog.records:
+            if record.exc_info:
+                assert not isinstance(record.exc_info[1], NameError), (
+                    "unbound 'request' leaked into exception-handler dispatch"
+                )

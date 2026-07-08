@@ -425,6 +425,10 @@ def create_app(
                     response_started = True
                 await send(message)
 
+            # Bound before the try so error paths can tell whether the
+            # Request was ever constructed (receive() may raise first).
+            request: Request | None = None
+
             try:
                 # Read body for all methods (GET with empty body costs nothing).
                 # Accumulate chunks in a list (bytes += is O(n^2)) and enforce
@@ -521,9 +525,11 @@ def create_app(
                         method, path,
                     )
                     return
-                # Check registered exception handlers (most specific first)
+                # Check registered exception handlers (most specific first).
+                # Handlers need the Request; skip them if receive() failed
+                # before the Request was constructed.
                 handled = False
-                for exc_type, exc_handler in _exc_handlers:
+                for exc_type, exc_handler in _exc_handlers if request is not None else []:
                     if isinstance(exc, exc_type):
                         try:
                             result = await exc_handler(request, exc)
