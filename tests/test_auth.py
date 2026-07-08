@@ -380,11 +380,33 @@ class TestGetCurrentUser:
             await task
 
     @pytest.mark.anyio
-    async def test_query_param(self):
+    async def test_query_param_rejected_by_default(self):
+        """?token= leaks tokens into logs/history -- off unless opted in."""
         async def handler(request, user=None):
             return JSONResponse({"sub": user["sub"]})
 
         app = _make_auth_app(handler, deps={"user": get_current_user})
+        task, shutdown = await _start_lifespan(app)
+        try:
+            token = create_token("carol", "viewer", "test-secret-key-that-is-at-least-thirty-two-bytes-long")
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test",
+            ) as client:
+                resp = await client.get(f"/protected?token={token}")
+            assert resp.status_code == 401
+        finally:
+            shutdown.set()
+            await task
+
+    @pytest.mark.anyio
+    async def test_query_param_opt_in(self):
+        async def handler(request, user=None):
+            return JSONResponse({"sub": user["sub"]})
+
+        def dep(request):
+            return get_current_user(request, allow_query_token=True)
+
+        app = _make_auth_app(handler, deps={"user": dep})
         task, shutdown = await _start_lifespan(app)
         try:
             token = create_token("carol", "viewer", "test-secret-key-that-is-at-least-thirty-two-bytes-long")

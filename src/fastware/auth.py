@@ -203,13 +203,18 @@ class JSONFileUserStore(UserStore):
 # ---------------------------------------------------------------------------
 
 
-def get_current_user(request: Any) -> dict[str, Any]:
-    """Extract and validate JWT from Authorization header, session cookie, or query param.
+def get_current_user(
+    request: Any, *, allow_query_token: bool = False,
+) -> dict[str, Any]:
+    """Extract and validate JWT from Authorization header or session cookie.
 
     Token resolution order:
     1. Authorization: Bearer <token> header
     2. session cookie
-    3. ?token= query parameter
+    3. ?token= query parameter -- only if ``allow_query_token=True``.
+       Off by default because query strings leak into access logs,
+       proxies, and browser history. Opt in via a wrapper dep:
+       ``deps={"user": lambda request: get_current_user(request, allow_query_token=True)}``
 
     Reads the JWT secret from request.state["config"]["jwt_secret"].
     Returns decoded claims dict. Raises HTTPError(401) on failure.
@@ -225,8 +230,8 @@ def get_current_user(request: Any) -> dict[str, Any]:
     if not token:
         token = request.cookie("session") or None
 
-    # 3. Query parameter
-    if not token:
+    # 3. Query parameter (opt-in only)
+    if not token and allow_query_token:
         token = request.query_params.get("token") or None
 
     if not token:
