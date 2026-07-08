@@ -113,14 +113,19 @@ def check_already_running(pid_path: Path, name: str = "server") -> int | None:
     return pid  # Process is alive
 
 
-def ensure_port_available(host: str, port: int, name: str = "server") -> int:
-    """Ensure port is available. If occupied by a previous instance, stop it.
+def ensure_port_available(
+    host: str,
+    port: int,
+    name: str = "server",
+    pid_path: Path | None = None,
+) -> int:
+    """Ensure port is available. Returns *port* on success.
 
-    Probes the port. If something responds to GET /health with {"status":"ok"},
-    it's likely our own stale server -- kill it via the OS.
-    Otherwise, exit with a diagnostic error.
-
-    Returns *port* on success.
+    If the port is occupied and *pid_path* names a previous instance of this
+    server that verifiably holds the port (the PID in the PID file matches a
+    PID reported as holding the port), that stale instance is stopped and the
+    port reclaimed. Any other occupant raises PortInUseError -- ownership is
+    never guessed from response contents.
     """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # SO_REUSEADDR matches Granian's behavior so our probe doesn't spuriously
@@ -133,26 +138,34 @@ def ensure_port_available(host: str, port: int, name: str = "server") -> int:
         except OSError:
             pass  # Port in use -- investigate
 
-    # Port is occupied. Try health check to see if it's our server.
-    try:
-        resp = urllib.request.urlopen(f"http://{host}:{port}/health", timeout=2)
-        data = resp.read()
-        if b'"ok"' in data:
-            # It's our server. Find and kill it.
-            log.warning("Port %d has a stale %s instance. Stopping it.", port, name)
-            _kill_port_holder(host, port)
-            # Verify port is now free
-            for _ in range(10):
-                time.sleep(0.5)
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s2:
-                    s2.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                    try:
-                        s2.bind((host, port))
-                        return port
-                    except OSError:
-                        continue
-    except Exception:
-        pass
+    # Port is occupied. Only kill the holder if our PID file proves it is a
+    # previous instance of this server.
+    stale_pid: int | None = None
+    if pid_path is not None:
+        try:
+            stale_pid = int(pid_path.read_text().strip())
+        except (ValueError, OSError):
+            stale_pid = None
+
+    if stale_pid is not None and stale_pid in _find_port_holder_pids(port):
+        log.warning(
+            "Port %d is held by a stale %s instance (PID %d). Stopping it.",
+            port, name, stale_pid,
+        )
+        try:
+            os.kill(stale_pid, signal.SIGTERM)
+        except (ProcessLookupError, PermissionError):
+            pass
+        # Verify port is now free
+        for _ in range(10):
+            time.sleep(0.5)
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s2:
+                s2.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                try:
+                    s2.bind((host, port))
+                    return port
+                except OSError:
+                    continue
 
     msg = (
         f"Port {port} on {host} is already in use. Use a different port "
@@ -162,12 +175,16 @@ def ensure_port_available(host: str, port: int, name: str = "server") -> int:
     raise PortInUseError(msg)
 
 
-def _kill_port_holder(host: str, port: int) -> None:
-    """Kill the process holding a port."""
+def _find_port_holder_pids(port: int) -> list[int]:
+    """Return the PIDs of processes holding a TCP port, via lsof or fuser.
+
+    Returns an empty list when no holder can be identified (including when
+    neither tool is available) -- callers must treat that as "ownership not
+    proven" and refuse to kill anything.
+    """
     import subprocess
 
     try:
-        # Use lsof to find the PID
         result = subprocess.run(
             ["lsof", "-ti", f"tcp:{port}"],
             capture_output=True,
@@ -175,30 +192,23 @@ def _kill_port_holder(host: str, port: int) -> None:
             timeout=5,
         )
         if result.returncode == 0:
-            for pid_str in result.stdout.strip().split("\n"):
-                pid_str = pid_str.strip()
-                if pid_str and pid_str.isdigit():
-                    pid = int(pid_str)
-                    try:
-                        os.kill(pid, signal.SIGTERM)
-                    except (ProcessLookupError, PermissionError):
-                        pass
+            return [int(p) for p in result.stdout.split() if p.strip().isdigit()]
+        return []
     except (FileNotFoundError, subprocess.TimeoutExpired):
-        # lsof not available -- try fuser
-        try:
-            result = subprocess.run(
-                ["fuser", f"{port}/tcp"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            if result.returncode == 0:
-                for pid_str in result.stdout.strip().split():
-                    pid_str = pid_str.strip()
-                    if pid_str.isdigit():
-                        os.kill(int(pid_str), signal.SIGTERM)
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        pass
+    # lsof not available -- try fuser
+    try:
+        result = subprocess.run(
+            ["fuser", f"{port}/tcp"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            return [int(p) for p in result.stdout.split() if p.strip().isdigit()]
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    return []
 
 
 def _resolve_target(target: str | Callable) -> str:
@@ -584,7 +594,7 @@ def serve(
             )
             log.error("%s", msg)
             raise AlreadyRunningError(msg)
-    ensure_port_available(resolved_host, resolved_port, name)
+    ensure_port_available(resolved_host, resolved_port, name, pid_path=pid_path)
     if pid_path is not None:
         _write_pid(pid_path)
         _write_port_file(pid_path, resolved_port)

@@ -12,7 +12,6 @@ from fastware.server import (
     AlreadyRunningError,
     PortInUseError,
     _find_free_port,
-    _kill_port_holder,
     _make_server,
     _port_file_path,
     check_already_running,
@@ -76,38 +75,96 @@ def test_ensure_port_available_occupied_unknown_process() -> None:
             ensure_port_available("127.0.0.1", occupied_port)
 
 
-def test_ensure_port_available_kills_stale_server() -> None:
-    """When a stale server responds to /health with 'ok', kill it and reclaim the port."""
+class _HealthOkHandler(http.server.BaseHTTPRequestHandler):
+    """Handler that answers /health with {"status":"ok"} -- simulates a server."""
 
-    class _HealthHandler(http.server.BaseHTTPRequestHandler):
-        def do_GET(self) -> None:
-            if self.path == "/health":
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-                self.wfile.write(b'{"status":"ok"}')
-            else:
-                self.send_response(404)
-                self.end_headers()
+    def do_GET(self) -> None:
+        if self.path == "/health":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b'{"status":"ok"}')
+        else:
+            self.send_response(404)
+            self.end_headers()
 
-        def log_message(self, *args: object) -> None:
-            pass  # suppress stderr output during tests
+    def log_message(self, *args: object) -> None:
+        pass  # suppress stderr output during tests
 
-    # Start a temporary HTTP server on a random port to simulate a stale instance.
-    httpd = http.server.HTTPServer(("127.0.0.1", 0), _HealthHandler)
+
+def _start_health_ok_server() -> http.server.HTTPServer:
+    httpd = http.server.HTTPServer(("127.0.0.1", 0), _HealthOkHandler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    return httpd
+
+
+def test_ensure_port_available_kills_owned_stale_server(tmp_path: Path) -> None:
+    """When the PID file matches a PID holding the port, kill it and reclaim."""
+    import os
+    import signal as _signal
+
+    httpd = _start_health_ok_server()
     port = httpd.server_address[1]
-    server_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
-    server_thread.start()
+    holder_pid = os.getpid()  # our own process holds the port (via the thread)
 
-    # Mock _kill_port_holder to shut down our test server instead of using lsof/kill.
-    def _fake_kill(host: str, p: int) -> None:
+    pid_path = tmp_path / "app.pid"
+    pid_path.write_text(str(holder_pid))
+
+    def _fake_kill(pid: int, sig: int) -> None:
+        assert pid == holder_pid
+        assert sig == _signal.SIGTERM
         httpd.shutdown()
         httpd.server_close()
 
-    with patch("fastware.server._kill_port_holder", side_effect=_fake_kill):
-        result = ensure_port_available("127.0.0.1", port, name="test")
+    with (
+        patch("fastware.server._find_port_holder_pids", return_value=[holder_pid]),
+        patch("fastware.server.os.kill", side_effect=_fake_kill),
+    ):
+        result = ensure_port_available("127.0.0.1", port, name="test", pid_path=pid_path)
 
     assert result == port
+
+
+def test_ensure_port_available_never_kills_unowned_process(tmp_path: Path) -> None:
+    """A health-'ok' response alone must NOT get a process killed.
+
+    The PID file names a different PID than the port holder -- ownership is
+    not established, so ensure_port_available must raise instead of killing.
+    """
+    import os
+
+    httpd = _start_health_ok_server()
+    port = httpd.server_address[1]
+    try:
+        pid_path = tmp_path / "app.pid"
+        pid_path.write_text("1")  # definitely not the holder
+
+        killed: list[tuple] = []
+        with (
+            patch("fastware.server._find_port_holder_pids", return_value=[os.getpid()]),
+            patch("fastware.server.os.kill", side_effect=lambda *a: killed.append(a)),
+        ):
+            with pytest.raises(PortInUseError):
+                ensure_port_available("127.0.0.1", port, name="test", pid_path=pid_path)
+        assert killed == []
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+def test_ensure_port_available_no_pid_path_never_kills() -> None:
+    """Without a PID file there is no ownership proof -- never kill, raise."""
+    httpd = _start_health_ok_server()
+    port = httpd.server_address[1]
+    try:
+        killed: list[tuple] = []
+        with patch("fastware.server.os.kill", side_effect=lambda *a: killed.append(a)):
+            with pytest.raises(PortInUseError):
+                ensure_port_available("127.0.0.1", port, name="test")
+        assert killed == []
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
 
 
 @patch("fastware.server.Granian")
