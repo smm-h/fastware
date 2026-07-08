@@ -98,6 +98,57 @@ class TestDevWrapsWithViteDevProxy:
         assert wrapped.app is _fake_app
         assert wrapped.vite_port == 3000
 
+    @patch("fastware.server.serve")
+    @patch("socket.create_connection")
+    @patch("subprocess.Popen")
+    def test_threads_custom_backend_prefixes(
+        self,
+        mock_popen: MagicMock,
+        mock_connect: MagicMock,
+        mock_serve: MagicMock,
+    ) -> None:
+        proc = MagicMock()
+        proc.poll.return_value = None
+        mock_popen.return_value = proc
+        mock_connect.return_value = MagicMock()
+
+        from fastware.dev import dev
+        from fastware.middleware import ViteDevProxy
+
+        dev(
+            _fake_app,
+            host="127.0.0.1",
+            port=8000,
+            backend_prefixes=["/realtime"],
+        )
+
+        args, _ = mock_serve.call_args
+        wrapped = args[0]
+        assert isinstance(wrapped, ViteDevProxy)
+        assert wrapped.backend_prefixes == ["/realtime"]
+
+    @patch("fastware.server.serve")
+    @patch("socket.create_connection")
+    @patch("subprocess.Popen")
+    def test_default_backend_prefixes_include_ws(
+        self,
+        mock_popen: MagicMock,
+        mock_connect: MagicMock,
+        mock_serve: MagicMock,
+    ) -> None:
+        proc = MagicMock()
+        proc.poll.return_value = None
+        mock_popen.return_value = proc
+        mock_connect.return_value = MagicMock()
+
+        from fastware.dev import dev
+
+        dev(_fake_app, host="127.0.0.1", port=8000)
+
+        args, _ = mock_serve.call_args
+        wrapped = args[0]
+        assert "/ws" in wrapped.backend_prefixes
+
 
 class TestDevCallsServe:
     """dev() calls serve() with the wrapped app and foreground=True."""

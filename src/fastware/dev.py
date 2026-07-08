@@ -27,6 +27,7 @@ def dev(
     pid_path: Path | None = None,
     name: str = "FASTWARE",
     pre_serve: Callable[[], None] | None = None,
+    backend_prefixes: list[str] | None = None,
 ) -> None:
     """Start Vite dev server + fastware ASGI server for development.
 
@@ -34,6 +35,11 @@ def dev(
     the fastware server with ViteDevProxy middleware. All frontend
     requests are proxied to Vite (with HMR), API requests are handled
     by the fastware router. Kills Vite on shutdown.
+
+    ``backend_prefixes`` overrides which path prefixes route to the
+    backend (both HTTP and WebSocket) instead of being proxied to Vite.
+    When ``None``, ViteDevProxy's default applies (``["/events", "/ws"]``),
+    so the conventional ``/ws`` WebSocket reaches the backend out of the box.
     """
     from fastware.middleware import ViteDevProxy
     from fastware.server import serve
@@ -47,7 +53,7 @@ def dev(
         app = target
 
     # Wrap with ViteDevProxy
-    wrapped = ViteDevProxy(app, vite_port=vite_port)
+    wrapped = ViteDevProxy(app, vite_port=vite_port, backend_prefixes=backend_prefixes)
 
     # Spawn Vite
     logger.info("Starting Vite dev server: %s", vite_command)

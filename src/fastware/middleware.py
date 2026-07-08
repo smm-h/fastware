@@ -367,7 +367,10 @@ class ViteDevProxy:
         vite_port: Port the Vite dev server is listening on.
         api_prefix: Path prefix for backend routes (default ``"/api"``).
         backend_prefixes: Additional backend path prefixes (default
-            ``["/events"]``).
+            ``["/events", "/ws"]``).  ``/ws`` is the conventional app
+            WebSocket path; routing it to the backend does not interfere
+            with Vite HMR, whose websocket connects at ``/`` (identified by
+            the ``vite-hmr`` subprotocol), not ``/ws``.
     """
 
     def __init__(
@@ -381,7 +384,7 @@ class ViteDevProxy:
         self.app = app
         self.vite_port = vite_port
         self.api_prefix = api_prefix
-        self.backend_prefixes = backend_prefixes if backend_prefixes is not None else ["/events"]
+        self.backend_prefixes = backend_prefixes if backend_prefixes is not None else ["/events", "/ws"]
         self._http_client: Any | None = None
 
     def _is_api_request(self, path: str) -> bool:

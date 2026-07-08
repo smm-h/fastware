@@ -283,6 +283,10 @@ class AppConfig:
     request_id: bool = True
     request_timing: bool = True
     vite_dev_port: int | None = None
+    # Path prefixes routed to the backend (not proxied to Vite) in dev mode.
+    # None applies ViteDevProxy's default (["/events", "/ws"]), so the
+    # conventional /ws WebSocket reaches the backend out of the box.
+    vite_backend_prefixes: list[str] | None = None
     # Maximum request body size in bytes; requests exceeding it get a 413.
     # None disables the cap (unbounded -- only for trusted deployments).
     max_body_size: int | None = 10 * 1024 * 1024
@@ -343,6 +347,7 @@ def create_app(
     request_id = effective.request_id
     request_timing = effective.request_timing
     vite_dev_port = effective.vite_dev_port
+    vite_backend_prefixes = effective.vite_backend_prefixes
     max_body_size = effective.max_body_size
 
     from fastware.di import DependencyResolver
@@ -753,7 +758,11 @@ def create_app(
     if cors_origins:
         wrapped = _CORSMiddleware(wrapped, allow_origins=cors_origins)
     if vite_dev_port is not None:
-        wrapped = _ViteDevProxy(wrapped, vite_port=vite_dev_port)
+        wrapped = _ViteDevProxy(
+            wrapped,
+            vite_port=vite_dev_port,
+            backend_prefixes=vite_backend_prefixes,
+        )
     if trusted_hosts:
         wrapped = _TrustedHostMiddleware(wrapped, allowed_hosts=trusted_hosts)
 

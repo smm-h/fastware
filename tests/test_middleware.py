@@ -771,6 +771,108 @@ class TestViteDevProxyWS:
 
 
 # ---------------------------------------------------------------------------
+# 5.5d ViteDevProxy WebSocket routing (backend vs Vite)
+# ---------------------------------------------------------------------------
+
+class TestViteDevProxyWSRouting:
+    """Which side a WebSocket upgrade is dispatched to, by path."""
+
+    @staticmethod
+    async def _route(proxy, path):
+        """Drive a websocket scope at *path* through *proxy*.
+
+        Returns ("backend", scope) if the inner ASGI app was invoked, or
+        ("vite", scope) if _proxy_ws was invoked. Never contacts a real
+        Vite server (both sides are stubbed/recorded).
+        """
+        record: dict = {}
+
+        async def inner_app(scope, receive, send):
+            record["dest"] = "backend"
+
+        async def fake_proxy_ws(scope, receive, send):
+            record["dest"] = "vite"
+
+        proxy.app = inner_app
+        proxy._proxy_ws = fake_proxy_ws  # type: ignore[method-assign]
+
+        scope = {
+            "type": "websocket",
+            "path": path,
+            "query_string": b"",
+            "headers": [],
+        }
+
+        async def receive():
+            return {"type": "websocket.connect"}
+
+        async def send(message):
+            pass
+
+        await proxy(scope, receive, send)
+        return record.get("dest")
+
+    @pytest.mark.anyio
+    async def test_ws_path_routes_to_backend_by_default(self):
+        """A /ws upgrade reaches the backend, not Vite (the bug)."""
+        from fastware.middleware import ViteDevProxy
+
+        proxy = ViteDevProxy(lambda *a: None, vite_port=1)
+        assert await self._route(proxy, "/ws") == "backend"
+
+    @pytest.mark.anyio
+    async def test_ws_subpath_routes_to_backend_by_default(self):
+        """A /ws/room upgrade also reaches the backend."""
+        from fastware.middleware import ViteDevProxy
+
+        proxy = ViteDevProxy(lambda *a: None, vite_port=1)
+        assert await self._route(proxy, "/ws/room") == "backend"
+
+    @pytest.mark.anyio
+    async def test_root_ws_routes_to_vite_hmr(self):
+        """Vite HMR connects at '/', which must still proxy to Vite."""
+        from fastware.middleware import ViteDevProxy
+
+        proxy = ViteDevProxy(lambda *a: None, vite_port=1)
+        assert await self._route(proxy, "/") == "vite"
+
+    @pytest.mark.anyio
+    async def test_api_ws_routes_to_backend(self):
+        """/api/... websockets still reach the backend (unchanged)."""
+        from fastware.middleware import ViteDevProxy
+
+        proxy = ViteDevProxy(lambda *a: None, vite_port=1)
+        assert await self._route(proxy, "/api/socket") == "backend"
+
+    @pytest.mark.anyio
+    async def test_asset_ws_routes_to_vite(self):
+        """A random asset path proxies to Vite."""
+        from fastware.middleware import ViteDevProxy
+
+        proxy = ViteDevProxy(lambda *a: None, vite_port=1)
+        assert await self._route(proxy, "/src/main.ts") == "vite"
+
+    @pytest.mark.anyio
+    async def test_custom_backend_prefixes_routes_to_backend(self):
+        """An explicit backend_prefixes list routes those paths to the backend."""
+        from fastware.middleware import ViteDevProxy
+
+        proxy = ViteDevProxy(
+            lambda *a: None, vite_port=1, backend_prefixes=["/realtime"],
+        )
+        assert await self._route(proxy, "/realtime/collab") == "backend"
+        # Not listed -> Vite. "/ws" is NOT in the custom list, so it goes to Vite.
+        assert await self._route(proxy, "/ws") == "vite"
+
+    def test_default_backend_prefixes_includes_ws(self):
+        """The default backend_prefixes include the conventional /ws path."""
+        from fastware.middleware import ViteDevProxy
+
+        proxy = ViteDevProxy(lambda *a: None, vite_port=1)
+        assert "/ws" in proxy.backend_prefixes
+
+
+# ---------------------------------------------------------------------------
 # 5.6 Built-in middleware wiring
 # ---------------------------------------------------------------------------
 
