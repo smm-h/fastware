@@ -1,5 +1,5 @@
 # Version bump type: patch, minor, major, hotfix, or prerelease
-bump = "patch"
+bump = "hotfix"
 # Short description of this release (required)
 description = "Fix CI so the 0.3.1 publish gate can pass: 0.3.0 was blocked because test dependencies (pyjwt, bcrypt, structlog, watchfiles, websockets, mcp, pydantic) were missing from the dev group and CI's uv sync --locked never installed them."
 # Optional context explaining why these changes were made
