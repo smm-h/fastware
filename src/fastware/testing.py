@@ -26,6 +26,27 @@ __all__ = [
     "AsyncTestClient",
 ]
 
+# Scope key the app's exception handler inspects to decide whether to re-raise
+# an unhandled handler exception (True) or serialize it into a 500 (False).
+RAISE_SERVER_EXCEPTIONS_KEY = "fastware.raise_server_exceptions"
+
+
+def _wrap_raise_server_exceptions(app: Any, raise_server_exceptions: bool) -> Any:
+    """Wrap *app* so every http/websocket scope carries the re-raise flag.
+
+    When *raise_server_exceptions* is True, the app re-raises unhandled handler
+    exceptions out of the ASGI call (httpx's ASGITransport then surfaces them
+    into the test) instead of swallowing them into a 500 response.
+    """
+
+    async def wrapped(scope: dict, receive: Any, send: Any) -> None:
+        if scope.get("type") in ("http", "websocket"):
+            scope = dict(scope)
+            scope[RAISE_SERVER_EXCEPTIONS_KEY] = raise_server_exceptions
+        await app(scope, receive, send)
+
+    return wrapped
+
 
 class _LifespanManager:
     """Drive the ASGI lifespan protocol around a test client.
@@ -119,11 +140,29 @@ class AsyncTestClient:
 
         async with AsyncTestClient(app) as client:
             resp = await client.get("/health")
+
+    By default (``raise_server_exceptions=True``, matching Starlette's
+    ``TestClient``), an unhandled handler exception re-raises into the test with
+    its real traceback instead of being swallowed into a 500 response. Pass
+    ``raise_server_exceptions=False`` to restore the production behaviour where
+    the app serializes the exception into a 500 -- use this in tests that assert
+    on the 500 status code.
     """
 
-    def __init__(self, app: Any, base_url: str = "http://test") -> None:
+    # Prevent pytest from collecting this class as a test suite (its name
+    # matches the ``Test*`` pattern). See PytestCollectionWarning.
+    __test__ = False
+
+    def __init__(
+        self,
+        app: Any,
+        base_url: str = "http://test",
+        *,
+        raise_server_exceptions: bool = True,
+    ) -> None:
         self._app = app
         self._base_url = base_url
+        self._raise_server_exceptions = raise_server_exceptions
         self._client: AsyncClient | None = None
         self._lifespan: _LifespanManager | None = None
 
@@ -131,7 +170,11 @@ class AsyncTestClient:
         self._lifespan = _LifespanManager(self._app)
         await self._lifespan.startup()
         self._client = AsyncClient(
-            transport=ASGITransport(app=self._app),
+            transport=ASGITransport(
+                app=_wrap_raise_server_exceptions(
+                    self._app, self._raise_server_exceptions
+                ),
+            ),
             base_url=self._base_url,
         )
         return self._client
@@ -159,12 +202,32 @@ class _SyncTestClient:
 
     The class is named ``_SyncTestClient`` internally and exported as
     ``TestClient`` to avoid pytest treating it as a test class (pytest
-    skips classes whose name starts with ``_``).
+    skips classes whose name starts with ``_``). ``__test__ = False`` is set
+    as well so the ``TestClient`` alias never triggers a
+    PytestCollectionWarning when imported into a test module.
+
+    By default (``raise_server_exceptions=True``, matching Starlette's
+    ``TestClient``), an unhandled handler exception re-raises into the test with
+    its real traceback instead of being swallowed into a 500 response. Pass
+    ``raise_server_exceptions=False`` to restore the production behaviour where
+    the app serializes the exception into a 500 -- use this in tests that assert
+    on the 500 status code.
     """
 
-    def __init__(self, app: Any, base_url: str = "http://test") -> None:
+    # Prevent pytest from collecting this class (and its ``TestClient`` alias)
+    # as a test suite. See PytestCollectionWarning.
+    __test__ = False
+
+    def __init__(
+        self,
+        app: Any,
+        base_url: str = "http://test",
+        *,
+        raise_server_exceptions: bool = True,
+    ) -> None:
         self._app = app
         self._base_url = base_url
+        self._raise_server_exceptions = raise_server_exceptions
         self._loop: asyncio.AbstractEventLoop | None = None
         self._thread: threading.Thread | None = None
         self._client: AsyncClient | None = None
@@ -194,7 +257,11 @@ class _SyncTestClient:
 
     async def _create_client(self) -> AsyncClient:
         return AsyncClient(
-            transport=ASGITransport(app=self._app),
+            transport=ASGITransport(
+                app=_wrap_raise_server_exceptions(
+                    self._app, self._raise_server_exceptions
+                ),
+            ),
             base_url=self._base_url,
         )
 

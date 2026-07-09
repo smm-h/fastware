@@ -679,6 +679,12 @@ def create_app(
                             )
                         break
                 if not handled:
+                    # Test clients can opt into re-raising the real exception
+                    # (with its traceback) instead of receiving an opaque 500 --
+                    # set via a scope flag by AsyncTestClient/TestClient. This
+                    # only fires before the response has started (guarded above).
+                    if scope.get("fastware.raise_server_exceptions"):
+                        raise
                     log.exception("Handler error on %s %s", method, path)
                     await _send_response(
                         tracked_send, 500,

@@ -585,3 +585,63 @@ class TestExports:
     def test_load_config_exported(self):
         from fastware.config import load_config as lc
         assert lc is load_config
+
+
+def _boom_app():
+    """App whose GET /api/boom handler raises an unhandled RuntimeError."""
+    router = Router()
+
+    @router.get("/api/boom")
+    async def boom(req):
+        raise RuntimeError("kaboom")
+
+    return create_app(router, request_id=False, request_timing=False)
+
+
+class TestRaiseServerExceptions:
+    """raise_server_exceptions controls whether handler exceptions re-raise."""
+
+    def test_sync_default_reraises(self):
+        """Default (True) re-raises the real exception into the test."""
+        with TestClient(_boom_app()) as client:
+            with pytest.raises(RuntimeError, match="kaboom"):
+                client.get("/api/boom")
+
+    def test_sync_false_returns_500(self):
+        """False restores production behaviour: the exception becomes a 500."""
+        with TestClient(_boom_app(), raise_server_exceptions=False) as client:
+            resp = client.get("/api/boom")
+            assert resp.status_code == 500
+            assert resp.json() == {"detail": "Internal server error"}
+
+    @pytest.mark.anyio
+    async def test_async_default_reraises(self):
+        """Default (True) re-raises through the async client too."""
+        async with AsyncTestClient(_boom_app()) as client:
+            with pytest.raises(RuntimeError, match="kaboom"):
+                await client.get("/api/boom")
+
+    @pytest.mark.anyio
+    async def test_async_false_returns_500(self):
+        """False restores the 500 response on the async client."""
+        async with AsyncTestClient(
+            _boom_app(), raise_server_exceptions=False
+        ) as client:
+            resp = await client.get("/api/boom")
+            assert resp.status_code == 500
+            assert resp.json() == {"detail": "Internal server error"}
+
+
+class TestNoPytestCollectionWarning:
+    """Both client classes opt out of pytest collection via __test__ = False.
+
+    This module imports TestClient and AsyncTestClient at the top; without the
+    opt-out, importing the ``Test*``-named alias would emit a
+    PytestCollectionWarning at collection time.
+    """
+
+    def test_sync_client_opts_out(self):
+        assert TestClient.__test__ is False
+
+    def test_async_client_opts_out(self):
+        assert AsyncTestClient.__test__ is False
