@@ -1,6 +1,6 @@
 ---
 title: src.fastware.server
-description: "Granian ASGI server lifecycle management with PID file tracking, port availability checks, foreground and background serve modes, and graceful stop."
+description: "Granian server lifecycle: serve() in foreground/background/reload modes with a selectable event loop (asyncio, uvloop, or rloop) and worker count, serve_background() as a detached subprocess, PID-file management, port checks with stale-instance recovery, stop(), and status()."
 generated: true
 nav_group: "API Reference"
 nav_order: 18

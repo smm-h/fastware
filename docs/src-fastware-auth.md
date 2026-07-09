@@ -1,6 +1,6 @@
 ---
 title: src.fastware.auth
-description: "Authentication module providing JWT token creation and verification, bcrypt password hashing, user storage, CSRF protection, and rate limiting."
+description: "JWT token creation and verification (HS256), bcrypt password hashing, user stores, get_current_user and require_role DI factories, double-submit CSRF middleware, session-cookie helpers, and token-bucket rate limiting."
 generated: true
 nav_group: "API Reference"
 nav_order: 6

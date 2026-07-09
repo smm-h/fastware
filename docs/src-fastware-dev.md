@@ -1,6 +1,6 @@
 ---
 title: src.fastware.dev
-description: "Development mode combining Vite frontend dev server and fastware ASGI backend in a single command with hot reload and proxy routing."
+description: "Development-mode orchestrator whose dev() spawns Vite as a subprocess, polls for readiness, wraps the app with ViteDevProxy for backend-first routing, runs the server in the foreground, and cleanly stops Vite on exit."
 generated: true
 nav_group: "API Reference"
 nav_order: 8

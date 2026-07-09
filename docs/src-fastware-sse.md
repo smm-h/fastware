@@ -1,6 +1,6 @@
 ---
 title: src.fastware.sse
-description: "SSE (Server-Sent Events) broadcaster with typed event registration, per-client async queues, automatic disconnect pruning, and strict mode enforcement."
+description: "SSE Broadcaster with typed event registration (strict by default), per-client async queues, automatic pruning of disconnected clients, an optional heartbeat interval, and the sse_route helper."
 generated: true
 nav_group: "API Reference"
 nav_order: 19

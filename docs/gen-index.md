@@ -1,6 +1,6 @@
 ---
 title: API Reference
-description: "Complete auto-generated API reference index — browse all modules, classes, and functions with their signatures and docstrings."
+description: "Auto-generated index of the fastware API reference, linking every documented module page along with its classes and functions."
 generated: true
 nav_group: "API Reference"
 nav_order: 0

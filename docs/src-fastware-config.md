@@ -1,6 +1,6 @@
 ---
 title: src.fastware.config
-description: "Config loading utility providing standalone TOML config file parsing with optional Pydantic validation and environment variable overrides."
+description: "Standalone TOML configuration loader with optional Pydantic-schema validation, independent of strictcli, that apps call at startup and pass into lifespan state."
 generated: true
 nav_group: "API Reference"
 nav_order: 7

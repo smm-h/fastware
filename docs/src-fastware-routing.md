@@ -1,6 +1,6 @@
 ---
 title: src.fastware.routing
-description: "Path-based HTTP router with curly-brace parameter placeholders, automatic type coercion, method-based dispatch, and route group composition."
+description: "Path-based Router with {param}, {param:int}, and {param:path} placeholders, get/post/put/patch/delete decorators, WebSocket route registration, prefixed sub-router inclusion with deps, and sub-app mounting."
 generated: true
 nav_group: "API Reference"
 nav_order: 17

@@ -1,6 +1,6 @@
 ---
 title: src.fastware.testing
-description: "Sync and async test clients for fastware apps, wrapping httpx with ASGITransport to exercise routes without starting a real network server."
+description: "AsyncTestClient and TestClient over httpx ASGITransport that drive the ASGI lifespan in-process, with a raise_server_exceptions flag (default True) that re-raises unhandled handler errors and __test__ = False so pytest does not collect the clients as test classes."
 generated: true
 nav_group: "API Reference"
 nav_order: 21

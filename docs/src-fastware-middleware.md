@@ -1,6 +1,6 @@
 ---
 title: src.fastware.middleware
-description: "Pure ASGI middleware for request tracing, CORS headers, trusted-host validation, and Vite dev proxy routing, all streaming-safe for SSE and WebSocket."
+description: "Pure-ASGI middleware -- CORS, request-ID tracing, request timing with error-log integration, trusted-host validation, and the backend-first ViteDevProxy that routes /api and configurable backend prefixes (including /ws WebSocket upgrades) to the app while proxying the rest to Vite."
 generated: true
 nav_group: "API Reference"
 nav_order: 14
