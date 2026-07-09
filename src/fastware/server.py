@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import atexit
 import logging
 import os
@@ -34,6 +35,7 @@ __all__ = [
     "serve_background",
     "serve",
     "stop",
+    "stop_background",
     "status",
     "ServerStatus",
     "PortInUseError",
@@ -77,40 +79,8 @@ def _probe_health(url: str, timeout: float) -> int | None:
 _callable_counter = 0
 _callable_counter_lock = threading.Lock()
 
-# Original granian set_main_signals, saved when the thread-aware wrapper is
-# installed (None means the wrapper is not installed).
-_granian_set_main_signals: Callable | None = None
-
-
-def _install_thread_aware_granian_signals() -> None:
-    """Make granian's set_main_signals delegate only on the main thread.
-
-    signal.signal() raises ValueError outside the main thread, so granian's
-    startup() would crash when serve(foreground=False) runs it in a daemon
-    thread. Replacing it with a plain no-op permanently would silently strip
-    signal handling from any later foreground serve() in the same process.
-    Instead, the wrapper checks the calling thread on every call: on the main
-    thread it delegates to the real implementation (foreground serves keep
-    full signal handling), elsewhere it skips the call (daemon-thread serves,
-    which need no handlers -- the thread dies with the main thread).
-    Idempotent.
-    """
-    global _granian_set_main_signals
-    if _granian_set_main_signals is not None:
-        return
-
-    from granian import _signals
-    from granian.server import common as _granian_common
-
-    original = _signals.set_main_signals
-    _granian_set_main_signals = original
-
-    def _thread_aware_set_main_signals(*args, **kwargs):
-        if threading.current_thread() is threading.main_thread():
-            original(*args, **kwargs)
-
-    _signals.set_main_signals = _thread_aware_set_main_signals
-    _granian_common.set_main_signals = _thread_aware_set_main_signals
+# Background embed server instances keyed by URL, for stop_background().
+_background_servers: dict[str, object] = {}
 
 
 def _write_pid(pid_path: Path, *, exclusive: bool = False) -> None:
@@ -485,6 +455,27 @@ def _make_server(
     )
 
 
+def _make_embed_server(
+    target: Callable,
+    host: str,
+    port: int,
+) -> object:
+    """Create a Granian embed server for in-process background serving.
+
+    *target* is the ASGI callable (not a string).
+    Returns the embed server instance (with ``serve()`` and ``stop()`` methods).
+    """
+    from granian.server.common import Interfaces
+    from granian.server.embed import Server as EmbedServer
+
+    return EmbedServer(
+        target=target,
+        address=host,
+        port=port,
+        interface=Interfaces.ASGI,
+    )
+
+
 def _run_server(
     target: str,
     host: str,
@@ -756,25 +747,58 @@ def serve(
             _remove_shim_dir(shim_dir)
         return None
 
-    server = _make_server(
-        target_str, resolved_host, resolved_port, loop=loop, workers=workers
-    )
-
     if foreground:
+        server = _make_server(
+            target_str, resolved_host, resolved_port, loop=loop, workers=workers
+        )
         log.info("Starting %s on %s", name, url)
         server.serve()
         return None
     else:
-        # Granian registers signal handlers in startup(), which fails in
-        # daemon threads. The thread-aware wrapper skips signal setup off the
-        # main thread while keeping it intact for later foreground serves.
-        _install_thread_aware_granian_signals()
+        # Use Granian's embed server for background mode. The embed server
+        # runs async workers in the caller's event loop (no fork, no
+        # subprocess, no signal.signal calls), so it works cleanly in a
+        # daemon thread.
 
-        thread = threading.Thread(target=server.serve, daemon=True)
+        # The embed server takes the ASGI callable directly (not a string).
+        if callable(target):
+            asgi_callable = target
+        else:
+            from granian._internal import load_target
+            asgi_callable = load_target(target_str)
+
+        embed = _make_embed_server(asgi_callable, resolved_host, resolved_port)
+
+        def _run_embed():
+            asyncio.run(embed.serve())
+
+        _background_servers[url] = embed
+        thread = threading.Thread(target=_run_embed, daemon=True)
         thread.start()
 
         log.info("%s started in background on %s", name, url)
         return url
+
+
+def stop_background(url: str) -> None:
+    """Stop an in-process background server started by ``serve(foreground=False)``.
+
+    Parameters
+    ----------
+    url:
+        The URL returned by ``serve(foreground=False)``.
+
+    Raises
+    ------
+    KeyError
+        If no background server is tracked for *url*.
+    """
+    try:
+        embed = _background_servers.pop(url)
+    except KeyError:
+        raise KeyError(f"No background server tracked for {url!r}") from None
+    embed.stop()
+    log.info("Background server on %s stopped", url)
 
 
 @dataclass
