@@ -2,6 +2,14 @@
 
 # Changelog
 
+## 0.3.1
+
+Fix CI so the 0.3.1 publish gate can pass: 0.3.0 was blocked because test dependencies (pyjwt, bcrypt, structlog, watchfiles, websockets, mcp, pydantic) were missing from the dev group and CI's uv sync --locked never installed them.
+
+### Hotfix
+
+- Fix CI so the 0.3.1 publish gate can pass: 0.3.0 was blocked because test dependencies (pyjwt, bcrypt, structlog, watchfiles, websockets, mcp, pydantic) were missing from the dev group and CI's uv sync --locked never installed them.
+
 ## 0.3.0
 
 Server, testing, and serialization hardening: pinned event loop with loop/workers config on serve(), test-client exception re-raise plus pytest-collection fix, msgspec-native json_as, and a broad sweep of ASGI correctness, auth, middleware, SSE, WebSocket, routing, DI, and static-file fixes.

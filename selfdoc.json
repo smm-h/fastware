@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A fast, batteries-included ASGI framework. The FastAPI alternative.",
   "source": [
     {
@@ -16,7 +16,7 @@
   ],
   "versions": [
     {
-      "version": "0.3.0",
+      "version": "0.3.1",
       "indexed": true
     }
   ],
