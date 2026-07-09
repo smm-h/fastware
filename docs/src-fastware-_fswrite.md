@@ -1,8 +1,7 @@
 ---
 title: src.fastware._fswrite
-description: "A small thread-safe file writer shared by the append/overwrite call sites."
+description: "Internal thread-safe file writer that serializes append and overwrite operations under a single lock and creates parent directories on demand, shared by the audit log and feature-flag store."
 generated: true
-seeded: true
 nav_group: "API Reference"
 nav_order: 2
 ---

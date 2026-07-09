@@ -31,5 +31,4 @@ order: 90
 - [src.fastware.sse](src-fastware-sse.html)
 - [src.fastware.tasks](src-fastware-tasks.html)
 - [src.fastware.testing](src-fastware-testing.html)
-- [src.fastware.types](src-fastware-types.html)
 - [src.fastware.websocket](src-fastware-websocket.html)

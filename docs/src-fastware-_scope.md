@@ -1,8 +1,7 @@
 ---
 title: src.fastware._scope
-description: "Scope-level header and cookie access shared across the ASGI layer."
+description: "Internal ASGI scope helpers that read request headers and cookies with a single case-insensitive linear scan, shared by the request wrapper, auth/CSRF middleware, and pure-ASGI middleware."
 generated: true
-seeded: true
 nav_group: "API Reference"
 nav_order: 3
 ---

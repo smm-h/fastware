@@ -168,11 +168,6 @@
       "type": "doc"
     },
     {
-      "path": "src-fastware-types.md",
-      "title": "src.fastware.types",
-      "type": "doc"
-    },
-    {
       "path": "src-fastware-websocket.md",
       "title": "src.fastware.websocket",
       "type": "doc"
@@ -209,5 +204,5 @@
     }
   ],
   "posts": [],
-  "last_gen": "2026-07-09T09:00:03.729231+00:00"
+  "last_gen": "2026-07-09T09:12:52.187923+00:00"
 }
