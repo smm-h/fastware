@@ -1,9 +1,13 @@
 # Version bump type: patch, minor, major, hotfix, or prerelease
-bump = ""
+bump = "minor"
 # Short description of this release (required)
-description = ""
+description = "Server, testing, and serialization hardening: pinned event loop with loop/workers config on serve(), test-client exception re-raise plus pytest-collection fix, msgspec-native json_as, and a broad sweep of ASGI correctness, auth, middleware, SSE, WebSocket, routing, DI, and static-file fixes."
 # Optional context explaining why these changes were made
-context = ""
+context = """
+Granian's default loop auto-selection silently switches the event loop when rloop/uvloop are installed, which is a behavior-change hazard for subprocess-based workloads. serve()/serve_background() now pin asyncio by default and expose explicit loop/workers configuration so the runtime is predictable and opt-in.
+
+This release also finalizes a large hardening pass across the framework (auth, CORS/TrustedHost/Vite middleware, SSE and WebSocket handling, lifespan, dependency injection, static-file traversal, request body limits, and HTTP method semantics) plus internal refactoring that extracted shared scope/header/file-writer helpers. Several defaults changed in security-hardening ways (query-param JWT is now opt-in; the internal ParsedSegment type left the public API), which land as a minor bump under 0.x semver.
+"""
 # Pre-release identifier: alpha, beta, rc, or stable
 # preid = ""
 # Set to true to generate a blog post for this release
