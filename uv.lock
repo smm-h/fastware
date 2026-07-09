@@ -309,8 +309,15 @@ testing = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "bcrypt" },
     { name = "httpx" },
+    { name = "mcp" },
+    { name = "pydantic" },
+    { name = "pyjwt" },
     { name = "pytest" },
+    { name = "structlog" },
+    { name = "watchfiles" },
+    { name = "websockets" },
 ]
 
 [package.metadata]
@@ -337,8 +344,15 @@ provides-extras = ["auth", "logging", "dev", "testing", "mcp", "pydantic", "all"
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "bcrypt" },
     { name = "httpx", specifier = ">=0.28" },
+    { name = "mcp" },
+    { name = "pydantic" },
+    { name = "pyjwt" },
     { name = "pytest" },
+    { name = "structlog" },
+    { name = "watchfiles" },
+    { name = "websockets" },
 ]
 
 [[package]]

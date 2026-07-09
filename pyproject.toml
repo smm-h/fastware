@@ -26,7 +26,17 @@ all = [
 ]
 
 [dependency-groups]
-dev = ["pytest", "httpx>=0.28"]
+dev = [
+    "pytest",
+    "httpx>=0.28",
+    "pyjwt",
+    "bcrypt",
+    "structlog",
+    "watchfiles",
+    "websockets",
+    "mcp",
+    "pydantic",
+]
 
 [build-system]
 requires = ["hatchling"]
