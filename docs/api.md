@@ -1,6 +1,6 @@
 ---
 title: Core API Reference
-description: "Core API reference for fastware: ASGI type aliases, 5 response types, request parsing, path-based routing, WebSocket helpers, and the app factory."
+description: "Core API reference for fastware: the Scope/Receive/Send ASGI type aliases, six response types with auto-wrapping, msgspec-backed request parsing, path-based routing, WebSocket helpers, and the create_app factory."
 date: 2026-07-01
 ---
 
@@ -10,7 +10,7 @@ This page documents fastware's core modules: the foundational types, response cl
 
 ## ASGI Types
 
-Low-level ASGI type aliases (`Scope`, `Receive`, `Send`, `ASGIApp`, `Middleware`) used throughout fastware. These 5 type aliases are re-exported from the top-level package for convenience and provide consistent type-checking across the entire middleware and routing stack.
+Low-level ASGI type aliases (`Scope`, `Receive`, `Send`) used throughout fastware. These type aliases are re-exported from the top-level package for convenience and provide consistent type-checking across the entire middleware and routing stack.
 
 :-: ref path="src.fastware.types"
 

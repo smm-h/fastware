@@ -1,6 +1,6 @@
 ---
 title: fastware
-description: "Documentation for fastware, a fast batteries-included ASGI framework built on msgspec (10-75x faster JSON) and Granian (Rust-based server)."
+description: "Home page for fastware, a fast batteries-included ASGI framework: msgspec-powered JSON, the bundled Granian server, install instructions, and a minimal Router/create_app example."
 date: 2026-07-01
 ---
 

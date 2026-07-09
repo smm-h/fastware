@@ -1,6 +1,6 @@
 ---
 title: Auth API Reference
-description: "API reference for fastware auth: JWT token creation and verification, bcrypt password hashing, user stores, CSRF middleware, and rate limiting."
+description: "Reference for the fastware[auth] extra: JWT token create/verify, bcrypt password hashing, JSON-file user stores, get_current_user and require_role DI factories, double-submit CSRF middleware, session cookies, and token-bucket rate limiting."
 date: 2026-07-01
 ---
 
