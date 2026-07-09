@@ -361,16 +361,6 @@ class ViteDevProxy:
     WebSocket upgrades cannot be retried, so they use the same prefix
     rule: matching paths go to the backend; everything else is proxied
     to Vite (for HMR).
-
-    Args:
-        app: The inner ASGI application.
-        vite_port: Port the Vite dev server is listening on.
-        api_prefix: Path prefix for backend routes (default ``"/api"``).
-        backend_prefixes: Additional backend path prefixes (default
-            ``["/events", "/ws"]``).  ``/ws`` is the conventional app
-            WebSocket path; routing it to the backend does not interfere
-            with Vite HMR, whose websocket connects at ``/`` (identified by
-            the ``vite-hmr`` subprotocol), not ``/ws``.
     """
 
     def __init__(
@@ -381,6 +371,23 @@ class ViteDevProxy:
         api_prefix: str = "/api",
         backend_prefixes: list[str] | None = None,
     ) -> None:
+        """Wrap *app* with backend-first Vite dev proxying.
+
+        Args:
+            app: The inner ASGI application (the fastware app) handled
+                first for every request.
+            vite_port: Port the Vite dev server is listening on; unmatched
+                requests are proxied there.
+            api_prefix: Path prefix for backend routes that always go
+                straight to the backend without a 404-retry (default
+                ``"/api"``).
+            backend_prefixes: Additional backend path prefixes routed to
+                the app, notably for WebSocket upgrades (default
+                ``["/events", "/ws"]``).  ``/ws`` is the conventional app
+                WebSocket path; routing it to the backend does not interfere
+                with Vite HMR, whose websocket connects at ``/`` (identified
+                by the ``vite-hmr`` subprotocol), not ``/ws``.
+        """
         self.app = app
         self.vite_port = vite_port
         self.api_prefix = api_prefix
