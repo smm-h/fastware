@@ -15,9 +15,17 @@ import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Literal
 
 from granian import Granian
+
+# Explicit event-loop choices exposed to callers. Deliberately excludes
+# Granian's "auto", which silently resolves rloop -> uvloop -> asyncio based
+# on which packages happen to be installed. fastware pins the default to
+# "asyncio" so behaviour never changes just because a transitive dependency
+# pulls in rloop/uvloop (a "no silent degradation" hazard, and rloop in
+# particular breaks asyncio-subprocess workloads like Playwright).
+LoopChoice = Literal["asyncio", "uvloop", "rloop"]
 
 __all__ = [
     "check_already_running",
@@ -450,20 +458,41 @@ def _resolve_host_port(
     return host, port
 
 
-def _make_server(target: str, host: str, port: int) -> Granian:
+def _make_server(
+    target: str,
+    host: str,
+    port: int,
+    *,
+    loop: LoopChoice = "asyncio",
+    workers: int = 1,
+) -> Granian:
     """Create a Granian instance bound to *host* on *port*.
 
     *target* is an ASGI module path, e.g. ``"myapp:app"``.
+
+    *loop* pins the event-loop implementation (see :func:`serve`).
+    *workers* is the number of worker processes (see :func:`serve`).
     """
+    from granian.constants import Loops
+
     return Granian(
         target=target,
         address=host,
         port=port,
         interface="asgi",
+        loop=Loops(loop),
+        workers=workers,
     )
 
 
-def _run_server(target: str, host: str, port: int, extra_sys_path: str | None = None) -> None:
+def _run_server(
+    target: str,
+    host: str,
+    port: int,
+    extra_sys_path: str | None = None,
+    loop: LoopChoice = "asyncio",
+    workers: int = 1,
+) -> None:
     """Create and run a Granian server. Used as the reload subprocess target.
 
     *extra_sys_path* lets the reload child import the temp shim module
@@ -471,16 +500,23 @@ def _run_server(target: str, host: str, port: int, extra_sys_path: str | None = 
     """
     if extra_sys_path is not None and extra_sys_path not in sys.path:
         sys.path.insert(0, extra_sys_path)
-    server = _make_server(target, host, port)
+    server = _make_server(target, host, port, loop=loop, workers=workers)
     server.serve()
 
 
-def _serve_subprocess(target: str, host: str, port: int, pid_path_str: str) -> None:
+def _serve_subprocess(
+    target: str,
+    host: str,
+    port: int,
+    pid_path_str: str,
+    loop: LoopChoice = "asyncio",
+    workers: int = 1,
+) -> None:
     """Entry point for the server subprocess. Runs granian in foreground mode."""
     pid_path = Path(pid_path_str)
     _write_pid(pid_path)
     _write_port_file(pid_path, port)
-    server = _make_server(target, host, port)
+    server = _make_server(target, host, port, loop=loop, workers=workers)
     server.serve()
 
 
@@ -491,6 +527,8 @@ def serve_background(
     port: int,
     pid_path: Path,
     name: str = "FASTWARE",
+    loop: LoopChoice = "asyncio",
+    workers: int = 1,
 ) -> str:
     """Start the server as an independent background process. Returns the URL.
 
@@ -511,6 +549,12 @@ def serve_background(
         Path for the PID file. The subprocess writes this, not the caller.
     name:
         Application name for log messages.
+    loop:
+        Event-loop implementation. See :func:`serve` for the rationale behind
+        the pinned ``"asyncio"`` default.
+    workers:
+        Number of worker processes. See :func:`serve` for the duplication
+        hazard when ``workers > 1`` with lifespan-started background tasks.
 
     Returns
     -------
@@ -545,7 +589,7 @@ def serve_background(
                 f"{prelude}"
                 f"from fastware.server import _serve_subprocess; "
                 f"_serve_subprocess({target_str!r}, {host!r}, {port!r}, "
-                f"{str(pid_path)!r})",
+                f"{str(pid_path)!r}, {loop!r}, {workers!r})",
             ],
             stdin=_subprocess.DEVNULL,
             stdout=_subprocess.DEVNULL,
@@ -589,6 +633,8 @@ def serve(
     pre_serve: Callable[[], None] | None = None,
     reload: bool = False,
     single_instance: bool = True,
+    loop: LoopChoice = "asyncio",
+    workers: int = 1,
 ) -> str | None:
     """Start Granian serving the ASGI app.
 
@@ -620,6 +666,24 @@ def serve(
         When True (default), checks for an existing running instance via the
         PID file and exits with an error if one is found. When False, skips
         the PID check (but still writes the PID file if pid_path is given).
+    loop:
+        Event-loop implementation: ``"asyncio"`` (default), ``"uvloop"``, or
+        ``"rloop"``. fastware deliberately does NOT expose Granian's ``"auto"``
+        mode, which silently resolves rloop -> uvloop -> asyncio based on which
+        packages are installed -- meaning the same code would pick a different
+        loop just because a transitive dependency pulled in rloop or uvloop.
+        The pinned ``"asyncio"`` default keeps behaviour environment-independent
+        and preserves stdlib asyncio-subprocess semantics (rloop, which would
+        win "auto" resolution, breaks asyncio.create_subprocess_* workloads such
+        as Playwright). Choose ``"uvloop"``/``"rloop"`` explicitly if you want
+        their throughput and understand the trade-offs.
+    workers:
+        Number of Granian worker processes (default 1). WARNING: ``workers > 1``
+        forks the ENTIRE app -- including the lifespan handler -- once per
+        worker. Any singleton or background task started in the lifespan (a
+        scheduler, a connection pool, an asyncio worker loop) is DUPLICATED
+        per worker, which is almost never what you want. For apps with
+        lifespan-started singletons, ``workers=1`` is the only correct value.
 
     Returns
     -------
@@ -677,6 +741,8 @@ def serve(
                     resolved_host,
                     resolved_port,
                     str(shim_dir) if shim_dir is not None else None,
+                    loop,
+                    workers,
                 ),
                 watch_filter=PythonFilter(),
                 callback=lambda changes: log.info(
@@ -690,7 +756,9 @@ def serve(
             _remove_shim_dir(shim_dir)
         return None
 
-    server = _make_server(target_str, resolved_host, resolved_port)
+    server = _make_server(
+        target_str, resolved_host, resolved_port, loop=loop, workers=workers
+    )
 
     if foreground:
         log.info("Starting %s on %s", name, url)

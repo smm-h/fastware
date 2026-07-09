@@ -474,7 +474,9 @@ class TestServeReload:
         # target is _run_server
         assert call_kwargs[1]["target"].__name__ == "_run_server"
         # args pass the target, host, port, and (for string targets) no shim dir
-        assert call_kwargs[1]["args"] == ("myapp:app", "127.0.0.1", 9999, None)
+        assert call_kwargs[1]["args"] == (
+            "myapp:app", "127.0.0.1", 9999, None, "asyncio", 1,
+        )
 
     @patch("fastware.server.Granian")
     def test_reload_false_does_not_import_watchfiles(self, mock_granian):

@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from granian.constants import Loops
 
 from fastware.server import (
     AlreadyRunningError,
@@ -176,6 +177,8 @@ def test_make_server_creates_granian(mock_granian_cls: MagicMock) -> None:
         address="0.0.0.0",
         port=9000,
         interface="asgi",
+        loop=Loops.asyncio,
+        workers=1,
     )
 
 

@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from granian.constants import Loops
 
 from fastware.server import (
     AlreadyRunningError,
@@ -105,6 +106,8 @@ class TestServeAPI:
             address="127.0.0.1",
             port=port,
             interface="asgi",
+            loop=Loops.asyncio,
+            workers=1,
         )
 
     @patch("fastware.server.Granian")
@@ -636,6 +639,8 @@ class TestEnvVarSettings:
             address="127.0.0.1",
             port=port,
             interface="asgi",
+            loop=Loops.asyncio,
+            workers=1,
         )
 
     def test_serve_raises_without_host_or_port(self) -> None:

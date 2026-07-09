@@ -105,6 +105,33 @@ class TestCallableTargetBackground:
             )
 
 
+class TestEventLoopSelection:
+    """The default serve()/serve_background() loop must be stdlib asyncio."""
+
+    def test_default_loop_is_asyncio(self, tmp_path: Path) -> None:
+        """A real background server runs under an asyncio loop by default.
+
+        The probe handler reports ``type(get_running_loop()).__module__``; the
+        pinned ``loop="asyncio"`` default must keep this inside the stdlib
+        asyncio package (not uvloop/rloop), independent of installed packages.
+        """
+        from tests.loop_probe_app import app
+
+        pid_path = tmp_path / "loop.pid"
+        url = serve_background(app, host="127.0.0.1", port=0, pid_path=pid_path)
+        try:
+            with urllib.request.urlopen(f"{url}/", timeout=5) as resp:
+                assert resp.status == 200
+                loop_type = resp.read().decode()
+        finally:
+            stop(pid_path)
+
+        # e.g. "asyncio.unix_events._UnixSelectorEventLoop"
+        assert loop_type.startswith("asyncio."), loop_type
+        assert "uvloop" not in loop_type
+        assert "rloop" not in loop_type
+
+
 class TestCallableTargetReload:
     """serve(reload=True) with a callable target must work in the reload child."""
 
@@ -126,7 +153,7 @@ class TestCallableTargetReload:
         seen: dict[str, object] = {}
 
         def fake_run_process(*args, **kwargs):
-            target_str, host, port, extra_sys_path = kwargs["args"]
+            target_str, host, port, extra_sys_path, loop, workers = kwargs["args"]
             seen["target_str"] = target_str
             seen["extra_sys_path"] = extra_sys_path
             # The shim module file must exist while the child would import it.
