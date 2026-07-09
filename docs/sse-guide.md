@@ -1,6 +1,6 @@
 ---
 title: SSE Broadcasting
-description: "Guide to fastware SSE broadcasting: choosing SSE over WebSocket, typed events in strict mode, per-client async queues, heartbeat keep-alive, and automatic disconnected-client pruning."
+description: "fastware SSE broadcasting: choosing SSE over WebSocket, typed events, per-client async queues, heartbeats, and automatic disconnected-client pruning."
 date: 2026-07-01
 ---
 

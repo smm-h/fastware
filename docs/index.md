@@ -1,6 +1,6 @@
 ---
 title: fastware
-description: "Home page for fastware, a fast batteries-included ASGI framework: msgspec-powered JSON, the bundled Granian server, install instructions, and a minimal Router/create_app example."
+description: "fastware home: a fast, batteries-included ASGI framework with msgspec JSON, the bundled Granian server, install steps, and a minimal Router example."
 date: 2026-07-01
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Vite Dev Mode
-description: "Guide to fastware's Vite integration: the dev() combined-server launcher and the ViteDevProxy middleware, its backend-first HTTP routing, prefix-based routing of /api and configurable backend_prefixes (including /ws) for WebSockets, and production SPA fallback."
+description: "fastware Vite integration: the dev() launcher and ViteDevProxy middleware, backend-first routing of /api and /ws, and production SPA fallback."
 date: 2026-07-01
 ---
 
