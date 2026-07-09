@@ -279,7 +279,21 @@ class Request:
         return self.cookies.get(name, default)
 
     def json_as(self, model: type):
-        """Parse request body as a Pydantic model. Raises HTTPError(422) on failure."""
+        """Parse the request body into *model*, dispatching on the target type.
+
+        If *model* is a ``msgspec.Struct`` subclass, the raw body is decoded with
+        ``msgspec.json.decode(body, type=model)`` -- the fast, msgspec-native path
+        the framework is built around. Otherwise the body falls back to the
+        Pydantic path (``model.model_validate``). Either way, a decode/validation
+        failure raises ``HTTPError(422)``.
+        """
+        if isinstance(model, type) and issubclass(model, msgspec.Struct):
+            body = self._body if self._body else b"null"
+            try:
+                return msgspec.json.decode(body, type=model)
+            except (msgspec.ValidationError, msgspec.DecodeError) as e:
+                raise HTTPError(422, str(e)) from e
+
         from pydantic import ValidationError
         try:
             return model.model_validate(self.json)
