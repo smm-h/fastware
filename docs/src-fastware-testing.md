@@ -1,6 +1,6 @@
 ---
 title: src.fastware.testing
-description: "AsyncTestClient and TestClient over httpx ASGITransport that drive the ASGI lifespan in-process, with a raise_server_exceptions flag (default True) that re-raises unhandled handler errors and __test__ = False so pytest does not collect the clients as test classes."
+description: "AsyncTestClient and TestClient over httpx ASGITransport that drive the ASGI lifespan in-process, with raise_server_exceptions and pytest-safe classes."
 generated: true
 nav_group: "API Reference"
 nav_order: 21
