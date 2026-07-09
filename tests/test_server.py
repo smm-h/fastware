@@ -4,7 +4,7 @@ import http.server
 import socket
 import threading
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from granian.constants import Loops
@@ -182,20 +182,24 @@ def test_make_server_creates_granian(mock_granian_cls: MagicMock) -> None:
     )
 
 
-@patch("fastware.server.Granian")
-def test_serve_background_returns_url(mock_granian_cls: MagicMock) -> None:
-    """Background serve returns the correct URL and launches a daemon thread."""
-    mock_instance = MagicMock()
-    mock_granian_cls.return_value = mock_instance
+@patch("fastware.server._make_embed_server")
+def test_serve_background_returns_url(mock_make_embed: MagicMock) -> None:
+    """Background serve returns the correct URL and launches an embed server."""
+    mock_embed = MagicMock()
+    mock_embed.serve = AsyncMock()
+    mock_make_embed.return_value = mock_embed
 
     # Use a free port so ensure_port_available passes
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("127.0.0.1", 0))
         free_port = s.getsockname()[1]
 
-    url = serve("myapp:app", foreground=False, host="127.0.0.1", port=free_port)
+    async def my_app(scope, receive, send):
+        pass
+
+    url = serve(my_app, foreground=False, host="127.0.0.1", port=free_port)
     assert url == f"http://127.0.0.1:{free_port}"
-    mock_instance.serve.assert_called_once()
+    mock_make_embed.assert_called_once_with(my_app, "127.0.0.1", free_port)
 
 
 def test_serve_single_instance_true_exits_on_conflict(tmp_path: Path) -> None:
@@ -215,15 +219,16 @@ def test_serve_single_instance_true_exits_on_conflict(tmp_path: Path) -> None:
         )
 
 
-@patch("fastware.server.Granian")
+@patch("fastware.server._make_embed_server")
 def test_serve_single_instance_false_skips_pid_check(
-    mock_granian_cls: MagicMock,
+    mock_make_embed: MagicMock,
     tmp_path: Path,
 ) -> None:
     """serve() with single_instance=False does not check for existing instances."""
     import os
-    mock_instance = MagicMock()
-    mock_granian_cls.return_value = mock_instance
+    mock_embed = MagicMock()
+    mock_embed.serve = AsyncMock()
+    mock_make_embed.return_value = mock_embed
 
     pid_path = tmp_path / "test.pid"
     pid_path.write_text(str(os.getpid()))  # current process is alive
@@ -232,9 +237,12 @@ def test_serve_single_instance_false_skips_pid_check(
         s.bind(("127.0.0.1", 0))
         free_port = s.getsockname()[1]
 
+    async def my_app(scope, receive, send):
+        pass
+
     # Should NOT exit despite existing PID
     url = serve(
-        "myapp:app",
+        my_app,
         foreground=False,
         host="127.0.0.1",
         port=free_port,
@@ -242,18 +250,19 @@ def test_serve_single_instance_false_skips_pid_check(
         single_instance=False,
     )
     assert url == f"http://127.0.0.1:{free_port}"
-    mock_instance.serve.assert_called_once()
 
 
-@patch("fastware.server.Granian")
-def test_serve_pid_create_race_raises(mock_granian_cls: MagicMock, tmp_path: Path) -> None:
+@patch("fastware.server._make_embed_server")
+def test_serve_pid_create_race_raises(mock_make_embed: MagicMock, tmp_path: Path) -> None:
     """Two concurrent serve() calls cannot both create the PID file.
 
     Simulates the race window: the PID file appears after check_already_running
     passes but before the PID file is created. The loser must raise
     AlreadyRunningError instead of overwriting the winner's PID file.
     """
-    mock_granian_cls.return_value = MagicMock()
+    mock_embed = MagicMock()
+    mock_embed.serve = AsyncMock()
+    mock_make_embed.return_value = mock_embed
     pid_path = tmp_path / "race.pid"
     pid_path.write_text("54321")  # the other racer already won
 
@@ -261,10 +270,13 @@ def test_serve_pid_create_race_raises(mock_granian_cls: MagicMock, tmp_path: Pat
         s.bind(("127.0.0.1", 0))
         free_port = s.getsockname()[1]
 
+    async def my_app(scope, receive, send):
+        pass
+
     with patch("fastware.server.check_already_running", return_value=None):
         with pytest.raises(AlreadyRunningError):
             serve(
-                "myapp:app",
+                my_app,
                 foreground=False,
                 host="127.0.0.1",
                 port=free_port,
@@ -335,13 +347,17 @@ def test_read_port_file_returns_none_on_corrupt(tmp_path: Path) -> None:
     assert read_port_file(pid_path) is None
 
 
-@patch("fastware.server.Granian")
-def test_serve_port_zero_picks_random_port(mock_granian_cls: MagicMock) -> None:
+@patch("fastware.server._make_embed_server")
+def test_serve_port_zero_picks_random_port(mock_make_embed: MagicMock) -> None:
     """serve() with port=0 assigns a random free port."""
-    mock_instance = MagicMock()
-    mock_granian_cls.return_value = mock_instance
+    mock_embed = MagicMock()
+    mock_embed.serve = AsyncMock()
+    mock_make_embed.return_value = mock_embed
 
-    url = serve("myapp:app", foreground=False, host="127.0.0.1", port=0)
+    async def my_app(scope, receive, send):
+        pass
+
+    url = serve(my_app, foreground=False, host="127.0.0.1", port=0)
     assert url is not None
     assert url.startswith("http://127.0.0.1:")
     # Port should not be 0 in the URL
@@ -349,11 +365,12 @@ def test_serve_port_zero_picks_random_port(mock_granian_cls: MagicMock) -> None:
     assert actual_port > 0
 
 
-@patch("fastware.server.Granian")
-def test_serve_writes_port_file(mock_granian_cls: MagicMock, tmp_path: Path) -> None:
+@patch("fastware.server._make_embed_server")
+def test_serve_writes_port_file(mock_make_embed: MagicMock, tmp_path: Path) -> None:
     """serve() writes a port file alongside the PID file."""
-    mock_instance = MagicMock()
-    mock_granian_cls.return_value = mock_instance
+    mock_embed = MagicMock()
+    mock_embed.serve = AsyncMock()
+    mock_make_embed.return_value = mock_embed
 
     pid_path = tmp_path / "test.pid"
 
@@ -361,8 +378,11 @@ def test_serve_writes_port_file(mock_granian_cls: MagicMock, tmp_path: Path) -> 
         s.bind(("127.0.0.1", 0))
         free_port = s.getsockname()[1]
 
+    async def my_app(scope, receive, send):
+        pass
+
     serve(
-        "myapp:app",
+        my_app,
         foreground=False,
         host="127.0.0.1",
         port=free_port,

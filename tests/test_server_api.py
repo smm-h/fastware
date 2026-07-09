@@ -5,9 +5,8 @@ from __future__ import annotations
 import os
 import signal
 import socket
-import time
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from granian.constants import Loops
@@ -49,17 +48,21 @@ class TestServeAPI:
         with pytest.raises(TypeError, match="foreground"):
             serve("myapp:app", host="127.0.0.1", port=8000)  # type: ignore[call-arg]
 
-    @patch("fastware.server.Granian")
-    def test_serve_foreground_false_returns_url(self, mock_granian_cls: MagicMock) -> None:
-        """foreground=False spawns daemon thread and returns URL."""
-        mock_instance = MagicMock()
-        mock_granian_cls.return_value = mock_instance
+    @patch("fastware.server._make_embed_server")
+    def test_serve_foreground_false_returns_url(self, mock_make_embed: MagicMock) -> None:
+        """foreground=False uses embed server and returns URL."""
+        mock_embed = MagicMock()
+        mock_embed.serve = AsyncMock()
+        mock_make_embed.return_value = mock_embed
         port = _free_port()
 
-        url = serve("myapp:app", foreground=False, host="127.0.0.1", port=port)
+        async def my_app(scope, receive, send):
+            pass
+
+        url = serve(my_app, foreground=False, host="127.0.0.1", port=port)
 
         assert url == f"http://127.0.0.1:{port}"
-        mock_instance.serve.assert_called_once()
+        mock_make_embed.assert_called_once_with(my_app, "127.0.0.1", port)
 
     @patch("fastware.server.Granian")
     def test_serve_foreground_true_returns_none(self, mock_granian_cls: MagicMock) -> None:
@@ -73,11 +76,12 @@ class TestServeAPI:
         assert result is None
         mock_instance.serve.assert_called_once()
 
-    @patch("fastware.server.Granian")
-    def test_serve_with_callable_target(self, mock_granian_cls: MagicMock) -> None:
-        """serve() accepts a callable and registers it on a synthetic module."""
-        mock_instance = MagicMock()
-        mock_granian_cls.return_value = mock_instance
+    @patch("fastware.server._make_embed_server")
+    def test_serve_with_callable_target(self, mock_make_embed: MagicMock) -> None:
+        """serve() accepts a callable and passes it directly to the embed server."""
+        mock_embed = MagicMock()
+        mock_embed.serve = AsyncMock()
+        mock_make_embed.return_value = mock_embed
         port = _free_port()
 
         async def my_app(scope, receive, send):
@@ -86,20 +90,17 @@ class TestServeAPI:
         url = serve(my_app, foreground=False, host="127.0.0.1", port=port)
 
         assert url is not None
-        # Granian should have been given a string target, not the callable
-        call_kwargs = mock_granian_cls.call_args
-        target_used = call_kwargs[1]["target"] if "target" in call_kwargs[1] else call_kwargs[0][0]
-        assert isinstance(target_used, str)
-        assert ":app" in target_used
+        # The embed server should receive the callable directly
+        mock_make_embed.assert_called_once_with(my_app, "127.0.0.1", port)
 
     @patch("fastware.server.Granian")
-    def test_serve_with_string_target(self, mock_granian_cls: MagicMock) -> None:
-        """serve() passes string targets through to Granian unchanged."""
+    def test_serve_with_string_target_foreground(self, mock_granian_cls: MagicMock) -> None:
+        """serve(foreground=True) passes string targets through to Granian unchanged."""
         mock_instance = MagicMock()
         mock_granian_cls.return_value = mock_instance
         port = _free_port()
 
-        serve("myapp:app", foreground=False, host="127.0.0.1", port=port)
+        serve("myapp:app", foreground=True, host="127.0.0.1", port=port)
 
         mock_granian_cls.assert_called_once_with(
             target="myapp:app",
@@ -110,15 +111,19 @@ class TestServeAPI:
             workers=1,
         )
 
-    @patch("fastware.server.Granian")
-    def test_serve_with_pid_path(self, mock_granian_cls: MagicMock, tmp_path: Path) -> None:
+    @patch("fastware.server._make_embed_server")
+    def test_serve_with_pid_path(self, mock_make_embed: MagicMock, tmp_path: Path) -> None:
         """serve() writes a PID file when pid_path is given."""
-        mock_instance = MagicMock()
-        mock_granian_cls.return_value = mock_instance
+        mock_embed = MagicMock()
+        mock_embed.serve = AsyncMock()
+        mock_make_embed.return_value = mock_embed
         port = _free_port()
         pid_path = tmp_path / "test.pid"
 
-        serve("myapp:app", foreground=False, host="127.0.0.1", port=port, pid_path=pid_path)
+        async def my_app(scope, receive, send):
+            pass
+
+        serve(my_app, foreground=False, host="127.0.0.1", port=port, pid_path=pid_path)
 
         assert pid_path.exists()
         assert int(pid_path.read_text().strip()) == os.getpid()
@@ -350,72 +355,83 @@ class TestStop:
 
 
 # ---------------------------------------------------------------------------
-# Granian signal patch scoping
+# Embed server background mode
 # ---------------------------------------------------------------------------
 
 
-class TestGranianSignalPatch:
-    """serve(foreground=False) must not permanently strip granian's signal setup."""
+class TestEmbedServerBackground:
+    """serve(foreground=False) uses the embed server, not the multiprocess Granian."""
 
-    @patch("fastware.server.Granian")
-    def test_main_thread_signal_handling_survives_background_serve(
-        self, mock_granian_cls: MagicMock
-    ) -> None:
-        """After a background serve(), granian's set_main_signals still installs
-        real handlers when called from the main thread (as a later foreground
-        serve() in the same process would)."""
+    @patch("fastware.server._make_embed_server")
+    def test_no_signal_patching_needed(self, mock_make_embed: MagicMock) -> None:
+        """serve(foreground=False) does not touch granian's signal handlers.
+
+        The embed server runs async workers in the caller's event loop, so no
+        signal.signal calls are made and no patching is needed."""
         import signal as _signal
-        import threading
 
         from granian.server import common as granian_common
 
-        mock_granian_cls.return_value = MagicMock()
-        serve("myapp:app", foreground=False, host="127.0.0.1", port=_free_port())
+        mock_embed = MagicMock()
+        mock_embed.serve = AsyncMock()
+        mock_make_embed.return_value = mock_embed
 
-        assert threading.current_thread() is threading.main_thread()
         before_term = _signal.getsignal(_signal.SIGTERM)
         before_int = _signal.getsignal(_signal.SIGINT)
 
-        def handler(signum, frame):
+        async def my_app(scope, receive, send):
             pass
 
-        try:
-            granian_common.set_main_signals(handler)
-            assert _signal.getsignal(_signal.SIGTERM) is handler
-            assert _signal.getsignal(_signal.SIGINT) is handler
-        finally:
-            _signal.signal(_signal.SIGTERM, before_term)
-            _signal.signal(_signal.SIGINT, before_int)
+        serve(my_app, foreground=False, host="127.0.0.1", port=_free_port())
 
-    @patch("fastware.server.Granian")
-    def test_set_main_signals_is_safe_off_main_thread(
-        self, mock_granian_cls: MagicMock
-    ) -> None:
-        """From a worker thread, granian's set_main_signals must not raise
-        (signal.signal would raise ValueError there) and must not touch handlers."""
-        import signal as _signal
-        import threading
-
-        from granian.server import common as granian_common
-
-        mock_granian_cls.return_value = MagicMock()
-        serve("myapp:app", foreground=False, host="127.0.0.1", port=_free_port())
-
-        before_term = _signal.getsignal(_signal.SIGTERM)
-        errors: list[Exception] = []
-
-        def call_from_thread():
-            try:
-                granian_common.set_main_signals(lambda s, f: None)
-            except Exception as exc:
-                errors.append(exc)
-
-        t = threading.Thread(target=call_from_thread)
-        t.start()
-        t.join()
-
-        assert errors == []
+        # Signal handlers should be completely untouched
         assert _signal.getsignal(_signal.SIGTERM) is before_term
+        assert _signal.getsignal(_signal.SIGINT) is before_int
+
+    @patch("fastware.server._make_embed_server")
+    def test_embed_server_stored_for_stop(self, mock_make_embed: MagicMock) -> None:
+        """serve(foreground=False) stores the embed server for stop_background()."""
+        from fastware.server import _background_servers
+
+        mock_embed = MagicMock()
+        mock_embed.serve = AsyncMock()
+        mock_make_embed.return_value = mock_embed
+        port = _free_port()
+
+        async def my_app(scope, receive, send):
+            pass
+
+        url = serve(my_app, foreground=False, host="127.0.0.1", port=port)
+
+        assert url in _background_servers
+        assert _background_servers[url] is mock_embed
+        # Clean up
+        _background_servers.pop(url, None)
+
+    @patch("fastware.server._make_embed_server")
+    def test_stop_background_calls_stop(self, mock_make_embed: MagicMock) -> None:
+        """stop_background() calls stop() on the stored embed server."""
+        from fastware.server import stop_background
+
+        mock_embed = MagicMock()
+        mock_embed.serve = AsyncMock()
+        mock_make_embed.return_value = mock_embed
+        port = _free_port()
+
+        async def my_app(scope, receive, send):
+            pass
+
+        url = serve(my_app, foreground=False, host="127.0.0.1", port=port)
+        stop_background(url)
+
+        mock_embed.stop.assert_called_once()
+
+    def test_stop_background_unknown_url_raises(self) -> None:
+        """stop_background() raises KeyError for an unknown URL."""
+        from fastware.server import stop_background
+
+        with pytest.raises(KeyError, match="No background server tracked"):
+            stop_background("http://127.0.0.1:99999")
 
 
 # ---------------------------------------------------------------------------
@@ -492,19 +508,23 @@ class TestStatus:
 class TestPreServe:
     """Tests for the pre_serve callback parameter."""
 
-    @patch("fastware.server.Granian")
-    def test_pre_serve_runs_before_server(self, mock_granian_cls: MagicMock, tmp_path: Path) -> None:
-        """pre_serve is called before Granian starts."""
-        mock_instance = MagicMock()
-        mock_granian_cls.return_value = mock_instance
+    @patch("fastware.server._make_embed_server")
+    def test_pre_serve_runs_before_server(self, mock_make_embed: MagicMock, tmp_path: Path) -> None:
+        """pre_serve is called before the embed server starts."""
+        mock_embed = MagicMock()
+        mock_embed.serve = AsyncMock()
+        mock_make_embed.return_value = mock_embed
         port = _free_port()
 
         flag_file = tmp_path / "pre_serve_ran"
 
+        async def my_app(scope, receive, send):
+            pass
+
         def my_pre_serve():
             flag_file.write_text("yes")
 
-        serve("myapp:app", foreground=False, host="127.0.0.1", port=port, pre_serve=my_pre_serve)
+        serve(my_app, foreground=False, host="127.0.0.1", port=port, pre_serve=my_pre_serve)
 
         assert flag_file.exists()
         assert flag_file.read_text() == "yes"
@@ -528,16 +548,20 @@ class TestPreServe:
 
         assert call_order == ["pre_serve", "granian_serve"]
 
-    @patch("fastware.server.Granian")
-    def test_no_pre_serve(self, mock_granian_cls: MagicMock) -> None:
+    @patch("fastware.server._make_embed_server")
+    def test_no_pre_serve(self, mock_make_embed: MagicMock) -> None:
         """Server starts normally when no pre_serve is given."""
-        mock_instance = MagicMock()
-        mock_granian_cls.return_value = mock_instance
+        mock_embed = MagicMock()
+        mock_embed.serve = AsyncMock()
+        mock_make_embed.return_value = mock_embed
         port = _free_port()
 
-        serve("myapp:app", foreground=False, host="127.0.0.1", port=port)
+        async def my_app(scope, receive, send):
+            pass
 
-        mock_instance.serve.assert_called_once()
+        serve(my_app, foreground=False, host="127.0.0.1", port=port)
+
+        mock_make_embed.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
@@ -621,27 +645,24 @@ class TestEnvVarSettings:
         assert host == "10.0.0.3"
         assert port == 4000
 
-    @patch("fastware.server.Granian")
-    def test_serve_reads_env_vars(self, mock_granian_cls: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
+    @patch("fastware.server._make_embed_server")
+    def test_serve_reads_env_vars(self, mock_make_embed: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
         """serve() uses env vars when host/port not provided explicitly."""
-        mock_instance = MagicMock()
-        mock_granian_cls.return_value = mock_instance
+        mock_embed = MagicMock()
+        mock_embed.serve = AsyncMock()
+        mock_make_embed.return_value = mock_embed
 
         port = _free_port()
         monkeypatch.setenv("FASTWARE_HOST", "127.0.0.1")
         monkeypatch.setenv("FASTWARE_PORT", str(port))
 
-        url = serve("myapp:app", foreground=False)
+        async def my_app(scope, receive, send):
+            pass
+
+        url = serve(my_app, foreground=False)
 
         assert url == f"http://127.0.0.1:{port}"
-        mock_granian_cls.assert_called_once_with(
-            target="myapp:app",
-            address="127.0.0.1",
-            port=port,
-            interface="asgi",
-            loop=Loops.asyncio,
-            workers=1,
-        )
+        mock_make_embed.assert_called_once_with(my_app, "127.0.0.1", port)
 
     def test_serve_raises_without_host_or_port(self) -> None:
         """serve() raises ValueError when neither explicit args nor env vars exist."""
@@ -657,15 +678,19 @@ class TestEnvVarSettings:
 class TestServeStopStatusIntegration:
     """Integration tests for serve, stop, and status working together."""
 
-    @patch("fastware.server.Granian")
-    def test_status_after_serve(self, mock_granian_cls: MagicMock, tmp_path: Path) -> None:
+    @patch("fastware.server._make_embed_server")
+    def test_status_after_serve(self, mock_make_embed: MagicMock, tmp_path: Path) -> None:
         """status() reports running=True after serve(foreground=False)."""
-        mock_instance = MagicMock()
-        mock_granian_cls.return_value = mock_instance
+        mock_embed = MagicMock()
+        mock_embed.serve = AsyncMock()
+        mock_make_embed.return_value = mock_embed
         port = _free_port()
         pid_path = tmp_path / "test.pid"
 
-        serve("myapp:app", foreground=False, host="127.0.0.1", port=port, pid_path=pid_path)
+        async def my_app(scope, receive, send):
+            pass
+
+        serve(my_app, foreground=False, host="127.0.0.1", port=port, pid_path=pid_path)
 
         result = status(pid_path)
         assert result.running is True
@@ -699,7 +724,12 @@ class TestExports:
         import fastware
         assert hasattr(fastware, "ServerStatus")
 
+    def test_stop_background_exported(self) -> None:
+        import fastware
+        assert hasattr(fastware, "stop_background")
+        assert callable(fastware.stop_background)
+
     def test_all_in_dunder_all(self) -> None:
         import fastware
-        for name in ("serve", "stop", "status", "ServerStatus"):
+        for name in ("serve", "stop", "stop_background", "status", "ServerStatus"):
             assert name in fastware.__all__, f"{name} not in fastware.__all__"

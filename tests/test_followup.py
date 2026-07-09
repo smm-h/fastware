@@ -16,7 +16,7 @@ from __future__ import annotations
 import asyncio
 import json
 import socket
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from pydantic import BaseModel
@@ -478,20 +478,24 @@ class TestServeReload:
             "myapp:app", "127.0.0.1", 9999, None, "asyncio", 1,
         )
 
-    @patch("fastware.server.Granian")
-    def test_reload_false_does_not_import_watchfiles(self, mock_granian):
+    @patch("fastware.server._make_embed_server")
+    def test_reload_false_does_not_import_watchfiles(self, mock_make_embed):
         """reload=False (default) does not touch watchfiles."""
-        mock_instance = MagicMock()
-        mock_granian.return_value = mock_instance
+        mock_embed = MagicMock()
+        mock_embed.serve = AsyncMock()
+        mock_make_embed.return_value = mock_embed
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind(("127.0.0.1", 0))
             free_port = s.getsockname()[1]
 
+        async def my_app(scope, receive, send):
+            pass
+
         # Should work fine without watchfiles installed
-        url = serve("myapp:app", foreground=False, host="127.0.0.1", port=free_port)
+        url = serve(my_app, foreground=False, host="127.0.0.1", port=free_port)
         assert url == f"http://127.0.0.1:{free_port}"
-        mock_instance.serve.assert_called_once()
+        mock_make_embed.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
