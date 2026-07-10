@@ -5,7 +5,7 @@ description = "A fast, batteries-included ASGI framework. The FastAPI alternativ
 requires-python = ">=3.11"
 dependencies = [
     "msgspec>=0.21.1",
-    "granian>=2.7.4",
+    "granian>=2.7,<3.0",
 ]
 keywords = ["rlsbl"]
 
