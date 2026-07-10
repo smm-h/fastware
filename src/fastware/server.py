@@ -465,6 +465,13 @@ def _make_embed_server(
     *target* is the ASGI callable (not a string).
     Returns the embed server instance (with ``serve()`` and ``stop()`` methods).
     """
+    # Granian's embed server logs "Embedded server is experimental!" on every
+    # serve(). We intentionally use it for background mode because the standard
+    # MPServer cannot run in a daemon thread (fork UB, sys.exit in threads, no
+    # stop mechanism). The embed server has been API-stable for 16+ months.
+    # Pin Granian version for safety.
+    logging.getLogger("granian").setLevel(logging.ERROR)
+
     from granian.server.common import Interfaces
     from granian.server.embed import Server as EmbedServer
 
