@@ -1,2 +1,0 @@
-{"id":"18c0c4d08adf9171d3e3ef998ec24d94965f97efd716ae59","commits":["d6228af80120b1235fbd82991c2c161e02dc418b"],"user_facing":true,"description":"**New feature.** Background serve (foreground=False) now uses embedded async server, fixing hang/stop/fork issues. New stop_background(url) function cleanly shuts down background servers.","type":"feature"}
-{"id":"18c0c4d7420fc2b814555de7b4e6429bbecf76e311c386e1","commits":["e986b8f6dbbf8f20be2892e6743fdba7e57a79a8"],"user_facing":false}
