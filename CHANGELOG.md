@@ -2,6 +2,21 @@
 
 # Changelog
 
+## 0.4.0
+
+Embedded async server for background mode with graceful shutdown
+
+<details>
+<summary>Context</summary>
+
+The old foreground=False path ran Granian.serve() in a daemon thread, which had fork-in-thread, sys.exit-in-thread, and no-stop-mechanism bugs. The new implementation uses granian.server.embed.Server, running async workers without forking or signal registration.
+
+</details>
+
+### Features
+
+- **New feature.** Background serve (foreground=False) now uses embedded async server, fixing hang/stop/fork issues. New stop_background(url) function cleanly shuts down background servers.
+
 ## 0.3.1
 
 Fix CI so the 0.3.1 publish gate can pass: 0.3.0 was blocked because test dependencies (pyjwt, bcrypt, structlog, watchfiles, websockets, mcp, pydantic) were missing from the dev group and CI's uv sync --locked never installed them.
