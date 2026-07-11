@@ -81,7 +81,6 @@ async def _send_stream(
     second response after start).
     """
     headers = _build_headers(resp.content_type, resp.headers, resp.cookies)
-    await send({"type": "http.response.start", "status": resp.status, "headers": headers})
 
     async def _drive() -> None:
         async for chunk in resp.generator:
@@ -100,22 +99,33 @@ async def _send_stream(
         except Exception:
             _log.debug("Client disconnected before streaming response finished")
 
-    child = asyncio.create_task(_drive())
-    if request is not None:
-        request._register_stream_task(child)
+    # The initial http.response.start send is inside this try so its failure
+    # (client gone before the first byte) still runs aclose() in the finally --
+    # otherwise a generator suspended at its first yield would leak. If start
+    # fails, no child task is ever created, so the inner await/cancel dance is
+    # skipped and the exception propagates after aclose() runs.
     try:
-        await child
-    except asyncio.CancelledError:
-        # The watcher cancels the child on disconnect. A generator that catches
-        # CancelledError and returns normally settles the child without error
-        # (we never reach here); one that lets it propagate lands here. Settle
-        # the child, then re-raise only for a genuine external cancellation of
-        # the request task -- swallow when this is a client disconnect.
-        child.cancel()
-        with contextlib.suppress(asyncio.CancelledError, Exception):
+        await send(
+            {"type": "http.response.start", "status": resp.status, "headers": headers}
+        )
+
+        child = asyncio.create_task(_drive())
+        if request is not None:
+            request._register_stream_task(child)
+        try:
             await child
-        if request is None or not request._disconnected:
-            raise
+        except asyncio.CancelledError:
+            # The watcher cancels the child on disconnect. A generator that
+            # catches CancelledError and returns normally settles the child
+            # without error (we never reach here); one that lets it propagate
+            # lands here. Settle the child, then re-raise only for a genuine
+            # external cancellation of the request task -- swallow when this is
+            # a client disconnect.
+            child.cancel()
+            with contextlib.suppress(asyncio.CancelledError, Exception):
+                await child
+            if request is None or not request._disconnected:
+                raise
     finally:
         with contextlib.suppress(Exception):
             await resp.generator.aclose()

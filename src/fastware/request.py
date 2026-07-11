@@ -70,7 +70,7 @@ class Request:
 
     __slots__ = (
         "scope", "path_params", "_body", "_json", "_json_decoded",
-        "_receive", "_disconnected", "_stream_task", "_cookies",
+        "_disconnected", "_stream_task", "_cookies",
         "_cookies_parsed", "_parsed_qs", "_query_params", "_state",
     )
 
@@ -81,12 +81,17 @@ class Request:
         body: bytes | None,
         receive: Callable | None = None,
     ):
+        # ``receive`` is accepted for construction compatibility (callers and
+        # tests still pass ``receive=...``) but intentionally not stored: the
+        # request no longer owns the ASGI receive channel. Disconnects are
+        # observed via the ``_disconnected`` flag, which the app's single
+        # disconnect watcher owns and maintains. Keeping a ``_receive`` field
+        # would be dead state that nothing reads.
         self.scope = scope
         self.path_params = path_params
         self._body = body
         self._json = None
         self._json_decoded = False
-        self._receive = receive
         self._disconnected = False
         self._stream_task = None
         self._cookies = None

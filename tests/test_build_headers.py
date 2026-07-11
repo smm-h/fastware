@@ -78,3 +78,44 @@ async def test_send_stream_headers_have_no_content_length():
         [b"set-cookie", b"s=1"],
     ]
     assert not any(h[0] == b"content-length" for h in start["headers"])
+
+
+class _SpyAsyncGen:
+    """Async-iterable stand-in that records whether aclose() was called.
+
+    Real async generators forbid attribute assignment, so a spy object is
+    needed to observe that _send_stream guaranteed aclose() even when the
+    very first send (http.response.start) failed before any iteration.
+    """
+
+    def __init__(self):
+        self.aclose_called = False
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        raise StopAsyncIteration
+
+    async def aclose(self):
+        self.aclose_called = True
+
+
+@pytest.mark.anyio
+async def test_send_stream_acloses_generator_when_initial_start_send_fails():
+    """If http.response.start fails, the generator must still be aclosed.
+
+    Previously the initial send sat outside the try/finally that guarantees
+    resp.generator.aclose(), so a failure on the very first send leaked the
+    generator. The aclose guarantee now covers that edge too.
+    """
+    spy = _SpyAsyncGen()
+    resp = StreamResponse(spy, content_type="text/event-stream")
+
+    async def failing_send(message):
+        raise RuntimeError("start send failed")
+
+    with pytest.raises(RuntimeError, match="start send failed"):
+        await _send_stream(failing_send, resp)
+
+    assert spy.aclose_called is True
