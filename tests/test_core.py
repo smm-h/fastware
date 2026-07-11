@@ -410,39 +410,94 @@ class TestRequestIsDisconnected:
 
     @pytest.mark.anyio
     async def test_is_disconnected_detects_queued_disconnect(self):
-        """A disconnect message already available on the receive channel is
-        detected. The buggy wait_for(timeout=0) implementation cancels
-        receive() before it resolves and reports a false negative."""
-        from fastware import Request
+        """A disconnect delivered on the receive channel is observed by the
+        handler via is_disconnected. The app's watcher owns receive and records
+        the disconnect onto request._disconnected, which is_disconnected reads.
+        """
+        router = Router()
+        observed: dict = {}
 
-        q: asyncio.Queue = asyncio.Queue()
-        await q.put({"type": "http.disconnect"})
-        scope = {"type": "http", "method": "GET", "path": "/test", "headers": []}
-        req = Request(scope, {}, None, receive=q.get)
-        assert await req.is_disconnected() is True
+        @router.get("/api/watch")
+        async def watch(req):
+            # Poll until the watcher records the disconnect.
+            for _ in range(1000):
+                if await req.is_disconnected():
+                    observed["disconnected"] = True
+                    break
+                await asyncio.sleep(0.001)
+            else:
+                observed["disconnected"] = False
+            return JSONResponse({"ok": True})
+
+        app = create_app(router, request_id=False, request_timing=False)
+        scope = {"type": "http", "method": "GET", "path": "/api/watch", "headers": [], "query_string": b""}
+        recv_q: asyncio.Queue = asyncio.Queue()
+        await recv_q.put({"type": "http.request", "body": b"", "more_body": False})
+        sent: list = []
+
+        async def receive():
+            return await recv_q.get()
+
+        async def send(msg):
+            sent.append(msg)
+
+        task = asyncio.create_task(app(scope, receive, send))
+        # Let the body loop finish, the watcher start, and the handler poll.
+        await asyncio.sleep(0.01)
+        # Deliver the disconnect on the channel the watcher owns.
+        await recv_q.put({"type": "http.disconnect"})
+        await task
+
+        assert observed["disconnected"] is True
 
     @pytest.mark.anyio
     async def test_is_disconnected_does_not_drop_pending_message(self):
-        """A receive that has not resolved yet must not be cancelled/discarded.
-        The first check (empty channel) returns False; once the disconnect is
-        enqueued, a later check detects it -- proving the in-flight receive was
-        preserved rather than dropped."""
-        from fastware import Request
+        """A disconnect arriving only after the first check is still observed.
+        The first check (nothing delivered yet) reports connected; once the
+        watcher receives the disconnect, a later check detects it -- proving the
+        watcher, not the handler, owns the single receive channel.
+        """
+        router = Router()
+        observed: dict = {}
 
-        q: asyncio.Queue = asyncio.Queue()
-        scope = {"type": "http", "method": "GET", "path": "/test", "headers": []}
-        req = Request(scope, {}, None, receive=q.get)
-        # Channel empty: receive blocks, non-blocking check reports connected.
-        assert await req.is_disconnected() is False
-        # The client disconnects; the message the (preserved) receive picks up
-        # must be delivered on the next check.
-        await q.put({"type": "http.disconnect"})
-        assert await req.is_disconnected() is True
+        @router.get("/api/late")
+        async def late(req):
+            observed["first"] = await req.is_disconnected()  # nothing yet -> False
+            for _ in range(1000):
+                if await req.is_disconnected():
+                    observed["second"] = True
+                    break
+                await asyncio.sleep(0.001)
+            else:
+                observed["second"] = False
+            return JSONResponse({"ok": True})
+
+        app = create_app(router, request_id=False, request_timing=False)
+        scope = {"type": "http", "method": "GET", "path": "/api/late", "headers": [], "query_string": b""}
+        recv_q: asyncio.Queue = asyncio.Queue()
+        await recv_q.put({"type": "http.request", "body": b"", "more_body": False})
+        sent: list = []
+
+        async def receive():
+            return await recv_q.get()
+
+        async def send(msg):
+            sent.append(msg)
+
+        task = asyncio.create_task(app(scope, receive, send))
+        await asyncio.sleep(0.01)
+        await recv_q.put({"type": "http.disconnect"})
+        await task
+
+        assert observed["first"] is False
+        assert observed["second"] is True
 
     @pytest.mark.anyio
-    async def test_is_disconnected_does_not_swallow_unexpected_errors(self):
-        """The except must be narrow: a programming error inside receive()
-        should surface, not be silently swallowed as 'still connected'."""
+    async def test_is_disconnected_is_a_pure_flag_read(self):
+        """is_disconnected never touches the receive channel -- it only reads the
+        flag the watcher maintains. A broken receive callable must not make
+        is_disconnected raise, proving it no longer competes for receive.
+        """
         from fastware import Request
 
         async def broken_receive():
@@ -450,8 +505,11 @@ class TestRequestIsDisconnected:
 
         scope = {"type": "http", "method": "GET", "path": "/test", "headers": []}
         req = Request(scope, {}, None, receive=broken_receive)
-        with pytest.raises(RuntimeError, match="boom"):
-            await req.is_disconnected()
+        # Pure flag read: no call to receive, so no error surfaces.
+        assert await req.is_disconnected() is False
+        # After the watcher marks it, the flag reads True (still no receive call).
+        req._mark_disconnected()
+        assert await req.is_disconnected() is True
 
 
 # ---------------------------------------------------------------------------

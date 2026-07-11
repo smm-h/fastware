@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 from typing import Any, Callable
 from urllib.parse import parse_qs
 
@@ -71,7 +70,7 @@ class Request:
 
     __slots__ = (
         "scope", "path_params", "_body", "_json", "_json_decoded",
-        "_receive", "_disconnected", "_receive_task", "_cookies",
+        "_receive", "_disconnected", "_stream_task", "_cookies",
         "_cookies_parsed", "_parsed_qs", "_query_params", "_state",
     )
 
@@ -89,7 +88,7 @@ class Request:
         self._json_decoded = False
         self._receive = receive
         self._disconnected = False
-        self._receive_task = None
+        self._stream_task = None
         self._cookies = None
         self._cookies_parsed = False
         self._parsed_qs = None
@@ -234,37 +233,33 @@ class Request:
         return self.scope.get("path", "")
 
     async def is_disconnected(self) -> bool:
-        """Non-blocking check for whether the client has disconnected.
+        """Return whether the client has disconnected.
 
-        Peeks at the ASGI receive channel for an ``http.disconnect`` message
-        without blocking. An in-flight ``receive()`` is launched as a task and
-        kept alive across calls rather than cancelled, so a message the
-        coroutine has already dequeued is never dropped -- unlike a
-        ``wait_for(receive(), timeout=0)`` that cancels the receive mid-flight.
-
-        Errors raised by ``receive()`` are intentionally not caught here; they
-        propagate to the caller instead of being silently reported as "still
-        connected".
+        This is a pure read of a flag maintained by the app's disconnect
+        watcher, which is the single owner of the ASGI receive channel for the
+        request's post-body lifetime. Because it never touches ``receive`` (no
+        channel peeking, no receive task), it is safe to call any number of
+        times from both streaming and non-streaming handlers and never competes
+        with the watcher for the single receive channel.
         """
-        if self._disconnected:
-            return True
-        if self._receive is None:
-            return False
-        # Reuse an in-flight receive from a prior check, or start a fresh one.
-        if self._receive_task is None:
-            self._receive_task = asyncio.ensure_future(self._receive())
-        # Yield once so the event loop can resolve the receive if a message is
-        # already available. The task is never cancelled, so a message it has
-        # dequeued stays in the task result instead of being discarded.
-        await asyncio.sleep(0)
-        if not self._receive_task.done():
-            return False
-        task, self._receive_task = self._receive_task, None
-        msg = task.result()
-        if msg.get("type") == "http.disconnect":
-            self._disconnected = True
-            return True
-        return False
+        return self._disconnected
+
+    def _mark_disconnected(self) -> None:
+        """Record a client disconnect. Called by the app's disconnect watcher.
+
+        Sets the flag and cancels any in-flight stream-driving task so a
+        generator blocked between yields is unwound promptly (running its
+        ``finally`` cleanup) instead of leaking until process exit.
+        """
+        self._disconnected = True
+        task = self._stream_task
+        if task is not None and not task.done():
+            task.cancel()
+
+    def _register_stream_task(self, task: Any) -> None:
+        """Register the task driving a streaming response body so the watcher
+        can cancel it on disconnect."""
+        self._stream_task = task
 
     @property
     def cookies(self) -> dict[str, str]:

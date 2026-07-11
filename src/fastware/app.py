@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import dataclasses
 import inspect
 import logging
@@ -40,32 +41,84 @@ __all__ = [
 _log = logging.getLogger("fastware")
 
 
-async def _send_stream(send: Callable, resp: StreamResponse) -> None:
-    """Send a streaming HTTP response, iterating the async generator.
+async def _disconnect_watcher(receive: Callable, request: Request) -> None:
+    """Own the ASGI receive channel for a request's post-body lifetime.
 
-    Once the response has started, send() errors (client disconnected
-    mid-stream) are swallowed cleanly -- the response can no longer be
-    changed, so there is nothing useful to do but stop streaming.
-    Generator errors are NOT swallowed; they propagate to the caller
-    (which must not attempt a second response after start).
+    A single watcher task is the only consumer of ``receive`` once the body
+    has been read. It blocks on ``receive()`` and, on ``http.disconnect``,
+    records the fact on the request (which also cancels any in-flight
+    stream-driving task) and returns. This makes disconnects observable even
+    when the server never surfaces them as a ``send()`` failure -- the failure
+    mode that caused generators to leak forever.
+
+    Non-disconnect messages are ignored; a well-behaved ASGI server sends only
+    ``http.disconnect`` after the body. The ``sleep(0)`` yields control so a
+    test double that replays the same message cannot spin the loop.
+    """
+    while True:
+        message = await receive()
+        if message.get("type") == "http.disconnect":
+            request._mark_disconnected()
+            return
+        await asyncio.sleep(0)
+
+
+async def _send_stream(
+    send: Callable, resp: StreamResponse, request: Request | None = None
+) -> None:
+    """Send a streaming HTTP response, driving the generator in a child task.
+
+    The generator is iterated in a CHILD task so the request's disconnect
+    watcher can cancel it the instant the client goes away. granian frequently
+    never raises from ``send()`` on disconnect, so a generator blocked between
+    yields would otherwise leak forever and its ``finally`` cleanup would never
+    run. ``resp.generator.aclose()`` is guaranteed in every path: normal
+    completion, generator error, send failure, and disconnect cancellation.
+
+    Send failures (client vanished mid-stream) are swallowed cleanly -- the
+    response has already started and cannot be changed. Generator errors are
+    NOT swallowed; they propagate to the caller (which must not attempt a
+    second response after start).
     """
     headers = _build_headers(resp.content_type, resp.headers, resp.cookies)
     await send({"type": "http.response.start", "status": resp.status, "headers": headers})
-    async for chunk in resp.generator:
-        payload = chunk.encode() if isinstance(chunk, str) else chunk
-        try:
-            await send({"type": "http.response.body", "body": payload, "more_body": True})
-        except Exception:
-            _log.debug("Client disconnected during streaming response; stopping stream")
+
+    async def _drive() -> None:
+        async for chunk in resp.generator:
+            payload = chunk.encode() if isinstance(chunk, str) else chunk
             try:
-                await resp.generator.aclose()
+                await send({"type": "http.response.body", "body": payload, "more_body": True})
             except Exception:
-                pass
-            return
+                # Client disconnected mid-stream (send failed). Belt-and-braces
+                # alongside the watcher for servers that only surface disconnect
+                # this way. CancelledError is a BaseException, not Exception, so
+                # watcher-driven cancellation is never swallowed here.
+                _log.debug("Client disconnected during streaming response; stopping stream")
+                return
+        try:
+            await send({"type": "http.response.body", "body": b"", "more_body": False})
+        except Exception:
+            _log.debug("Client disconnected before streaming response finished")
+
+    child = asyncio.create_task(_drive())
+    if request is not None:
+        request._register_stream_task(child)
     try:
-        await send({"type": "http.response.body", "body": b"", "more_body": False})
-    except Exception:
-        _log.debug("Client disconnected before streaming response finished")
+        await child
+    except asyncio.CancelledError:
+        # The watcher cancels the child on disconnect. A generator that catches
+        # CancelledError and returns normally settles the child without error
+        # (we never reach here); one that lets it propagate lands here. Settle
+        # the child, then re-raise only for a genuine external cancellation of
+        # the request task -- swallow when this is a client disconnect.
+        child.cancel()
+        with contextlib.suppress(asyncio.CancelledError, Exception):
+            await child
+        if request is None or not request._disconnected:
+            raise
+    finally:
+        with contextlib.suppress(Exception):
+            await resp.generator.aclose()
 
 
 def _accepted_params(handler: Callable) -> frozenset[str] | None:
@@ -92,7 +145,7 @@ def _deep_convert_pydantic(obj: Any) -> Any:
     return obj
 
 
-async def _send_result(send: Callable, result: Any) -> None:
+async def _send_result(send: Callable, result: Any, request: Request | None = None) -> None:
     """Dispatch a handler return value to the appropriate sender."""
     # Pydantic BaseModel instances: serialize via model_dump before JSON encoding
     if hasattr(result, "model_dump"):
@@ -123,7 +176,7 @@ async def _send_result(send: Callable, result: Any) -> None:
             result.content_type, extra_headers=result.headers, cookies=result.cookies,
         )
     elif isinstance(result, StreamResponse):
-        await _send_stream(send, result)
+        await _send_stream(send, result, request)
     elif isinstance(result, FileResponse):
         content_type = result.content_type
         if content_type is None:
@@ -605,41 +658,66 @@ def create_app(
 
                 request = Request(scope, path_params, body, receive=receive)
 
-                if route_deps:
-                    resolved, cleanups = await _resolver.resolve(
-                        route_deps, request,
-                    )
+                # A single disconnect watcher owns the receive channel for the
+                # rest of this request's lifetime -- streaming and non-streaming
+                # alike -- maintaining request._disconnected and cancelling any
+                # in-flight stream-driving task. It is cancelled in the finally
+                # when the request ends.
+                watcher = asyncio.create_task(_disconnect_watcher(receive, request))
+                try:
+                    # DI cleanup runs in a finally that wraps the response send,
+                    # so a generator-provided resource stays alive across the
+                    # entire streaming body and is torn down exactly once --
+                    # only after the stream completes, errors, or is cancelled
+                    # by a disconnect. (For buffered responses the result is
+                    # already materialised, so the ordering is unobservable.)
+                    cleanups: list = []
                     try:
-                        # Filter resolved deps to only those the handler
-                        # actually accepts (accepted-param sets are
-                        # precomputed at app creation, not per request).
-                        filtered = _filter_to_handler(handler, resolved)
-                        result = await handler(request, **filtered)
+                        if route_deps:
+                            resolved, cleanups = await _resolver.resolve(
+                                route_deps, request,
+                            )
+                            # Filter resolved deps to only those the handler
+                            # actually accepts (accepted-param sets are
+                            # precomputed at app creation, not per request).
+                            filtered = _filter_to_handler(handler, resolved)
+                            result = await handler(request, **filtered)
+                        else:
+                            result = await handler(request)
+
+                        # Apply response_model validation if configured and
+                        # result is a plain dict (skip if handler returned a
+                        # Response type).
+                        if response_model is not None and isinstance(result, dict):
+                            from pydantic import ValidationError
+                            try:
+                                validated = response_model.model_validate(result)
+                                result = validated.model_dump(mode="json")
+                            except ValidationError as ve:
+                                log.error(
+                                    "response_model validation failed on %s %s: %s",
+                                    method, path, ve,
+                                )
+                                await _send_response(
+                                    tracked_send, 500,
+                                    msgspec.json.encode({"detail": str(ve)}),
+                                    "application/json",
+                                )
+                                return
+
+                        await _send_result(tracked_send, result, request)
                     finally:
                         await DependencyResolver.cleanup(cleanups)
-                else:
-                    result = await handler(request)
-
-                # Apply response_model validation if configured and result
-                # is a plain dict (skip if handler returned a Response type)
-                if response_model is not None and isinstance(result, dict):
-                    from pydantic import ValidationError
+                finally:
+                    watcher.cancel()
                     try:
-                        validated = response_model.model_validate(result)
-                        result = validated.model_dump(mode="json")
-                    except ValidationError as ve:
-                        log.error(
-                            "response_model validation failed on %s %s: %s",
-                            method, path, ve,
+                        await watcher
+                    except asyncio.CancelledError:
+                        pass
+                    except Exception:
+                        log.exception(
+                            "Disconnect watcher failed on %s %s", method, path
                         )
-                        await _send_response(
-                            tracked_send, 500,
-                            msgspec.json.encode({"detail": str(ve)}),
-                            "application/json",
-                        )
-                        return
-
-                await _send_result(tracked_send, result)
             except HTTPError as exc:
                 if response_started:
                     # Response already started -- cannot change it now
@@ -670,7 +748,7 @@ def create_app(
                     if isinstance(exc, exc_type):
                         try:
                             result = await exc_handler(request, exc)
-                            await _send_result(tracked_send, result)
+                            await _send_result(tracked_send, result, request)
                             handled = True
                         except Exception:
                             log.exception(
