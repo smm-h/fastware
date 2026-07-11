@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "defaults": {
+    "schema_version": 1,
+    "app": {
+      "env_prefix": null,
+      "config": false,
+      "global_flags": [],
+      "commands": {},
+      "groups": {},
+      "deprecated": {},
+      "tag_contracts": {}
+    },
+    "flag": {
+      "short": null,
+      "default": null,
+      "env": null,
+      "choices": null,
+      "repeatable": false,
+      "unique": false,
+      "env_separator": null,
+      "negatable": null,
+      "hidden": false
+    },
+    "arg": {
+      "type": "str",
+      "required": true,
+      "default": null,
+      "variadic": false,
+      "choices": null
+    },
+    "command": {
+      "passthrough": false,
+      "flags": [],
+      "args": [],
+      "tags": [],
+      "constraints": [],
+      "hidden": false,
+      "interactive": false
+    },
+    "group": {
+      "commands": {},
+      "groups": {},
+      "deprecated": {},
+      "tags": [],
+      "hidden": false
+    }
+  },
+  "project_id": "fastware",
+  "name": "fastware",
+  "version": "0.4.0",
+  "help": "fastware framework CLI: run a file-driven Vite + backend dev environment",
+  "groups": {
+    "dev": {
+      "name": "dev",
+      "help": "Run and manage the file-driven development environment",
+      "commands": {
+        "run": {
+          "name": "run",
+          "help": "Start the dev environment (pre-spawn gates, aux services, Vite + backend) from the nearest [tool.fastware.dev] config",
+          "flags": [
+            {
+              "name": "daemon",
+              "type": "bool",
+              "help": "Detach and run the dev environment in the background, registering it in the instance registry (query with 'dev status', stop with 'dev stop'). Default runs in the foreground and blocks until Ctrl+C.",
+              "default": false,
+              "negatable": true
+            },
+            {
+              "name": "grace",
+              "type": "int",
+              "help": "Seconds to wait for a component to stop gracefully before SIGKILL.",
+              "default": 10
+            }
+          ]
+        },
+        "status": {
+          "name": "status",
+          "help": "List running dev environments registered in the instance registry"
+        },
+        "stop": {
+          "name": "stop",
+          "help": "Stop running dev environments gracefully (then SIGKILL after the grace period)",
+          "flags": [
+            {
+              "name": "grace",
+              "type": "int",
+              "help": "Seconds to wait for a dev environment to stop gracefully before SIGKILL.",
+              "default": 10
+            }
+          ]
+        }
+      }
+    }
+  }
+}
