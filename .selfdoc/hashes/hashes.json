@@ -64,7 +64,7 @@
   },
   "en/src-fastware-__main__.md": {
     "content": "427e91ab5fa9b94375dc6ccd131a5ef6387606528da32c3dd7cc6b2a9cbef4fa",
-    "description": "a30783e8b1d2e3fbb55d956ee96516f28ea4a92217d78bcc0a60456cc7376f4f",
+    "description": "2034f83e9a5d3ace4c5fe26e171ffb3cff1e4003081c561251df05db14a6f002",
     "source_docstring": "b99f2b0bd9904f60b9d2fc19e287b7d8387bd8570a530470542e23e137b93c49"
   },
   "en/src-fastware-_assets.md": {
@@ -202,8 +202,8 @@
     "source_docstring": "7ca011e966e8046e6430cf4bc527d73698d0e9a6fd81d61f2d7a656b2c1e45ad"
   },
   "en/vite-guide.md": {
-    "content": "b1a0d1b356fb6b1527dd63316ceb1e312fb979f613087ca642f116b25267c772",
-    "description": "6901802a2e4dc498dd4a103338ffeda65c5152194539d6e6c946e06f07142d2c",
+    "content": "d42f75bea981a9faa9e6f2a8070ad9cac9326230e69df7c82ba6d2256a988658",
+    "description": "41629abebef2c4b7f60523b1199d10a43ee686bd0201e657ee181301be1a1ac6",
     "source_docstring": "31c00251c8674a30f099a03b23c0fa72d394e146453d418f0d5eff3f3d935229"
   },
   "en/vs-fastapi.md": {

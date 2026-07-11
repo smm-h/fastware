@@ -1,6 +1,6 @@
 ---
 title: src.fastware.__main__
-description: "Module entry point enabling `python -m fastware`; currently a placeholder that prints a not-yet-implemented notice until the CLI lands."
+description: "Entry point for `python -m fastware` and the `fastware` console script; dispatches to the strictcli-based CLI in `fastware.cli`."
 generated: true
 nav_group: "API Reference"
 nav_order: 1
