@@ -74,6 +74,9 @@ __all__ = [
     "register_instance",
     "deregister_instance",
     "list_instances",
+    "write_marker",
+    "list_markers",
+    "remove_marker",
 ]
 
 log = logging.getLogger(__name__)
@@ -533,6 +536,118 @@ def list_instances(pid_path: Path) -> list[RegistryEntry]:
         entries.append(RegistryEntry(pid=pid, port=port, name=name))
     entries.sort(key=lambda e: e.pid)
     return entries
+
+
+# ---------------------------------------------------------------------------
+# Presence markers
+# ---------------------------------------------------------------------------
+# Generic per-file signals that live *beside* the instance descriptors in the
+# same registry directory, but are NOT instance descriptors: they use a
+# ``.marker`` extension (instance files are ``*.json``), so the two never
+# collide and ``list_instances`` never sees a marker.
+#
+# A marker is identified by (kind, pid, marker_id) and its filename encodes all
+# three -- ``<kind>--<pid>--<marker_id>.marker`` -- so a reader can enumerate one
+# kind via a glob and prune dead owners by the PID stored in the payload, using
+# the same ``kill -0`` liveness discipline as the instance registry. This is the
+# lock-free "derive the aggregate by enumerating per-instance files" extension
+# sanctioned in the module docstring: no shared mutable blob, disjoint paths.
+#
+# Two concrete uses in the desktop layer:
+#   - ``kind="window"``: one marker per open native window for cross-process
+#     window refcounting (the server stops only when zero live markers remain).
+#   - ``kind="focus-request"``: a transient signal a joining process drops for
+#     the window-owning process to consume and raise its window.
+
+
+def _marker_path(pid_path: Path, kind: str, pid: int, marker_id: str) -> Path:
+    """Path of the marker file for (*kind*, *pid*, *marker_id*)."""
+    return _registry_dir(pid_path) / f"{kind}--{pid}--{marker_id}.marker"
+
+
+def write_marker(
+    pid_path: Path,
+    kind: str,
+    marker_id: str,
+    *,
+    fields: dict | None = None,
+) -> Path:
+    """Write a presence marker owned by the current process. Returns its path.
+
+    *kind* groups markers (e.g. ``"window"``, ``"focus-request"``); *marker_id*
+    identifies the marker within this process. The payload always carries
+    ``pid``, ``marker_id`` and ``kind``; *fields* merges in extra values (e.g. a
+    ``window_id``). *kind* and *marker_id* must be filesystem-safe (no ``/`` or
+    ``--`` separators).
+    """
+    reg_dir = _registry_dir(pid_path)
+    reg_dir.mkdir(parents=True, exist_ok=True)
+    pid = os.getpid()
+    payload: dict = {"pid": pid, "marker_id": str(marker_id), "kind": kind}
+    if fields:
+        payload.update(fields)
+    path = _marker_path(pid_path, kind, pid, str(marker_id))
+    path.write_bytes(msgspec.json.encode(payload))
+    return path
+
+
+def list_markers(
+    pid_path: Path,
+    kind: str,
+    *,
+    prune_dead: bool = True,
+) -> list[dict]:
+    """Enumerate markers of *kind*, returning each payload as a dict.
+
+    When *prune_dead* is True (default), markers whose owning PID is no longer
+    alive (``kill -0``) -- and any unreadable/corrupt marker -- are deleted and
+    excluded, mirroring :func:`list_instances`. Pass ``prune_dead=False`` when
+    the caller consumes markers explicitly (e.g. focus requests) and a dead
+    owner's request should still be honoured. Sorted by ``(pid, marker_id)``.
+    """
+    reg_dir = _registry_dir(pid_path)
+    if not reg_dir.is_dir():
+        return []
+    out: list[dict] = []
+    for marker_file in reg_dir.glob(f"{kind}--*.marker"):
+        try:
+            data = msgspec.json.decode(marker_file.read_bytes())
+            pid = int(data["pid"])
+        except (OSError, ValueError, KeyError, TypeError, msgspec.DecodeError):
+            try:
+                marker_file.unlink(missing_ok=True)
+            except OSError:
+                pass
+            continue
+        if prune_dead and not _pid_alive(pid):
+            try:
+                marker_file.unlink(missing_ok=True)
+            except OSError:
+                pass
+            continue
+        out.append(dict(data))
+    out.sort(key=lambda d: (int(d.get("pid", 0)), str(d.get("marker_id", ""))))
+    return out
+
+
+def remove_marker(
+    pid_path: Path,
+    kind: str,
+    marker_id: str,
+    *,
+    pid: int | None = None,
+) -> None:
+    """Remove a marker. Defaults to the current process's PID.
+
+    Pass *pid* explicitly to remove a marker owned by another process (e.g. a
+    consumer clearing a focus request written by a joining process).
+    """
+    if pid is None:
+        pid = os.getpid()
+    try:
+        _marker_path(pid_path, kind, pid, str(marker_id)).unlink(missing_ok=True)
+    except OSError:
+        pass
 
 
 def _resolve_host_port(
