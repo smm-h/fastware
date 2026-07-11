@@ -48,7 +48,7 @@
   },
   "project_id": "fastware",
   "name": "fastware",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "help": "fastware framework CLI: run a file-driven Vite + backend dev environment",
   "groups": {
     "dev": {
