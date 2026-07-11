@@ -1,8 +1,6 @@
-"""Enable running fastware as a module with `python -m fastware`."""
+"""Enable running the fastware CLI with ``python -m fastware``."""
 
-# Placeholder until CLI is implemented
-def main() -> None:
-    print("fastware CLI not yet implemented")
+from fastware.cli import main
 
 if __name__ == "__main__":
     main()

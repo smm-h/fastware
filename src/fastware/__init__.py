@@ -49,10 +49,33 @@ _SERVER_SYMBOLS = {
 }
 
 
+# -- Tier 2 (lazy): dev CLI config + supervision programmatic API -----------
+# Loaded on first access so `import fastware` never pulls devconfig/supervise
+# (and never strictcli, which lives only in fastware.cli).
+
+_DEVCONFIG_SYMBOLS = {
+    "DevConfig",
+    "DevConfigError",
+    "load_dev_config",
+    "find_dev_pyproject",
+}
+
+_SUPERVISE_SYMBOLS = {
+    "run_dev",
+    "DevRunError",
+}
+
+
 def __getattr__(name: str) -> object:
     if name in _SERVER_SYMBOLS:
         from fastware import server
         return getattr(server, name)
+    if name in _DEVCONFIG_SYMBOLS:
+        from fastware import devconfig
+        return getattr(devconfig, name)
+    if name in _SUPERVISE_SYMBOLS:
+        from fastware import supervise
+        return getattr(supervise, name)
     raise AttributeError(f"module 'fastware' has no attribute {name!r}")
 
 
@@ -110,6 +133,13 @@ __all__ = [
     "register_instance",
     "deregister_instance",
     "list_instances",
+    # dev CLI config + supervision (lazy)
+    "DevConfig",
+    "DevConfigError",
+    "load_dev_config",
+    "find_dev_pyproject",
+    "run_dev",
+    "DevRunError",
     # metadata
     "__version__",
 ]
