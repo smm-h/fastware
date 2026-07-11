@@ -100,8 +100,7 @@
   },
   "en/src-fastware-cli.md": {
     "content": "9f121632bf1c8e675cbda2d2ebc2d08a838cd61a1801f35ffd483bff0e02e9eb",
-    "description": "e51a96b2fe0cb9f5448ccecce66130f2537b1c7c0ec55701b0b9ac3b870205e8",
-    "seed_hash": "e51a96b2fe0cb9f5448ccecce66130f2537b1c7c0ec55701b0b9ac3b870205e8",
+    "description": "d0ead4b26ea307a17ea4a13a500c52e45e02212acec4f29dd79825f59c12af3e",
     "source_docstring": "5d47ec407320feb0e847d064422f0bb6399529e3f9dba70af2ce7ad6b2347c97"
   },
   "en/src-fastware-config.md": {
@@ -116,8 +115,7 @@
   },
   "en/src-fastware-devconfig.md": {
     "content": "e69d02f04cbad960fca3377f1cc3de8908cb04e5e8c5724c9aef12a75ffb8447",
-    "description": "295fe9bc9259711abc40b211a1d99b3dfb3d59a40a6f8d382316b9589fb001aa",
-    "seed_hash": "295fe9bc9259711abc40b211a1d99b3dfb3d59a40a6f8d382316b9589fb001aa",
+    "description": "ff82c4722ed9ab3fab26c7e77c6b239163ff8fb2f59317972278a4886803a6ab",
     "source_docstring": "bc46de459cdd4d8da158e8aaec3f1837bf56bf6d2e3db0ab30bffbdaef3884b5"
   },
   "en/src-fastware-di.md": {
@@ -177,8 +175,7 @@
   },
   "en/src-fastware-supervise.md": {
     "content": "ead42c71c26d451d3495675e53d1887d5cd7d970c0c28f0cc584b973536b1e89",
-    "description": "34d6a93d83266b5d9aefb8de930d327a6d0d3361bb1b79a53c3ec386b28071e8",
-    "seed_hash": "34d6a93d83266b5d9aefb8de930d327a6d0d3361bb1b79a53c3ec386b28071e8",
+    "description": "d24cf567416fbbb6a806c98e2d109692dc5bea8f27bc3964d8da692355e31d0a",
     "source_docstring": "daa6c3fd6a1cdcc1b8f3d321192c297c80602bfc51ee25cbf70c2fcf3f7e8134"
   },
   "en/src-fastware-tasks.md": {
