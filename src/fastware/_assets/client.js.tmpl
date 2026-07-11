@@ -1,0 +1,85 @@
+// fastware stale-client update client.
+//
+// Connects to the framework update channel (SSE) and reloads the page exactly
+// once when the running build id changes, preserving form state (and any
+// app-registered state) across the reload. Dependency-free.
+//
+// App hooks (optional, set on window before this script runs):
+//   window.__fastwareStateProvider -> function returning a JSON-serialisable
+//       snapshot of app state; called before reload.
+//   window.__fastwareRestoreState  -> function receiving that snapshot after
+//       reload, to rehydrate app state.
+(function () {
+  var BUILD_ID = {{BUILD_ID_JSON}};
+  var EVENTS_URL = {{EVENTS_URL_JSON}};
+  var SNAPSHOT_KEY = 'fastware:snapshot';
+  var RELOAD_GUARD_KEY = 'fastware:reloading';
+
+  // -- Rehydrate on load, then clear the one-shot snapshot + guard. --
+  try {
+    var raw = sessionStorage.getItem(SNAPSHOT_KEY);
+    if (raw) {
+      restore(JSON.parse(raw));
+      sessionStorage.removeItem(SNAPSHOT_KEY);
+    }
+    sessionStorage.removeItem(RELOAD_GUARD_KEY);
+  } catch (e) {}
+
+  function collectForms() {
+    var fields = {};
+    var els = document.querySelectorAll('input[name], textarea[name], select[name]');
+    Array.prototype.forEach.call(els, function (el) {
+      if (el.type === 'password') return;
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        fields[el.name] = { v: el.value, checked: el.checked, t: el.type };
+      } else {
+        fields[el.name] = { v: el.value, t: el.type };
+      }
+    });
+    return fields;
+  }
+
+  function restore(snap) {
+    if (!snap || !snap.fields) return;
+    Object.keys(snap.fields).forEach(function (name) {
+      var info = snap.fields[name];
+      var els = document.getElementsByName(name);
+      for (var i = 0; i < els.length; i++) {
+        var el = els[i];
+        if (info.t === 'checkbox' || info.t === 'radio') {
+          if (el.value === info.v) el.checked = info.checked;
+        } else {
+          el.value = info.v;
+        }
+      }
+    });
+    if (snap.app != null && typeof window.__fastwareRestoreState === 'function') {
+      try { window.__fastwareRestoreState(snap.app); } catch (e) {}
+    }
+  }
+
+  function snapshotAndReload() {
+    // Reload-once guard: never snapshot/reload twice for the same page load.
+    if (sessionStorage.getItem(RELOAD_GUARD_KEY)) return;
+    var app = null;
+    if (typeof window.__fastwareStateProvider === 'function') {
+      try { app = window.__fastwareStateProvider(); } catch (e) {}
+    }
+    try {
+      sessionStorage.setItem(SNAPSHOT_KEY, JSON.stringify({ fields: collectForms(), app: app }));
+      sessionStorage.setItem(RELOAD_GUARD_KEY, '1');
+    } catch (e) {}
+    location.reload();
+  }
+
+  if (typeof EventSource === 'undefined') return;
+  var es = new EventSource(EVENTS_URL);
+  es.addEventListener('build', function (ev) {
+    var data;
+    try { data = JSON.parse(ev.data); } catch (e) { return; }
+    // The build id has NO ordering: reload on DIFFERENT, never on "newer".
+    if (data && data.build_id && data.build_id !== BUILD_ID) {
+      snapshotAndReload();
+    }
+  });
+})();

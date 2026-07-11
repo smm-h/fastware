@@ -45,7 +45,7 @@ def _make_static_app(tmp_path):
 @pytest.mark.anyio
 async def test_hashed_asset_is_immutable(client_for, tmp_path):
     static = _make_static_app(tmp_path)
-    app = create_app(Router(), static_dir=static, static_path="/assets")
+    app = create_app(Router(), static_dir=static, static_path="/assets", sw_mode="off")
     async with client_for(app) as client:
         resp = await client.get("/assets/index-4a2b8c9d.js")
     assert resp.status_code == 200
@@ -55,7 +55,7 @@ async def test_hashed_asset_is_immutable(client_for, tmp_path):
 @pytest.mark.anyio
 async def test_unhashed_asset_is_no_cache(client_for, tmp_path):
     static = _make_static_app(tmp_path)
-    app = create_app(Router(), static_dir=static, static_path="/assets")
+    app = create_app(Router(), static_dir=static, static_path="/assets", sw_mode="off")
     async with client_for(app) as client:
         resp = await client.get("/assets/styles.css")
     assert resp.status_code == 200
@@ -66,7 +66,7 @@ async def test_unhashed_asset_is_no_cache(client_for, tmp_path):
 async def test_index_html_via_spa_static_is_no_cache(client_for, tmp_path):
     """index.html served as an actual static file under the SPA root is no-cache."""
     static = _make_static_app(tmp_path)
-    app = create_app(Router(), spa_fallback=static / "index.html")
+    app = create_app(Router(), spa_fallback=static / "index.html", sw_mode="off")
     async with client_for(app) as client:
         resp = await client.get("/index.html")
     assert resp.status_code == 200
@@ -77,7 +77,7 @@ async def test_index_html_via_spa_static_is_no_cache(client_for, tmp_path):
 async def test_spa_fallback_path_is_no_cache(client_for, tmp_path):
     """A non-file GET path falls back to index.html with no-cache."""
     static = _make_static_app(tmp_path)
-    app = create_app(Router(), spa_fallback=static / "index.html")
+    app = create_app(Router(), spa_fallback=static / "index.html", sw_mode="off")
     async with client_for(app) as client:
         resp = await client.get("/some/client/route")
     assert resp.status_code == 200

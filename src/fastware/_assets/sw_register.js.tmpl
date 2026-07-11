@@ -1,0 +1,52 @@
+// fastware service worker registration snippet -- cache mode.
+//
+// Registers the blessed worker at /__fastware/sw.js with scope '/', performs a
+// single guarded reload when a new worker takes control, and hard-errors on any
+// FOREIGN worker controlling scope '/' that the app did not declare.
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+
+  var SW_URL = '/__fastware/sw.js';
+  var SW_SCOPE = '/';
+  // Foreign worker script paths the app explicitly declares (e.g. a push
+  // worker). These are exempt from the foreign-SW hard error below.
+  var DECLARED_FOREIGN = {{FOREIGN_SW_PATHS_JSON}};
+
+  function scriptPath(reg) {
+    var w = reg.active || reg.waiting || reg.installing;
+    if (!w) return null;
+    try { return new URL(w.scriptURL).pathname; } catch (e) { return null; }
+  }
+
+  // A single guarded reload when control passes to a freshly activated worker.
+  var refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+
+  navigator.serviceWorker.register(SW_URL, { scope: SW_SCOPE }).catch(function (err) {
+    console.error('[fastware] service worker registration failed:', err);
+  });
+
+  // Detect and evict FOREIGN workers at scope '/'. An undeclared worker can
+  // hijack navigation and shadow framework updates, so it is a hard error.
+  navigator.serviceWorker.getRegistrations().then(function (regs) {
+    regs.forEach(function (reg) {
+      var path = scriptPath(reg);
+      if (!path) return;
+      if (path === SW_URL) return;
+      if (DECLARED_FOREIGN.indexOf(path) !== -1) return;
+      var scopePath = '/';
+      try { scopePath = new URL(reg.scope).pathname; } catch (e) {}
+      if (scopePath === '/') {
+        console.error(
+          '[fastware] FOREIGN service worker controlling scope "/" detected: ' +
+          path + '. It was not declared in foreign_sw_paths. Unregistering it.'
+        );
+        reg.unregister();
+      }
+    });
+  });
+})();

@@ -94,7 +94,11 @@ class Broadcaster:
 
     # -- Client streaming -----------------------------------------------------
 
-    async def _event_generator(self, queue: asyncio.Queue[str]) -> AsyncGenerator[str, None]:
+    async def _event_generator(
+        self,
+        queue: asyncio.Queue[str],
+        initial: list[tuple[str, dict[str, Any] | str]] | None = None,
+    ) -> AsyncGenerator[str, None]:
         """Yield SSE messages from a per-client queue.
 
         The queue is registered as a client only once iteration begins, and the
@@ -103,11 +107,19 @@ class Broadcaster:
         ``stream()`` — ensures a ``StreamResponse`` whose body is never consumed
         does not leak a queue into ``self._clients``.
 
+        *initial* events are formatted and yielded once, before the queue loop,
+        so a connection can be primed with current state (e.g. the current build
+        id on the update channel). They bypass the strict registration check --
+        the caller controls them, not a broadcast.
+
         When heartbeat_interval is set, yields SSE comment heartbeats
         (": heartbeat\\n\\n") if no real message arrives within the interval.
         """
         self._clients.append(queue)
         try:
+            if initial:
+                for event, data in initial:
+                    yield self._format_sse(event, data)
             while True:
                 if self._heartbeat_interval is not None:
                     try:
@@ -126,17 +138,25 @@ class Broadcaster:
             if queue in self._clients:
                 self._clients.remove(queue)
 
-    async def stream(self, request: Request) -> StreamResponse:
+    async def stream(
+        self,
+        request: Request,
+        initial: list[tuple[str, dict[str, Any] | str]] | None = None,
+    ) -> StreamResponse:
         """Return a ``StreamResponse`` for an SSE endpoint.
 
         Creates a per-client queue and wraps the async generator in the
         framework's streaming response type. The queue is registered as a
         client by ``_event_generator`` when iteration starts, not here, so an
         unconsumed response never leaks a queue.
+
+        *initial* is an optional list of ``(event, data)`` pairs sent to this
+        connection before any broadcast, so a client can be primed with the
+        current state on connect.
         """
         queue: asyncio.Queue[str] = asyncio.Queue(maxsize=self._buffer_size)
         return StreamResponse(
-            self._event_generator(queue),
+            self._event_generator(queue, initial),
             content_type="text/event-stream",
             headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
         )

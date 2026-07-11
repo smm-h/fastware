@@ -1,0 +1,26 @@
+// fastware self-destruct service worker -- reset mode.
+//
+// Frees clients that registered a previous (or foreign) worker: it clears every
+// cache, unregisters itself, and reloads each window exactly once. After the
+// unregister the page reloads uncontrolled, so there is no worker left to
+// re-trigger activation -- the reload cannot loop.
+self.addEventListener('install', function () {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', function (event) {
+  event.waitUntil((async function () {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(function (k) { return caches.delete(k); }));
+    await self.clients.claim();
+    try {
+      await self.registration.unregister();
+    } catch (err) {
+      // Best effort -- an unregister failure must not block the reload.
+    }
+    const windows = await self.clients.matchAll({ type: 'window' });
+    windows.forEach(function (client) {
+      client.navigate(client.url);
+    });
+  })());
+});

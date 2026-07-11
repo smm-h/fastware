@@ -406,6 +406,20 @@ class AppConfig:
     static_path: str = "/assets"
     spa_fallback: Path | None = None
     api_prefix: str | None = None
+    # Blessed service worker mode. MANDATORY when static_dir or spa_fallback is
+    # configured (choose "off", "cache", or "reset"); FORBIDDEN otherwise
+    # (API-only apps must not declare it). See create_app for validation.
+    #   "cache" -- serve a per-build caching worker at /__fastware/sw.js
+    #   "reset" -- serve a self-destruct worker at /__fastware/sw.js AND at the
+    #              legacy registration paths, to free clients with a stale worker
+    #   "off"   -- no worker; /__fastware/sw.js returns 404; legacy paths untouched
+    sw_mode: str | None = None
+    # Legacy registration path(s) intercepted (reset mode only) so a client that
+    # registered a worker at "/sw.js" is freed by a worker served AT that URL.
+    legacy_sw_paths: list[str] = dataclasses.field(default_factory=lambda: ["/sw.js"])
+    # Declared FOREIGN service worker script paths (e.g. a push worker) exempt
+    # from sw-register.js's foreign-SW hard error. Only meaningful in cache mode.
+    foreign_sw_paths: list[str] | None = None
     lifespan: Callable | None = None
     name: str | None = None
     exception_handlers: dict[type, Callable] | None = None
@@ -470,6 +484,9 @@ def create_app(
     static_path = effective.static_path
     spa_fallback = effective.spa_fallback
     api_prefix = effective.api_prefix
+    sw_mode = effective.sw_mode
+    legacy_sw_paths = effective.legacy_sw_paths
+    foreign_sw_paths = effective.foreign_sw_paths
     lifespan = effective.lifespan
     name = effective.name
     exception_handlers = effective.exception_handlers
@@ -482,9 +499,39 @@ def create_app(
     vite_backend_prefixes = effective.vite_backend_prefixes
     max_body_size = effective.max_body_size
 
+    # -- Service worker mode validation --
+    # sw_mode is a mandatory, explicit choice for apps that serve a frontend and
+    # forbidden for API-only apps -- no implicit default, no silent behavior.
+    _has_frontend = static_dir is not None or spa_fallback is not None
+    if _has_frontend and sw_mode is None:
+        raise ValueError(
+            "sw_mode is required when static_dir or spa_fallback is configured; "
+            "choose one of 'off', 'cache', or 'reset'."
+        )
+    if not _has_frontend and sw_mode is not None:
+        raise ValueError(
+            "sw_mode is forbidden when neither static_dir nor spa_fallback is "
+            "configured (an API-only app must not declare a service worker mode)."
+        )
+    if sw_mode is not None and sw_mode not in ("off", "cache", "reset"):
+        raise ValueError(
+            f"invalid sw_mode {sw_mode!r}; must be one of 'off', 'cache', 'reset'."
+        )
+
     from fastware.di import DependencyResolver
 
     log = logging.getLogger(name or "fastware")
+
+    # sw_mode="cache" with a Vite dev server is explicitly unsupported: Vite dev
+    # serves assets with fake (non-content) hashes, so the cache worker would
+    # cache dev artifacts under immutable keys. Never silent -- log loudly.
+    if sw_mode == "cache" and vite_dev_port is not None:
+        log.warning(
+            "sw_mode='cache' with a Vite dev server (vite_dev_port set) is "
+            "UNSUPPORTED: Vite dev asset hashes are not content hashes, so the "
+            "caching worker will serve stale dev artifacts. Use sw_mode='off' "
+            "during development."
+        )
     _resolver = DependencyResolver(overrides=dependency_overrides)
 
     # Pre-sort exception handlers by MRO depth (most specific first) so
@@ -545,6 +592,119 @@ def create_app(
         await _send_response(
             send, 200, msgspec.json.encode(payload), "application/json"
         )
+
+    # -- Framework-owned update channel -------------------------------------
+    # A dedicated Broadcaster carries the "build" event on /__fastware/events.
+    # Each connection is primed with the current build id as its first event;
+    # the page-side client.js compares it to its own and reloads on DIFFERENT.
+    #
+    # SINGLE-PROCESS SIGNALLING ONLY: the build id is fixed for a process, so
+    # this channel only surfaces changes across restarts. A multi-worker
+    # deployment needs an out-of-process bus (Redis, etc.) -- out of scope here.
+    from fastware.sse import Broadcaster as _Broadcaster
+
+    _update_channel = _Broadcaster()
+    _update_channel.register_event("build")
+
+    # Rendered browser assets are memoized: the build id (and thus the worker
+    # bytes) is stable for the process lifetime, so each asset is generated once.
+    _asset_cache: dict[str, str] = {}
+
+    def _json_literal(value: Any) -> str:
+        """Return *value* as a JavaScript literal (JSON is a JS subset)."""
+        return msgspec.json.encode(value).decode()
+
+    def _sw_excluded_prefixes() -> list[str]:
+        """Path prefixes the cache worker must never intercept: the reserved
+        namespace, the API prefix, and the backend (SSE/WebSocket) prefixes."""
+        prefixes: list[str] = ["/__fastware/"]
+        if api_prefix:
+            prefixes.append(api_prefix)
+        backend = (
+            vite_backend_prefixes
+            if vite_backend_prefixes is not None
+            else ["/events", "/ws"]
+        )
+        for p in backend:
+            if p not in prefixes:
+                prefixes.append(p)
+        return prefixes
+
+    def _render_cached(key: str, name: str, subs: dict[str, str]) -> str:
+        if key not in _asset_cache:
+            from fastware import _assets
+            _asset_cache[key] = _assets.render_asset(name, subs)
+        return _asset_cache[key]
+
+    def _cache_worker_source() -> str:
+        bid = _get_build_id()
+        return _render_cached(
+            "sw_cache", "sw_cache.js.tmpl",
+            {
+                "BUILD_ID": bid,
+                "BUILD_ID_JSON": _json_literal(bid),
+                "EXCLUDED_PREFIXES_JSON": _json_literal(_sw_excluded_prefixes()),
+            },
+        )
+
+    def _reset_worker_source() -> str:
+        return _render_cached("sw_reset", "sw_reset.js.tmpl", {})
+
+    def _register_source() -> str:
+        return _render_cached(
+            "sw_register", "sw_register.js.tmpl",
+            {"FOREIGN_SW_PATHS_JSON": _json_literal(foreign_sw_paths or [])},
+        )
+
+    def _client_source() -> str:
+        bid = _get_build_id()
+        return _render_cached(
+            "client", "client.js.tmpl",
+            {
+                "BUILD_ID_JSON": _json_literal(bid),
+                "EVENTS_URL_JSON": _json_literal("/__fastware/events"),
+            },
+        )
+
+    async def _serve_js(send: Callable, body: str, extra: dict[str, str] | None = None) -> None:
+        """Serve a JavaScript body with no-cache (the shell must revalidate)."""
+        headers = {"Cache-Control": "no-cache"}
+        if extra:
+            headers.update(extra)
+        await _send_response(
+            send, 200, body.encode("utf-8"), "application/javascript",
+            extra_headers=headers,
+        )
+
+    async def _serve_sw(send: Callable) -> bool:
+        """Serve /__fastware/sw.js per sw_mode. Returns False for off/None so the
+        caller can emit a 404."""
+        if sw_mode == "cache":
+            body = _cache_worker_source()
+        elif sw_mode == "reset":
+            body = _reset_worker_source()
+        else:
+            return False
+        # Service-Worker-Allowed: / is required for a /__fastware/-scoped script
+        # to control the whole app (its default scope would be /__fastware/).
+        await _serve_js(send, body, extra={"Service-Worker-Allowed": "/"})
+        return True
+
+    async def _serve_update_events(scope: dict, receive: Callable, send: Callable) -> None:
+        """Stream the framework update channel with the current build id primed
+        as the first event. Runs the same disconnect-watcher lifecycle as the
+        regular streaming route path so a vanished client is cleaned up."""
+        request = Request(scope, {}, None, receive=receive)
+        resp = await _update_channel.stream(
+            request, initial=[("build", {"build_id": _get_build_id()})]
+        )
+        watcher = asyncio.create_task(_disconnect_watcher(receive, request))
+        try:
+            await _send_stream(send, resp, request)
+        finally:
+            watcher.cancel()
+            with contextlib.suppress(asyncio.CancelledError, Exception):
+                await watcher
 
     def _filter_to_handler(handler: Callable, resolved: dict[str, Any]) -> dict[str, Any]:
         """Drop resolved deps the handler does not accept, so router-level
@@ -632,12 +792,50 @@ def create_app(
                 await send({"type": "lifespan.shutdown.complete"})
             return
 
-        # -- Reserved namespace: /__fastware/version --
+        # -- Reserved namespace + service worker endpoints --
         # Intercepted at the very top of the http branch, ahead of mounts and
-        # routes, so a near-root mount or catch-all route cannot shadow it.
-        if scope["type"] == "http" and scope.get("path") == "/__fastware/version":
-            await _serve_version(send)
-            return
+        # routes, so a near-root mount or catch-all route cannot shadow them.
+        if scope["type"] == "http":
+            _rpath = scope.get("path", "")
+            if _rpath == "/__fastware/version":
+                await _serve_version(send)
+                return
+            # The service-worker/update endpoints are GET-only; other methods
+            # fall through to normal handling (404/405).
+            if scope.get("method") == "GET":
+                if _rpath == "/__fastware/events":
+                    await _serve_update_events(scope, receive, send)
+                    return
+                if _rpath == "/__fastware/client.js":
+                    await _serve_js(send, _client_source())
+                    return
+                if _rpath == "/__fastware/sw.js":
+                    if not await _serve_sw(send):
+                        await _send_response(
+                            send, 404,
+                            msgspec.json.encode({"detail": "Not found"}),
+                            "application/json",
+                        )
+                    return
+                if _rpath == "/__fastware/sw-register.js":
+                    if sw_mode == "cache":
+                        await _serve_js(send, _register_source())
+                    else:
+                        await _send_response(
+                            send, 404,
+                            msgspec.json.encode({"detail": "Not found"}),
+                            "application/json",
+                        )
+                    return
+                # Legacy registration path(s): reset mode only, seized AHEAD of
+                # static/SPA serving so a client registered at "/sw.js" is freed
+                # by the self-destruct worker served AT that URL with JS MIME.
+                if sw_mode == "reset" and _rpath in legacy_sw_paths:
+                    await _serve_js(
+                        send, _reset_worker_source(),
+                        extra={"Service-Worker-Allowed": "/"},
+                    )
+                    return
 
         # -- Mounted sub-apps (checked before regular routing) --
         if scope["type"] in ("http", "websocket"):

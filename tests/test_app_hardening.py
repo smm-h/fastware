@@ -133,6 +133,7 @@ class TestStaticPathTraversal:
             spa_fallback=static / "index.html",
             request_id=False,
             request_timing=False,
+            sw_mode="off",
         )
 
         # Raw ASGI scope bypasses httpx URL normalization

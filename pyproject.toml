@@ -44,6 +44,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fastware"]
+# Browser assets (service workers, registration snippet, update client) ship as
+# package data alongside the Python source.
+artifacts = ["src/fastware/_assets/*.js.tmpl"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -519,7 +519,7 @@ class TestStaticFiles:
         (static / "style.css").write_text("body { color: red; }")
 
         router = Router()
-        app = create_app(router, static_dir=static, static_path="/assets")
+        app = create_app(router, static_dir=static, static_path="/assets", sw_mode="off")
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             resp = await c.get("/assets/style.css")
         assert resp.status_code == 200
@@ -534,7 +534,7 @@ class TestStaticFiles:
         (tmp_path / "secret.txt").write_text("secret")
 
         router = Router()
-        app = create_app(router, static_dir=static, static_path="/assets")
+        app = create_app(router, static_dir=static, static_path="/assets", sw_mode="off")
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             resp = await c.get("/assets/../secret.txt")
         assert resp.status_code == 404
@@ -545,7 +545,7 @@ class TestStaticFiles:
         static.mkdir()
 
         router = Router()
-        app = create_app(router, static_dir=static, static_path="/assets")
+        app = create_app(router, static_dir=static, static_path="/assets", sw_mode="off")
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             resp = await c.get("/assets/nope.js")
         assert resp.status_code == 404
@@ -557,7 +557,7 @@ class TestStaticFiles:
         (static / "js" / "app.js").write_text("console.log('hi')")
 
         router = Router()
-        app = create_app(router, static_dir=static, static_path="/assets")
+        app = create_app(router, static_dir=static, static_path="/assets", sw_mode="off")
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             resp = await c.get("/assets/js/app.js")
         assert resp.status_code == 200
@@ -576,7 +576,7 @@ class TestSpaFallback:
         index.write_text("<!DOCTYPE html><html></html>")
 
         router = Router()
-        app = create_app(router, spa_fallback=index)
+        app = create_app(router, spa_fallback=index, sw_mode="off")
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             resp = await c.get("/some/client/route")
         assert resp.status_code == 200
@@ -590,7 +590,7 @@ class TestSpaFallback:
         index.write_text("<!DOCTYPE html>")
 
         router = Router()
-        app = create_app(router, spa_fallback=index)
+        app = create_app(router, spa_fallback=index, sw_mode="off")
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             resp = await c.post("/some/client/route")
         assert resp.status_code == 404
@@ -601,7 +601,7 @@ class TestSpaFallback:
         missing = tmp_path / "missing.html"
 
         router = Router()
-        app = create_app(router, spa_fallback=missing)
+        app = create_app(router, spa_fallback=missing, sw_mode="off")
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             resp = await c.get("/some/client/route")
         assert resp.status_code == 404
@@ -614,7 +614,7 @@ class TestSpaFallback:
         (tmp_path / "favicon.ico").write_bytes(b"\x00\x00\x01\x00")
 
         router = Router()
-        app = create_app(router, spa_fallback=index)
+        app = create_app(router, spa_fallback=index, sw_mode="off")
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             resp = await c.get("/favicon.ico")
         assert resp.status_code == 200
@@ -632,7 +632,7 @@ class TestSpaFallback:
         async def health(req):
             return JSONResponse({"status": "ok"})
 
-        app = create_app(router, spa_fallback=index)
+        app = create_app(router, spa_fallback=index, sw_mode="off")
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             resp = await c.get("/api/health")
         assert resp.status_code == 200
@@ -851,6 +851,7 @@ async def test_combined_static_spa_routes(tmp_path):
         static_dir=static,
         static_path="/assets",
         spa_fallback=index,
+        sw_mode="off",
     )
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:

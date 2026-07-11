@@ -1,0 +1,83 @@
+// fastware blessed service worker -- cache mode. Generated from app config.
+// Build id: {{BUILD_ID}}
+//
+// Strategy:
+//   * hashed immutable assets  -> cache-first (content-addressed, never stale)
+//   * navigations + shell      -> network-first (pick up new builds instantly)
+// The worker NEVER intercepts the excluded prefixes (API, SSE, WebSocket, and
+// the reserved /__fastware/ namespace). WebSocket upgrades never reach a fetch
+// handler at all, so they are excluded for free.
+const BUILD_ID = {{BUILD_ID_JSON}};
+const CACHE_NAME = 'fastware-cache-' + BUILD_ID;
+const EXCLUDED_PREFIXES = {{EXCLUDED_PREFIXES_JSON}};
+// Vite-style content hash: "name-<8+ alnum>.<ext>", e.g. index-4a2b8c9d.js
+const HASHED_ASSET_RE = /-[A-Za-z0-9]{8,}\.[^./]+$/;
+
+self.addEventListener('install', function () {
+  // Take over as soon as installed rather than waiting for old tabs to close.
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', function (event) {
+  event.waitUntil((async function () {
+    // Drop caches belonging to previous builds.
+    const keys = await caches.keys();
+    await Promise.all(
+      keys
+        .filter(function (k) { return k.indexOf('fastware-cache-') === 0 && k !== CACHE_NAME; })
+        .map(function (k) { return caches.delete(k); })
+    );
+    await self.clients.claim();
+    // Reload-once flow: notify controlled windows that a new build activated.
+    // The single guarded reload happens in the registration snippet, so the
+    // loop guard lives in exactly one place and a page can never thrash.
+    const windows = await self.clients.matchAll({ type: 'window' });
+    windows.forEach(function (client) {
+      client.postMessage({ type: 'fastware:activated', buildId: BUILD_ID });
+    });
+  })());
+});
+
+function isExcluded(url) {
+  if (url.origin !== self.location.origin) return true;
+  for (var i = 0; i < EXCLUDED_PREFIXES.length; i++) {
+    var prefix = EXCLUDED_PREFIXES[i];
+    var boundary = prefix.charAt(prefix.length - 1) === '/' ? prefix : prefix + '/';
+    if (url.pathname === prefix || url.pathname.indexOf(boundary) === 0) return true;
+  }
+  return false;
+}
+
+self.addEventListener('fetch', function (event) {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (isExcluded(url)) return;
+  if (HASHED_ASSET_RE.test(url.pathname)) {
+    event.respondWith(cacheFirst(req));
+  } else {
+    event.respondWith(networkFirst(req));
+  }
+});
+
+async function cacheFirst(req) {
+  const cache = await caches.open(CACHE_NAME);
+  const hit = await cache.match(req);
+  if (hit) return hit;
+  const res = await fetch(req);
+  if (res && res.ok) cache.put(req, res.clone());
+  return res;
+}
+
+async function networkFirst(req) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const res = await fetch(req);
+    if (res && res.ok) cache.put(req, res.clone());
+    return res;
+  } catch (err) {
+    const hit = await cache.match(req);
+    if (hit) return hit;
+    throw err;
+  }
+}

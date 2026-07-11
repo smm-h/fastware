@@ -99,7 +99,7 @@ async def test_version_endpoint_reflects_static_bytes(client_for, tmp_path):
     static = tmp_path / "static"
     static.mkdir()
     _write_assets(static, {"index.js": b"hello"})
-    app = create_app(Router(), static_dir=static)
+    app = create_app(Router(), static_dir=static, sw_mode="off")
     async with client_for(app) as client:
         resp = await client.get("/__fastware/version")
     assert resp.json()["build_id"] == _compute_static_build_id(static)
