@@ -2,7 +2,7 @@
   "schema_version": 1,
   "name": "fastware",
   "slug": "fastware",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "A fast, batteries-included ASGI framework. The FastAPI alternative.",
   "language": "python",
   "base_url": "https://fastware.smmh.dev",
@@ -204,5 +204,5 @@
     }
   ],
   "posts": [],
-  "last_gen": "2026-07-10T00:05:26.949576+00:00"
+  "last_gen": "2026-07-11T11:51:59.121891+00:00"
 }

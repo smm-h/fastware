@@ -76,7 +76,7 @@ Internal import structure, from leaves to hub:
 | Package | Version Constraint |
 | --- | --- |
 | `msgspec` | >=0.21.1 |
-| `granian` | >=2.7.4 |
+| `granian` | >=2.7,<3.0 |
 | **[auth]** |  |
 | `pyjwt` | * |
 | `bcrypt` | * |

@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
 ## Feature overview
 
-:-: list-features path="src/fastware/"
+:-: list-modules path="src/fastware/"
 
 ## Installation
 
