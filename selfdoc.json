@@ -30,7 +30,8 @@
   "gen": {
     "exclude": [
       "src.fastware",
-      "src.fastware.types"
+      "src.fastware.types",
+      "src.fastware._assets"
     ]
   },
   "topology": {
