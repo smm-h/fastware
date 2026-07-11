@@ -5,9 +5,11 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import dataclasses
+import hashlib
 import inspect
 import logging
 import mimetypes
+import re
 from pathlib import Path
 from typing import Any, Callable
 
@@ -288,6 +290,65 @@ class _MountLifespan:
 
 
 # ---------------------------------------------------------------------------
+# Build id (static-asset content hash) + cache-control classification
+# ---------------------------------------------------------------------------
+
+# Build id of an app with no static assets: SHA-256 over the empty set. A
+# stable constant, independent of machine, run, or clock.
+_EMPTY_BUILD_ID = hashlib.sha256().hexdigest()
+
+# Vite-style hashed asset: filename ends in "-<8+ alnum hash>.<ext>", e.g.
+# "index-4a2b8c9d.js" or "app-Bsy8xR2k.css". These are content-addressed, so
+# they may be cached forever (immutable).
+_HASHED_ASSET_RE = re.compile(r"-[A-Za-z0-9]{8,}\.[^./]+$")
+
+
+def _compute_static_build_id(static_dir: Path | None) -> str:
+    """Return a SHA-256 build id derived from static asset file *contents*.
+
+    Files are visited in sorted relative-path order and their raw bytes folded
+    into a single SHA-256 digest. The relative path is mixed in as well so that
+    moving identical bytes between filenames changes the id. Only file contents
+    and paths participate -- never mtime, size, or inode -- so the id is stable
+    across ``touch`` and across machines given identical bytes.
+
+    With no static directory (or an empty one) the digest is over the empty set
+    and equals :data:`_EMPTY_BUILD_ID`.
+    """
+    if static_dir is None:
+        return _EMPTY_BUILD_ID
+    root = static_dir.resolve()
+    if not root.is_dir():
+        return _EMPTY_BUILD_ID
+    files = sorted(
+        (p for p in root.rglob("*") if p.is_file()),
+        key=lambda p: p.relative_to(root).as_posix(),
+    )
+    digest = hashlib.sha256()
+    for p in files:
+        rel = p.relative_to(root).as_posix()
+        # Mix in the path (length-prefixed) then the content so file boundaries
+        # and names are unambiguous within the concatenated stream.
+        digest.update(rel.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(p.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def _cache_control_for(filename: str) -> str:
+    """Return the Cache-Control value for a served static filename.
+
+    Hashed Vite-style assets are immutable and cached for a year; everything
+    else (unhashed assets, index.html, SPA fallback) is ``no-cache`` so clients
+    always revalidate.
+    """
+    if _HASHED_ASSET_RE.search(filename):
+        return "public, max-age=31536000, immutable"
+    return "no-cache"
+
+
+# ---------------------------------------------------------------------------
 # Static file + SPA helpers
 # ---------------------------------------------------------------------------
 
@@ -305,7 +366,10 @@ async def _serve_static(send: Callable, static_dir: Path, rel_path: str) -> bool
     mime, _ = mimetypes.guess_type(str(file_path))
     # Offload the blocking file read so it doesn't stall the event loop
     body = await asyncio.to_thread(file_path.read_bytes)
-    await _send_response(send, 200, body, mime or "application/octet-stream")
+    await _send_response(
+        send, 200, body, mime or "application/octet-stream",
+        extra_headers={"Cache-Control": _cache_control_for(file_path.name)},
+    )
     return True
 
 
@@ -313,7 +377,12 @@ async def _serve_spa_fallback(send: Callable, spa_fallback: Path) -> None:
     """Serve the SPA fallback file (typically index.html)."""
     if spa_fallback.is_file():
         body = await asyncio.to_thread(spa_fallback.read_bytes)
-        await _send_response(send, 200, body, "text/html")
+        # SPA entry document must always revalidate so a new build id (and the
+        # fresh hashed asset URLs it references) is picked up immediately.
+        await _send_response(
+            send, 200, body, "text/html",
+            extra_headers={"Cache-Control": "no-cache"},
+        )
     else:
         await _send_response(send, 404, msgspec.json.encode({"detail": "Not found"}), "application/json")
 
@@ -446,6 +515,37 @@ def create_app(
         if _wt_deps and _wt_handler not in _handler_params:
             _handler_params[_wt_handler] = _accepted_params(_wt_handler)
 
+    # Build id is computed lazily once, then memoized: the static assets don't
+    # change under a running process, so the content hash is stable for the
+    # app's lifetime and never needs recomputing per request.
+    _build_id_cache: list[str | None] = [None]
+
+    def _get_build_id() -> str:
+        if _build_id_cache[0] is None:
+            _build_id_cache[0] = _compute_static_build_id(static_dir)
+        return _build_id_cache[0]
+
+    async def _serve_version(send: Callable) -> None:
+        """Serve the reserved ``/__fastware/version`` diagnostic endpoint.
+
+        Returns ``{"build_id": ...}`` plus ``name`` when the app is named. The
+        build id is an opaque content hash of the static assets -- it reveals
+        nothing about their contents and carries no secret.
+
+        This endpoint is intercepted at the top of the http branch (ahead of
+        mounts and routes) but stays *inside* the TrustedHost and CORS
+        middleware. That is deliberate: local desktop handshakes trust
+        ``127.0.0.1`` and rely on the same host/origin gating as every other
+        route, so the version probe honours the app's configured trust
+        boundary rather than punching a hole outside it.
+        """
+        payload: dict[str, Any] = {"build_id": _get_build_id()}
+        if name is not None:
+            payload["name"] = name
+        await _send_response(
+            send, 200, msgspec.json.encode(payload), "application/json"
+        )
+
     def _filter_to_handler(handler: Callable, resolved: dict[str, Any]) -> dict[str, Any]:
         """Drop resolved deps the handler does not accept, so router-level
         deps (e.g. auth) don't cause TypeError on handlers that don't
@@ -530,6 +630,13 @@ def create_app(
                     })
                     return
                 await send({"type": "lifespan.shutdown.complete"})
+            return
+
+        # -- Reserved namespace: /__fastware/version --
+        # Intercepted at the very top of the http branch, ahead of mounts and
+        # routes, so a near-root mount or catch-all route cannot shadow it.
+        if scope["type"] == "http" and scope.get("path") == "/__fastware/version":
+            await _serve_version(send)
             return
 
         # -- Mounted sub-apps (checked before regular routing) --
