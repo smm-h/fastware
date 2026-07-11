@@ -15,3 +15,4 @@
 {"id":"18c147aa6f73866eba570c09f5c14625bce2206d97574537","commits":["527885183f5a7fd2a402570d84202c01f5d46547","0e78b65259a286b4ab90a11b4d717693d9ff2249"],"user_facing":true,"description":"**Granian embed stability.** The embedded Granian server is pinned to a compatible API range (`>=2.7,<3.0`) to guard against upstream breaking changes, and no longer emits Granian's experimental-API warning at startup.","type":"fix"}
 {"id":"18c147ab37562e89743bba6cd932467ca4fc98b3ba30803d","commits":["022497497b1cc3ce838b966f54fd9f8fe5aa67e7"],"user_facing":false}
 {"id":"18c147ab40859f982ef9a4ad0489488089518cbc549924af","commits":["11c1fd2ee84a189cc0f22d2bcc771aeb1b738782"],"user_facing":false}
+{"id":"18c147ab4ad45a185344f1ce4581437bbecce12e16d8075b","commits":["30c8e0828e8cbe96efca7e9d966762abc21f6632","5ee74f99643f4d0c3371488ad86869f2c371a709"],"user_facing":false}
