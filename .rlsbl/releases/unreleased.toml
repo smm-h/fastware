@@ -1,9 +1,35 @@
 # Version bump type: patch, minor, major, hotfix, or prerelease
-bump = ""
+bump = "minor"
 # Short description of this release (required)
-description = ""
+description = "Streaming client-disconnect detection, the /__fastware/ runtime namespace (version endpoint, cache headers, blessed service worker, live update channel), an instance registry with presence markers, and the file-driven `fastware dev` CLI."
 # Optional context explaining why these changes were made
-context = ""
+context = """
+This release rounds out fastware's runtime and dev-tooling story.
+
+Streaming handlers previously leaked resources (DB sessions, queues) when a
+client walked away mid-stream: their `finally` cleanup never ran. A single
+receive-owning watcher now cancels abandoned stream generators so cleanup runs,
+and `request.is_disconnected()` is reliable in both streaming and non-streaming
+handlers.
+
+Apps now expose a reserved `/__fastware/` runtime namespace: a `version`
+endpoint returning an opaque content-hashed build id, immutable cache headers
+for hashed assets (no-cache for index/SPA fallback), an explicit `sw_mode`
+(`cache`|`reset`|`off`) blessed service worker with foreign-worker detection and
+a mandatory `cache -> reset -> off` retirement route, and a live update channel
+(SSE at `/__fastware/events` plus a dependency-free client that performs one
+state-preserving reload when the build id changes).
+
+An instance registry lets peers enumerate running servers via `list_instances()`
+with automatic stale-entry pruning, plus a lightweight presence-marker API
+(`write_marker`/`list_markers`/`remove_marker`) for cross-process signals such as
+window refcounting and focus requests.
+
+Finally, `fastware dev run|status|stop` drives a file-driven
+`[tool.fastware.dev]` Vite + backend development environment with pre-spawn
+gates, health-gated aux services, topology ordering, process-group supervision,
+and an optional daemon mode.
+"""
 # Pre-release identifier: alpha, beta, rc, or stable
 # preid = ""
 # Set to true to generate a blog post for this release
