@@ -1,6 +1,6 @@
 ---
 title: Vite Dev Mode
-description: "fastware Vite integration: the dev() launcher and ViteDevProxy middleware, backend-first routing of /api and /ws, and production SPA fallback."
+description: "fastware Vite integration: the dev() launcher, ViteDevProxy backend-first routing, production SPA fallback, and the service worker cache-retirement route."
 date: 2026-07-01
 ---
 
