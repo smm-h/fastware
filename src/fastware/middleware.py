@@ -395,9 +395,16 @@ class ViteDevProxy:
         self._http_client: Any | None = None
 
     def _is_api_request(self, path: str) -> bool:
-        """Return True if this path should go to the app, not be proxied."""
+        """Return True if this path should go to the app, not be proxied.
+
+        The reserved ``/__fastware/`` namespace (version endpoint and any
+        future diagnostics) is always a backend prefix -- never proxied to
+        Vite -- so those endpoints behave identically in dev and prod. This
+        also matters for WebSocket upgrades, which cannot be 404-retried.
+        """
         return (
-            path.startswith(self.api_prefix + "/")
+            path.startswith("/__fastware/")
+            or path.startswith(self.api_prefix + "/")
             or path == self.api_prefix
             or any(path.startswith(p) for p in self.backend_prefixes)
         )

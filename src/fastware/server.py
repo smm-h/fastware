@@ -1,4 +1,33 @@
-"""Granian ASGI server lifecycle management with PID file tracking, port availability checks, foreground and background serve modes, and graceful stop."""
+"""Granian ASGI server lifecycle management with PID file tracking, port availability checks, foreground and background serve modes, and graceful stop.
+
+Instance registry
+-----------------
+Alongside the ``.pid``/``.port`` files, each running instance drops a JSON
+descriptor (PID, port, name) into a per-directory registry so peers can
+*enumerate* running instances -- something a single PID file cannot express.
+
+Layout: for a PID file at ``<dir>/<name>.pid`` the registry lives in
+``<dir>/.fastware-registry/`` with one file per instance named ``<pid>.json``.
+The PID is globally unique, so instances that share a directory never collide,
+and a crashed instance leaves at most one stale file.
+
+Concurrency model (design note for future shared-counter use): the base design
+needs **no locking**. Each instance owns exactly one file which it writes once
+(at startup) and deletes once (at exit); readers prune files whose PID is dead
+(``kill -0``). Because writes and deletes target disjoint paths, concurrent
+instances never contend and there is no shared mutable file to corrupt.
+
+Should a shared, atomically-updated value ever be required (e.g. a global
+"active instances" counter or a leader election token), it must NOT be layered
+on top of these per-instance files by read-modify-writing a shared JSON blob --
+that reintroduces the lost-update race this design avoids. The correct
+extension is either (a) derive the aggregate by enumerating the per-instance
+files on read (no shared state at all -- the counter is ``len(list_instances)``),
+or (b) if a durable token is truly needed, use an atomic filesystem primitive
+(``O_CREAT|O_EXCL`` create for claim, atomic ``rename`` for compare-and-swap)
+rather than a lock around a mutable file. This note feeds a later decision in
+the desktop layer; the per-instance-file design is intentionally the floor.
+"""
 
 from __future__ import annotations
 
@@ -18,6 +47,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Literal
 
+import msgspec
 from granian import Granian
 
 # Explicit event-loop choices exposed to callers. Deliberately excludes
@@ -40,6 +70,10 @@ __all__ = [
     "ServerStatus",
     "PortInUseError",
     "AlreadyRunningError",
+    "RegistryEntry",
+    "register_instance",
+    "deregister_instance",
+    "list_instances",
 ]
 
 log = logging.getLogger(__name__)
@@ -391,6 +425,116 @@ def read_port_file(pid_path: Path) -> int | None:
         return None
 
 
+# ---------------------------------------------------------------------------
+# Instance registry
+# ---------------------------------------------------------------------------
+# See the module docstring for the layout and concurrency rationale. Each
+# instance owns one file (`<pid>.json`) under a per-directory registry dir; the
+# base design is lock-free because writes/deletes target disjoint paths.
+
+
+@dataclass
+class RegistryEntry:
+    """A registered running server instance: process id, bound port, and name."""
+
+    pid: int
+    port: int
+    name: str
+
+
+def _registry_dir(pid_path: Path) -> Path:
+    """Registry directory derived from the PID file's directory.
+
+    ``<dir>/<name>.pid`` -> ``<dir>/.fastware-registry/``.
+    """
+    return pid_path.parent / ".fastware-registry"
+
+
+def _registry_entry_path(pid_path: Path, pid: int) -> Path:
+    """Path of the JSON descriptor for *pid* in the registry."""
+    return _registry_dir(pid_path) / f"{pid}.json"
+
+
+def _pid_alive(pid: int) -> bool:
+    """Return True if *pid* is alive (mirrors check_already_running's kill-0)."""
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True  # exists but not signalable by us
+    return True
+
+
+def register_instance(pid_path: Path, port: int, name: str) -> None:
+    """Register the current process as a running instance.
+
+    Writes a ``<pid>.json`` descriptor (PID, port, name) into the registry
+    directory derived from *pid_path* and schedules its removal at process
+    exit. Called wherever the PID/port files are written -- for
+    ``serve_background`` that is the spawned child, keeping ownership consistent
+    with the PID/port files it also writes.
+    """
+    reg_dir = _registry_dir(pid_path)
+    reg_dir.mkdir(parents=True, exist_ok=True)
+    pid = os.getpid()
+    entry = RegistryEntry(pid=pid, port=port, name=name)
+    entry_path = _registry_entry_path(pid_path, pid)
+    entry_path.write_bytes(
+        msgspec.json.encode({"pid": entry.pid, "port": entry.port, "name": entry.name})
+    )
+    atexit.register(deregister_instance, pid_path, pid)
+
+
+def deregister_instance(pid_path: Path, pid: int | None = None) -> None:
+    """Remove an instance's registry descriptor.
+
+    Defaults to the current process's PID. Missing files are ignored so the
+    atexit hook is safe even if the file was already pruned by a reader.
+    """
+    if pid is None:
+        pid = os.getpid()
+    try:
+        _registry_entry_path(pid_path, pid).unlink(missing_ok=True)
+    except OSError:
+        pass
+
+
+def list_instances(pid_path: Path) -> list[RegistryEntry]:
+    """Enumerate live registered instances, pruning stale descriptors.
+
+    Reads every ``*.json`` in the registry directory. Descriptors whose PID is
+    no longer alive (``kill -0``), or that are unreadable/corrupt, are deleted
+    and excluded. Returns the live entries sorted by PID for stable ordering.
+    """
+    reg_dir = _registry_dir(pid_path)
+    if not reg_dir.is_dir():
+        return []
+    entries: list[RegistryEntry] = []
+    for entry_file in reg_dir.glob("*.json"):
+        try:
+            data = msgspec.json.decode(entry_file.read_bytes())
+            pid = int(data["pid"])
+            port = int(data["port"])
+            name = str(data["name"])
+        except (OSError, ValueError, KeyError, TypeError, msgspec.DecodeError):
+            # Corrupt or unreadable descriptor -- treat as stale.
+            try:
+                entry_file.unlink(missing_ok=True)
+            except OSError:
+                pass
+            continue
+        if not _pid_alive(pid):
+            try:
+                entry_file.unlink(missing_ok=True)
+            except OSError:
+                pass
+            continue
+        entries.append(RegistryEntry(pid=pid, port=port, name=name))
+    entries.sort(key=lambda e: e.pid)
+    return entries
+
+
 def _resolve_host_port(
     host: str | None,
     port: int | None,
@@ -509,11 +653,17 @@ def _serve_subprocess(
     pid_path_str: str,
     loop: LoopChoice = "asyncio",
     workers: int = 1,
+    name: str = "FASTWARE",
 ) -> None:
-    """Entry point for the server subprocess. Runs granian in foreground mode."""
+    """Entry point for the server subprocess. Runs granian in foreground mode.
+
+    The child owns the PID/port files and the instance registry entry, keeping
+    all instance-tracking artifacts written by the same process.
+    """
     pid_path = Path(pid_path_str)
     _write_pid(pid_path)
     _write_port_file(pid_path, port)
+    register_instance(pid_path, port, name)
     server = _make_server(target, host, port, loop=loop, workers=workers)
     server.serve()
 
@@ -587,7 +737,7 @@ def serve_background(
                 f"{prelude}"
                 f"from fastware.server import _serve_subprocess; "
                 f"_serve_subprocess({target_str!r}, {host!r}, {port!r}, "
-                f"{str(pid_path)!r}, {loop!r}, {workers!r})",
+                f"{str(pid_path)!r}, {loop!r}, {workers!r}, {name!r})",
             ],
             stdin=_subprocess.DEVNULL,
             stdout=_subprocess.DEVNULL,
@@ -720,6 +870,7 @@ def serve(
         # check_already_running probe above and PID file creation.
         _write_pid(pid_path, exclusive=single_instance)
         _write_port_file(pid_path, resolved_port)
+        register_instance(pid_path, resolved_port, name)
 
     if pre_serve is not None:
         pre_serve()

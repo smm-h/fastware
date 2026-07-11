@@ -42,6 +42,10 @@ _SERVER_SYMBOLS = {
     "ServerStatus",
     "PortInUseError",
     "AlreadyRunningError",
+    "RegistryEntry",
+    "register_instance",
+    "deregister_instance",
+    "list_instances",
 }
 
 
@@ -101,6 +105,11 @@ __all__ = [
     "ServerStatus",
     "PortInUseError",
     "AlreadyRunningError",
+    # instance registry (lazy)
+    "RegistryEntry",
+    "register_instance",
+    "deregister_instance",
+    "list_instances",
     # metadata
     "__version__",
 ]
