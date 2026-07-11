@@ -166,6 +166,13 @@ The `fastware dev run` CLI hard-errors if the resolved app is configured with
 `sw_mode="cache"`, because Vite dev assets use non-content hashes that a caching
 worker would pin. Use `sw_mode="off"` for development.
 
+This guard only covers **in-process (`backend.app`) backends**, whose `sw_mode`
+can be read by importing the app. **cmd-form backends (`backend.cmd`) are not
+introspectable for `sw_mode`** -- the command is an opaque subprocess, so
+`fastware dev run` cannot verify its worker mode and prints a one-line stderr
+notice that the guard was skipped. If you run a cmd-form backend, make sure its
+command does not serve a caching service worker in development.
+
 ## Complete development setup
 
 This example shows a complete development setup with 3 files: a fastware backend module serving API routes and SSE events via the Broadcaster, a dev entry point that runs both Vite and fastware together with hot reload, and a production entry point that serves pre-built static assets with SPA fallback routing:

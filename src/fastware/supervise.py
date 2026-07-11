@@ -426,7 +426,21 @@ def resolve_backend_sw_mode(cfg: DevConfig) -> str | None:
 
 
 def check_sw_mode(cfg: DevConfig) -> None:
-    """Hard-error if the resolved in-process app uses ``sw_mode='cache'``."""
+    """Hard-error if the resolved in-process app uses ``sw_mode='cache'``.
+
+    cmd-form backends run as opaque subprocesses whose ``sw_mode`` cannot be
+    introspected without executing them, so the guard cannot verify them. Rather
+    than skip silently, emit a one-line stderr notice so the operator knows the
+    guard did not run for this backend.
+    """
+    if not cfg.backend.is_in_process:
+        print(
+            "fastware dev: SW-mode guard skipped -- the cmd-form backend is not "
+            "introspectable for sw_mode. Ensure the command does not serve a "
+            "caching service worker (sw_mode='cache') in development.",
+            file=sys.stderr,
+        )
+        return
     if resolve_backend_sw_mode(cfg) == "cache":
         raise SWModeConflictError(
             "the app resolved from backend.app is configured with sw_mode='cache', "

@@ -246,6 +246,29 @@ def test_sw_mode_off_and_cmd_backend_pass_check(tmp_path):
     check_sw_mode(cmd_cfg)  # no raise
 
 
+def test_sw_mode_cmd_backend_emits_skip_notice(tmp_path, capsys):
+    """A cmd-form backend cannot be introspected -- the skipped guard says so on stderr."""
+    cmd_cfg = _cfg(tmp_path)
+    check_sw_mode(cmd_cfg)
+    err = capsys.readouterr().err
+    assert "SW-mode guard skipped" in err
+    assert "cmd-form" in err
+
+
+def test_sw_mode_app_backend_no_skip_notice(tmp_path, capsys):
+    """An in-process app backend IS introspectable -- no skip notice."""
+    off_cfg = build_dev_config(
+        {
+            "topology": "backend-first",
+            "backend": {"app": "tests.dev_fixture_apps:off_app", "port": _free_port()},
+            "vite": {"cmd": ["stub"], "port": _free_port()},
+        },
+        source_path=tmp_path / "pyproject.toml",
+    )
+    check_sw_mode(off_cfg)
+    assert "SW-mode guard skipped" not in capsys.readouterr().err
+
+
 # ---------------------------------------------------------------------------
 # Daemon register / status / stop round-trip (fake short-lived process)
 # ---------------------------------------------------------------------------
