@@ -49,6 +49,21 @@ def test_invalid_sw_mode_rejected(tmp_path):
         create_app(Router(), static_dir=_static_dir(tmp_path), sw_mode="bogus")
 
 
+def test_invalid_sw_mode_error_documents_migration_route(tmp_path):
+    # The invalid-value error must spell out the mandatory cache -> reset -> off
+    # migration route so an operator retiring a cache worker is not stranded.
+    with pytest.raises(ValueError, match=r"cache -> reset -> off"):
+        create_app(Router(), static_dir=_static_dir(tmp_path), sw_mode="bogus")
+
+
+def test_resolved_app_exposes_sw_mode(tmp_path):
+    # `fastware dev run` inspects this attribute to hard-error on sw_mode="cache".
+    app = create_app(Router(), static_dir=_static_dir(tmp_path), sw_mode="off")
+    assert getattr(app, "fastware_sw_mode", "MISSING") == "off"
+    api_only = create_app(Router())
+    assert getattr(api_only, "fastware_sw_mode", "MISSING") is None
+
+
 def test_sw_mode_off_with_frontend_is_valid(tmp_path):
     # Explicitly opting out is allowed and constructs cleanly.
     create_app(Router(), static_dir=_static_dir(tmp_path), sw_mode="off")

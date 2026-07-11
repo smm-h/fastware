@@ -413,6 +413,15 @@ class AppConfig:
     #   "reset" -- serve a self-destruct worker at /__fastware/sw.js AND at the
     #              legacy registration paths, to free clients with a stale worker
     #   "off"   -- no worker; /__fastware/sw.js returns 404; legacy paths untouched
+    #
+    # MIGRATION ROUTE (mandatory when retiring a cache-mode worker):
+    #   cache -> reset -> off.  Never jump cache -> off directly. In "off" mode
+    #   the worker script 404s, but a 404 does NOT unregister an already-installed
+    #   worker -- clients that installed the cache worker stay controlled by it
+    #   forever (stranded, serving stale assets). You must first deploy "reset"
+    #   (a self-destruct worker served AT the same URL) so installed clients run
+    #   its unregister+cache-clear logic; only once traffic has drained through
+    #   "reset" is it safe to switch to "off".
     sw_mode: str | None = None
     # Legacy registration path(s) intercepted (reset mode only) so a client that
     # registered a worker at "/sw.js" is freed by a worker served AT that URL.
@@ -515,7 +524,10 @@ def create_app(
         )
     if sw_mode is not None and sw_mode not in ("off", "cache", "reset"):
         raise ValueError(
-            f"invalid sw_mode {sw_mode!r}; must be one of 'off', 'cache', 'reset'."
+            f"invalid sw_mode {sw_mode!r}; must be one of 'off', 'cache', 'reset'. "
+            "When retiring a 'cache' worker, migrate cache -> reset -> off; never "
+            "jump straight to 'off' (a 404'd worker script never unregisters, so "
+            "installed clients stay stranded on the old cache worker)."
         )
 
     from fastware.di import DependencyResolver
@@ -1164,5 +1176,14 @@ def create_app(
         )
     if trusted_hosts:
         wrapped = _TrustedHostMiddleware(wrapped, allowed_hosts=trusted_hosts)
+
+    # Stash the resolved service-worker mode on the returned callable so tooling
+    # (e.g. `fastware dev run`) can inspect an in-process app's sw_mode without
+    # re-deriving config. Attribute name is namespaced to avoid collisions.
+    try:
+        wrapped.fastware_sw_mode = sw_mode
+    except (AttributeError, TypeError):
+        # Some middleware objects may forbid attribute assignment; best-effort.
+        pass
 
     return wrapped

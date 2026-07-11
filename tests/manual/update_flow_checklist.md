@@ -46,6 +46,23 @@ Prerequisites: a fastware app with a hashed static build (`static_dir` +
 - [ ] An app-owned worker at `/sw.js` (served from static files) is reachable
       and untouched by the framework.
 
+## Cache retirement migration route (`cache` -> `reset` -> `off`)
+
+Switching a cache-mode worker straight to `off` STRANDS every client that
+already installed it: in `off` mode the worker script 404s, and a 404 does NOT
+unregister an installed worker, so those clients keep serving stale cached
+assets forever. The only safe retirement path is `cache` -> `reset` -> `off`.
+
+- [ ] From a client controlled by the cache worker, deploy `sw_mode="reset"`
+      and reload: the self-destruct worker (served AT the same URL) clears caches,
+      unregisters, and the page ends controller-free.
+- [ ] Confirm no service worker remains registered after the `reset` reload.
+- [ ] Only AFTER traffic has drained through `reset` (all known clients have
+      hit the reset worker at least once), switch to `sw_mode="off"`.
+- [ ] Verify a client that NEVER passed through `reset` is NOT expected to
+      recover under `off` (this is why the intermediate `reset` deploy is
+      mandatory, not optional).
+
 ## Stale-client update client (`/__fastware/client.js`)
 
 - [ ] Load the page, type into a form (text + checkbox), do NOT submit.

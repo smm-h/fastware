@@ -137,6 +137,35 @@ With SPA fallback:
 - API routes (`/api/*`) are handled by the router (404 if no match)
 - All other GET requests serve `dist/index.html`, letting the frontend router handle client-side navigation
 
+## Service workers and cache retirement
+
+When you serve a hashed production build, `create_app` requires an explicit
+`sw_mode` (`AppConfig.sw_mode`) alongside `static_dir`/`spa_fallback`:
+
+- `"cache"` -- a per-build caching worker at `/__fastware/sw.js` (cache-first for
+  hashed assets, network-first for the shell).
+- `"reset"` -- a self-destruct worker served at `/__fastware/sw.js` **and** at the
+  legacy registration paths; it clears caches, unregisters, and reloads once.
+- `"off"` -- no worker; `/__fastware/sw.js` returns 404.
+
+### Retiring a cache worker: `cache` -> `reset` -> `off`
+
+Never switch a cache-mode worker straight to `off`. In `off` mode the worker
+script 404s, but **a 404 does not unregister an already-installed worker** --
+clients that installed the cache worker stay controlled by it indefinitely,
+serving stale assets. The mandatory migration route is:
+
+1. **`cache` -> `reset`.** Deploy `sw_mode="reset"`. The self-destruct worker is
+   served AT the same URL the old worker lives at, so installed clients pick it
+   up, clear their caches, unregister, and end controller-free.
+2. **Drain.** Keep `reset` deployed until known clients have loaded at least once
+   and passed through the self-destruct logic.
+3. **`reset` -> `off`.** Only then switch to `sw_mode="off"`.
+
+The `fastware dev run` CLI hard-errors if the resolved app is configured with
+`sw_mode="cache"`, because Vite dev assets use non-content hashes that a caching
+worker would pin. Use `sw_mode="off"` for development.
+
 ## Complete development setup
 
 This example shows a complete development setup with 3 files: a fastware backend module serving API routes and SSE events via the Broadcaster, a dev entry point that runs both Vite and fastware together with hot reload, and a production entry point that serves pre-built static assets with SPA fallback routing:
