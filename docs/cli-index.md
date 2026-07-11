@@ -13,7 +13,7 @@ order: 91
 
 fastware framework CLI: run a file-driven Vite + backend dev environment
 
-Version: 0.4.0
+Version: 0.5.0
 
 ## Command Groups
 
