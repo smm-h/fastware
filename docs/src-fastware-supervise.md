@@ -1,8 +1,7 @@
 ---
 title: src.fastware.supervise
-description: "Process supervision for the ``fastware dev`` CLI."
+description: "Process supervision for ``fastware dev``: pre-spawn gates, health-gated readiness, backend and Vite topology ordering, and graceful process-group teardown."
 generated: true
-seeded: true
 nav_group: "API Reference"
 nav_order: 22
 ---

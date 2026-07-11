@@ -1,8 +1,7 @@
 ---
 title: src.fastware.cli
-description: "The ``fastware`` command-line interface (strictcli)."
+description: "The strictcli-based ``fastware`` command-line interface, exposing the ``dev run``, ``dev status``, and ``dev stop`` commands that drive the file-driven development environment."
 generated: true
-seeded: true
 nav_group: "API Reference"
 nav_order: 7
 ---

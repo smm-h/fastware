@@ -1,8 +1,7 @@
 ---
 title: src.fastware.devconfig
-description: "File-driven dev configuration for the ``fastware dev`` CLI."
+description: "Parses and validates the ``[tool.fastware.dev]`` table from the owning pyproject.toml into a typed DevConfig, failing hard on missing or ambiguous settings."
 generated: true
-seeded: true
 nav_group: "API Reference"
 nav_order: 10
 ---
