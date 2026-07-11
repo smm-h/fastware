@@ -54,15 +54,17 @@ if __name__ == "__main__":
 ## Feature overview
 
 - **src.fastware** (`src/fastware/__init__.py`): A fast, batteries-included ASGI framework.
-- **src.fastware.__main__** (`src/fastware/__main__.py`): Enable running fastware as a module with `python -m fastware`.
+- **src.fastware.__main__** (`src/fastware/__main__.py`): Enable running the fastware CLI with ``python -m fastware``.
 - **src.fastware._assets** (`src/fastware/_assets.py`): Framework browser assets (service workers, registration snippet, update client) shipped as package data and rendered with per-app substitutions.
 - **src.fastware._fswrite** (`src/fastware/_fswrite.py`): A small thread-safe file writer shared by the append/overwrite call sites.
 - **src.fastware._scope** (`src/fastware/_scope.py`): Scope-level header and cookie access shared across the ASGI layer.
 - **src.fastware.app** (`src/fastware/app.py`): ASGI application factory with middleware chain composition, static file serving, SPA fallback routing, async lifespan hooks, and WebSocket support.
 - **src.fastware.audit** (`src/fastware/audit.py`): Append-only JSONL audit log writer for recording timestamped application events with structured payloads, using thread-safe file writes.
 - **src.fastware.auth** (`src/fastware/auth.py`): Authentication module providing JWT token creation and verification, bcrypt password hashing, user storage, CSRF protection, and rate limiting.
+- **src.fastware.cli** (`src/fastware/cli.py`): The ``fastware`` command-line interface (strictcli).
 - **src.fastware.config** (`src/fastware/config.py`): Config loading utility providing standalone TOML config file parsing with optional Pydantic validation.
 - **src.fastware.dev** (`src/fastware/dev.py`): Development mode combining Vite frontend dev server and fastware ASGI backend in a single command with hot reload and proxy routing.
+- **src.fastware.devconfig** (`src/fastware/devconfig.py`): File-driven dev configuration for the ``fastware dev`` CLI.
 - **src.fastware.di** (`src/fastware/di.py`): Dependency injection container providing per-request resolution with automatic caching, generator cleanup, and scope-aware dependency override support.
 - **src.fastware.error_log** (`src/fastware/error_log.py`): SQLite-backed error log for recording and querying 5xx server responses with request context, tracebacks, and timestamps for post-mortem analysis.
 - **src.fastware.features** (`src/fastware/features.py`): Boolean feature flags with per-machine JSON overrides, providing enabled/disabled checks, runtime toggle, and hot reload for gradual rollouts.
@@ -74,6 +76,7 @@ if __name__ == "__main__":
 - **src.fastware.routing** (`src/fastware/routing.py`): Path-based HTTP router with curly-brace parameter placeholders, automatic type coercion, method-based dispatch, and route group composition.
 - **src.fastware.server** (`src/fastware/server.py`): Granian ASGI server lifecycle management with PID file tracking, port availability checks, foreground and background serve modes, and graceful stop.
 - **src.fastware.sse** (`src/fastware/sse.py`): SSE (Server-Sent Events) broadcaster with typed event registration, per-client async queues, automatic disconnect pruning, and strict mode enforcement.
+- **src.fastware.supervise** (`src/fastware/supervise.py`): Process supervision for the ``fastware dev`` CLI.
 - **src.fastware.tasks** (`src/fastware/tasks.py`): Background task registry with feature-gated lifecycle management, supporting start/stop protocol, factory registration, and graceful shutdown ordering.
 - **src.fastware.testing** (`src/fastware/testing.py`): Sync and async test clients for fastware apps, wrapping httpx with ASGITransport to exercise routes without starting a real network server.
 - **src.fastware.types** (`src/fastware/types.py`): ASGI type aliases (Scope, Receive, Send) used throughout fastware for consistent type-checked request and response handling.
@@ -94,6 +97,7 @@ pip install fastware[all]       # everything
 | --- | --- |
 | `msgspec` | >=0.21.1 |
 | `granian` | >=2.7,<3.0 |
+| `strictcli` | * |
 | **[auth]** |  |
 | `pyjwt` | * |
 | `bcrypt` | * |
@@ -130,8 +134,10 @@ fastware/
 ├── app.py
 ├── audit.py
 ├── auth.py
+├── cli.py
 ├── config.py
 ├── dev.py
+├── devconfig.py
 ├── di.py
 ├── error_log.py
 ├── features.py
@@ -143,6 +149,7 @@ fastware/
 ├── routing.py
 ├── server.py
 ├── sse.py
+├── supervise.py
 ├── tasks.py
 ├── testing.py
 ├── types.py

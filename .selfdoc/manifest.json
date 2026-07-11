@@ -33,6 +33,16 @@
       "type": "doc"
     },
     {
+      "path": "cli-dev.md",
+      "title": "fastware dev",
+      "type": "doc"
+    },
+    {
+      "path": "cli-index.md",
+      "title": "fastware CLI Reference",
+      "type": "doc"
+    },
+    {
       "path": "di-guide.md",
       "title": "Dependency Injection",
       "type": "doc"
@@ -93,6 +103,11 @@
       "type": "doc"
     },
     {
+      "path": "src-fastware-cli.md",
+      "title": "src.fastware.cli",
+      "type": "doc"
+    },
+    {
       "path": "src-fastware-config.md",
       "title": "src.fastware.config",
       "type": "doc"
@@ -100,6 +115,11 @@
     {
       "path": "src-fastware-dev.md",
       "title": "src.fastware.dev",
+      "type": "doc"
+    },
+    {
+      "path": "src-fastware-devconfig.md",
+      "title": "src.fastware.devconfig",
       "type": "doc"
     },
     {
@@ -158,6 +178,11 @@
       "type": "doc"
     },
     {
+      "path": "src-fastware-supervise.md",
+      "title": "src.fastware.supervise",
+      "type": "doc"
+    },
+    {
       "path": "src-fastware-tasks.md",
       "title": "src.fastware.tasks",
       "type": "doc"
@@ -204,5 +229,5 @@
     }
   ],
   "posts": [],
-  "last_gen": "2026-07-11T13:50:17.720780+00:00"
+  "last_gen": "2026-07-11T14:07:00.214837+00:00"
 }
