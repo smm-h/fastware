@@ -329,7 +329,7 @@ requires-dist = [
     { name = "fastware", extras = ["mcp"], marker = "extra == 'all'" },
     { name = "fastware", extras = ["pydantic"], marker = "extra == 'all'" },
     { name = "fastware", extras = ["testing"], marker = "extra == 'all'" },
-    { name = "granian", specifier = ">=2.7.4" },
+    { name = "granian", specifier = ">=2.7,<3.0" },
     { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.28" },
     { name = "httpx", marker = "extra == 'testing'", specifier = ">=0.28" },
     { name = "mcp", marker = "extra == 'mcp'" },
