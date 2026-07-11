@@ -28,6 +28,7 @@
   "en/cli-dev.md": {
     "content": "37b1c4cdcd0a00bd4a9eea41e09a84574743415e8c226a514be462779c4dce06",
     "description": "dd4a7f2f99399d04971efb608a0c979cf97804d8b7cb511fdc149e5290815806",
+    "schema_hash": "c8627a40e1c04bb811f53c975551e617658def62831f082da2c55cf11f74e659",
     "seed_hash": "dd4a7f2f99399d04971efb608a0c979cf97804d8b7cb511fdc149e5290815806"
   },
   "en/cli-index.md": {
@@ -100,7 +101,8 @@
   "en/src-fastware-cli.md": {
     "content": "9f121632bf1c8e675cbda2d2ebc2d08a838cd61a1801f35ffd483bff0e02e9eb",
     "description": "e51a96b2fe0cb9f5448ccecce66130f2537b1c7c0ec55701b0b9ac3b870205e8",
-    "seed_hash": "e51a96b2fe0cb9f5448ccecce66130f2537b1c7c0ec55701b0b9ac3b870205e8"
+    "seed_hash": "e51a96b2fe0cb9f5448ccecce66130f2537b1c7c0ec55701b0b9ac3b870205e8",
+    "source_docstring": "5d47ec407320feb0e847d064422f0bb6399529e3f9dba70af2ce7ad6b2347c97"
   },
   "en/src-fastware-config.md": {
     "content": "9ef339cdcc936f9650faafb710db7cc3f43951a1d2e9e569845ba432a7616308",
@@ -115,7 +117,8 @@
   "en/src-fastware-devconfig.md": {
     "content": "e69d02f04cbad960fca3377f1cc3de8908cb04e5e8c5724c9aef12a75ffb8447",
     "description": "295fe9bc9259711abc40b211a1d99b3dfb3d59a40a6f8d382316b9589fb001aa",
-    "seed_hash": "295fe9bc9259711abc40b211a1d99b3dfb3d59a40a6f8d382316b9589fb001aa"
+    "seed_hash": "295fe9bc9259711abc40b211a1d99b3dfb3d59a40a6f8d382316b9589fb001aa",
+    "source_docstring": "bc46de459cdd4d8da158e8aaec3f1837bf56bf6d2e3db0ab30bffbdaef3884b5"
   },
   "en/src-fastware-di.md": {
     "content": "8b97c4875d904bc6b0dc68168ca1d1c83043b31db61e1c7f68f8e758bf9499bc",
@@ -175,7 +178,8 @@
   "en/src-fastware-supervise.md": {
     "content": "ead42c71c26d451d3495675e53d1887d5cd7d970c0c28f0cc584b973536b1e89",
     "description": "34d6a93d83266b5d9aefb8de930d327a6d0d3361bb1b79a53c3ec386b28071e8",
-    "seed_hash": "34d6a93d83266b5d9aefb8de930d327a6d0d3361bb1b79a53c3ec386b28071e8"
+    "seed_hash": "34d6a93d83266b5d9aefb8de930d327a6d0d3361bb1b79a53c3ec386b28071e8",
+    "source_docstring": "daa6c3fd6a1cdcc1b8f3d321192c297c80602bfc51ee25cbf70c2fcf3f7e8134"
   },
   "en/src-fastware-tasks.md": {
     "content": "fa086b7c8031111b6a0372aa9fd957ebb84a7159142ffd6895ba50523566f8ed",
