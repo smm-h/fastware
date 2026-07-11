@@ -68,6 +68,11 @@
       "type": "doc"
     },
     {
+      "path": "src-fastware-_assets.md",
+      "title": "src.fastware._assets",
+      "type": "doc"
+    },
+    {
       "path": "src-fastware-_fswrite.md",
       "title": "src.fastware._fswrite",
       "type": "doc"
@@ -204,5 +209,5 @@
     }
   ],
   "posts": [],
-  "last_gen": "2026-07-11T12:17:51.357704+00:00"
+  "last_gen": "2026-07-11T13:30:01.728056+00:00"
 }

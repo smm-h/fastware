@@ -33,6 +33,7 @@ fastware is a modular ASGI framework extracted from a monolithic `asgi.py` into 
 
 - **src.fastware** (`src/fastware/__init__.py`): A fast, batteries-included ASGI framework.
 - **src.fastware.__main__** (`src/fastware/__main__.py`): Enable running fastware as a module with `python -m fastware`.
+- **src.fastware._assets** (`src/fastware/_assets.py`): Framework browser assets (service workers, registration snippet, update client) shipped as package data and rendered with per-app substitutions.
 - **src.fastware._fswrite** (`src/fastware/_fswrite.py`): A small thread-safe file writer shared by the append/overwrite call sites.
 - **src.fastware._scope** (`src/fastware/_scope.py`): Scope-level header and cookie access shared across the ASGI layer.
 - **src.fastware.app** (`src/fastware/app.py`): ASGI application factory with middleware chain composition, static file serving, SPA fallback routing, async lifespan hooks, and WebSocket support.

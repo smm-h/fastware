@@ -11,6 +11,7 @@ order: 90
 # API Reference
 
 - [src.fastware.__main__](src-fastware-__main__.html)
+- [src.fastware._assets](src-fastware-_assets.html)
 - [src.fastware._fswrite](src-fastware-_fswrite.html)
 - [src.fastware._scope](src-fastware-_scope.html)
 - [src.fastware.app](src-fastware-app.html)
