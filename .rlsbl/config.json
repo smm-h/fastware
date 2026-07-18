@@ -6,7 +6,8 @@
   "pipelines": {
     "pypi": {
       "type": "pypi",
-      "local": false
+      "local": false,
+      "target": "pypi"
     }
   },
   "batch_limits": {
