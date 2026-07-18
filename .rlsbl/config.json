@@ -2,7 +2,7 @@
   "targets": [
     "pypi"
   ],
-  "private": false,
+  "publish_mode": "ci",
   "pipelines": {
     "pypi": {
       "type": "pypi",
