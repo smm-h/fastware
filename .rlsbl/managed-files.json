@@ -3,7 +3,7 @@
   "files": {
     ".github/workflows/ci.yml": "1260888b1fa05e5c96f656dc182e88e40f659b0e0dd5704f3ab8b5297f836900",
     ".github/workflows/publish.yml": "9bc0b409f8c5c2a3c5795a3e7c66095b9479c1a03fb41250ff0461e1221b54f2",
-    "CHANGELOG.md": "4f5bf6d29f98ec7874732c08b14c9e46d608e547be6384fadb0dfc24adec5cd0",
+    "CHANGELOG.md": "6f2a0ddfec5725f3a6eb2604b7a0905f395b11e7896040d3eb7debad217a57f6",
     ".gitignore": "c16f837c54240d3cbb6b949c56061e4872c196632b3769522f36f8e6dea5c101",
     ".rlsbl/changes/unreleased.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     ".rlsbl/lint/python.toml": "9cfbcef2e010d5fad243437bf2fd8df54a1fae70ee0762f9d11da70fe207501c"

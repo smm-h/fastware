@@ -72,7 +72,7 @@ The old foreground=False path ran Granian.serve() in a daemon thread, which had 
 
 Fix CI so the 0.3.1 publish gate can pass: 0.3.0 was blocked because test dependencies (pyjwt, bcrypt, structlog, watchfiles, websockets, mcp, pydantic) were missing from the dev group and CI's uv sync --locked never installed them.
 
-### Hotfix
+### Infrastructure
 
 - Fix CI so the 0.3.1 publish gate can pass: 0.3.0 was blocked because test dependencies (pyjwt, bcrypt, structlog, watchfiles, websockets, mcp, pydantic) were missing from the dev group and CI's uv sync --locked never installed them.
 
