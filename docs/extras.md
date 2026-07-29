@@ -19,6 +19,10 @@ pip install fastware[pydantic]    # + Pydantic model support
 pip install fastware[all]         # everything above
 ```
 
+## Extras overview
+
+:-: table-extras
+
 ## All dependencies
 
 The complete dependency table below shows every package fastware can install, organized by extras group. The core has only 2 runtime dependencies (msgspec for JSON serialization and granian for ASGI serving); the remaining 8 packages are optional and only installed when you explicitly request the corresponding extras group:

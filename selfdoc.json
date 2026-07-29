@@ -27,6 +27,10 @@
       "default": true
     }
   ],
+  "directives": {
+    "table-extras": "docs/_directives/extras_table.py",
+    "table-middleware": "docs/_directives/middleware_table.py"
+  },
   "gen": {
     "exclude": [
       "src.fastware",

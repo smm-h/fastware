@@ -10,6 +10,8 @@ All middleware classes are pure ASGI -- no framework dependency beyond fastware'
 
 Built-in middleware is automatically applied by `create_app` when the corresponding `AppConfig` fields are set. You can also use these classes directly for custom middleware stacks.
 
+:-: table-middleware
+
 :-: ref path="src.fastware.middleware"
 
 ## CORS Configuration for a Typical SPA
