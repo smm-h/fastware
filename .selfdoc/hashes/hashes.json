@@ -1,14 +1,14 @@
 {
   "_hash_version": 3,
   "en/api-auth.md": {
-    "content": "2a1d488be24002a4714b0435d0c013507884cbddef48fef720ad07a6992e9395",
+    "content": "034288328397bacf54a2e794c328cfa37e3b7dda3725bb64c2b6a93a57fb37a0",
     "description": "2f88c4220f62213c400cff1ee247701395c77e13324a165864dcb967966d3af0",
-    "source_docstring": "3af5e6c39308833443ad381f3620558613010851e1052a57dcd8bafca005b4c4"
+    "source_docstring": "a87be8b861a312ff8619609d40c50491e3696fbee20ffc7ae0655accc09ca623"
   },
   "en/api-middleware.md": {
-    "content": "3913f5b106b7a841c0a0bb18a4d26961f2505f53b2c92f42699d83061c4fe2c0",
+    "content": "d19ab34e8c4594fe3c08b0de20881baced63f0d942287071675dd2f6ee5dfe76",
     "description": "5e9191943e2382a4810cdf78a0319bde1272da8e19a0880b3722f06572228707",
-    "source_docstring": "27c69356ad69dc7c171d02a952335ec3ec000ec08327f3db1ebd408b0b05727d"
+    "source_docstring": "6b87468a2abd8217305c0b706c53a64adc45ebbd0af1bf07b79b2fcf50b8d4d7"
   },
   "en/api-server.md": {
     "content": "f38787238991e3b3fdd4ae194d03ab5db92223afce223e2bb1c142f0fb077c11",
@@ -26,9 +26,9 @@
     "source_docstring": "cef01fa46486196507ceef92c72f5f059663f9e5a8f15fb0f7dfcab27b03213a"
   },
   "en/cli-dev.md": {
-    "content": "37b1c4cdcd0a00bd4a9eea41e09a84574743415e8c226a514be462779c4dce06",
+    "content": "5d42edb5d98bf9ab73acc1a9960046b06022d0d90cf209a6ed7b91266ac5bf8b",
     "description": "273a4b85b46dd822f1456420b151fe928e20ad0140830ba8db9688077dacceb5",
-    "schema_hash": "c8627a40e1c04bb811f53c975551e617658def62831f082da2c55cf11f74e659"
+    "schema_hash": "0d814a1979916332eb2742917c8d8d606afff68251539478851cc932ae898305"
   },
   "en/cli-index.md": {
     "content": "65a97b0c7eeac1cbf18e4b254f36a75ab3c13e62ec18c13bced7a41f278d3f82",
@@ -36,12 +36,12 @@
     "seed_hash": "fde0beb0d906f679a813725f5e36a18c448fee14199553fa3efec9c9416ee9e9"
   },
   "en/di-guide.md": {
-    "content": "ee52f6ba8a528d5f385f2aa8e30f661296f23bb6bb6ae28a95658e564812f561",
+    "content": "70a1ab7ec7d2bbbf4a70f7ccf531b12fe071e065ba14154f99cfe9dd5a24042a",
     "description": "81faddb118a8c10f8eadd2fb79549a93e6e92b52dcaf7c27af82d4355fed4f33",
-    "source_docstring": "60006138f3e77ed5a4fb04aafe11dded6bd6b3dc8239557462c321f29a8fc5f3"
+    "source_docstring": "619c88bcfa622e38dc226ffcd373cd955c5482eebcfaa3d2c3bb4dc756de8ccf"
   },
   "en/extras.md": {
-    "content": "d65e0ae135077847dfdb93fe92c20d933e15a04188ff98c82bb8e392925b7742",
+    "content": "cf582981290c41996ddf9e2d02db8599d29753b2ef13b5e010a87e5007812497",
     "description": "c1c94913fafa5992518c6549227da20703db155bb46a389928e82d5f6ad2211e"
   },
   "en/gen-index.md": {
@@ -58,7 +58,7 @@
     "source_docstring": "ba92a0deee1a7267e589b5d0b07c8c75d01ce29a0d14744f5778cf23641e9706"
   },
   "en/observability.md": {
-    "content": "f3e906acfa541281cb64dfd10fa6fe4d9693d3047e2ae61483b64b73124651a5",
+    "content": "6464cfa7ce9f7d824eedf96dde6b10504f55978ee5332df3c5f625445522c747",
     "description": "5c920cb0524ed8d70d655bb22e64cd7e5903f1d6d2ade11d9059f8cb81c9427b",
     "source_docstring": "beba8540723b2bef8dc0ce2d4bcbb7bdf929fa512d066edf8a653eae801e9620"
   },
@@ -198,9 +198,9 @@
     "source_docstring": "2d7d94929aada92bf8c5b9e5382be8f5c8849278b5c076e3fbf062cf37f5145e"
   },
   "en/sse-guide.md": {
-    "content": "8b18c7e538bf87182df63eacad21d4053a0d3ee53d267e8b54e1e3b843edcb79",
+    "content": "a618456caaf0cebbf2df60068cf8baf63f6c26a1877ffb07a864ae07e435293a",
     "description": "85759eabc04df2607c157402826e85aa8473fd3b71391d38a1e577efc768e2f6",
-    "source_docstring": "7ca011e966e8046e6430cf4bc527d73698d0e9a6fd81d61f2d7a656b2c1e45ad"
+    "source_docstring": "05e66399a1ff376330f70103ef919ceb1d4afe443c7cb667f486b1d57b81065b"
   },
   "en/tasks-guide.md": {
     "content": "ecc4f0d7bef3d28101d45c98ae06577084ac9e9748420412eeedbdfd0213ef78",
@@ -208,7 +208,7 @@
     "source_docstring": "67aa161a94b28abf21f5d7d5dffc9d6cefcc2f7d975b4ce0f5d7d16eb47e5cc1"
   },
   "en/vite-guide.md": {
-    "content": "c6ef0476e875c8b342ff2393250c6304d56c86e6bec7180b2e8b95abe1d50727",
+    "content": "5fa24f9edcac6398c8ad3da1a31055bdb2e4576c80c8ca7dee103295ae3d157a",
     "description": "41629abebef2c4b7f60523b1199d10a43ee686bd0201e657ee181301be1a1ac6",
     "source_docstring": "31c00251c8674a30f099a03b23c0fa72d394e146453d418f0d5eff3f3d935229"
   },
