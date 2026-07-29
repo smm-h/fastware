@@ -21,6 +21,13 @@ The auth module provides JWT token operations, password hashing, user storage, C
 
 :-: ref path="src.fastware.auth"
 
+:-: code-test path="tests/test_auth.py" target="TestJWTTokens"
+:-: code-test path="tests/test_auth.py" target="TestPasswordHashing"
+:-: code-test path="tests/test_auth.py" target="TestGetCurrentUser"
+:-: code-test path="tests/test_auth.py" target="TestRequireRole"
+:-: code-test path="tests/test_auth.py" target="TestCSRFMiddleware"
+:-: code-test path="tests/test_auth.py" target="TestRateLimiting"
+
 ## Practical Example: JWT Auth on a Route
 
 Setting up JWT authentication on a protected route using the dependency injection system. This example shows how to hash and verify passwords with bcrypt, issue JWT tokens at login, read them back with `get_current_user`, and enforce role-based access control on specific endpoints:

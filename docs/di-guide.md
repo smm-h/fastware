@@ -63,6 +63,8 @@ app = create_app(router)
 
 The app factory creates a `DependencyResolver` internally and uses it to resolve route dependencies on each request.
 
+:-: code-test path="tests/test_di.py" target="TestDIIntegrationHTTP"
+
 ## Sync and async factories
 
 Both sync and async factory functions are supported. The resolver detects whether a factory returns an awaitable and handles it automatically, so you can mix sync and async factories freely in the same route's deps dict:
@@ -78,6 +80,9 @@ async def get_db(request):
 ```
 
 If a factory returns an awaitable, the resolver awaits it automatically.
+
+:-: code-test path="tests/test_di.py" target="TestDependencyResolverSync"
+:-: code-test path="tests/test_di.py" target="TestDependencyResolverAsync"
 
 ## Generator factories (yield pattern)
 
@@ -107,6 +112,8 @@ async def get_db(request):
 
 Cleanup runs in reverse order (last resolved, first cleaned up). Cleanup errors are suppressed -- a failing cleanup does not mask the handler's response or exception.
 
+:-: code-test path="tests/test_di.py" target="TestDependencyResolverGenerators"
+
 ## Per-request caching
 
 When the same factory is used in multiple deps on the same request, it is resolved exactly once and the cached result is reused for all subsequent references. This prevents creating duplicate database connections or re-authenticating on every dependency resolution:
@@ -121,6 +128,8 @@ async def get_user_repo(request):
 ```
 
 Caching is based on the factory function's identity (`id(factory)`). If two dependency names point to the same factory callable, they get the same resolved value.
+
+:-: code-test path="tests/test_di.py" target="TestDependencyResolverCaching"
 
 ## Router-level dependencies
 
@@ -180,6 +189,8 @@ def test_list_users():
         resp = client.get("/api/users")
         assert resp.status_code == 200
 ```
+
+:-: code-test path="tests/test_di.py" target="TestDependencyOverrides"
 
 ## Error handling during resolution
 

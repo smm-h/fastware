@@ -42,6 +42,9 @@ broadcaster.register_event("heartbeat")
 
 By default, the Broadcaster runs in **strict mode** -- broadcasting an unregistered event name raises `ValueError`. This prevents typos and ensures the event vocabulary is explicit.
 
+:-: code-test path="tests/test_sse.py" target="TestRegisterEvent"
+:-: code-test path="tests/test_sse.py" target="TestBroadcastUnregisteredRaises"
+
 ### 3. Wire to a route
 
 ```python
@@ -65,6 +68,9 @@ async def create_item(request):
 ```
 
 `broadcast()` is synchronous -- it pushes the formatted SSE message to every client queue without awaiting. Clients whose queues are full (they fell behind) are pruned automatically.
+
+:-: code-test path="tests/test_sse.py" target="TestBroadcastDeliversToClient"
+:-: code-test path="tests/test_sse.py" target="TestBroadcastPrunesFullQueue"
 
 ### 5. Create the app
 
@@ -93,6 +99,9 @@ source.onerror = () => console.log("SSE reconnecting...");
 ```
 
 The browser's `EventSource` automatically reconnects if the connection drops. Events are dispatched by their `event:` field, which maps to the first argument of `broadcaster.broadcast()`.
+
+:-: code-test path="tests/test_sse.py" target="TestSSEWireFormat"
+:-: code-test path="tests/test_sse.py" target="TestSSERoute"
 
 ## Heartbeat configuration
 
@@ -139,6 +148,8 @@ broadcaster = Broadcaster(buffer_size=512)
 ```
 
 When a client's queue is full (the client is not consuming messages fast enough), the client is pruned from the client list on the next `broadcast()` call. This prevents a slow consumer from causing memory growth.
+
+:-: code-test path="tests/test_sse.py" target="TestClientCount"
 
 ## Introspection
 

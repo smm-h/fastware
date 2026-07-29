@@ -14,6 +14,11 @@ Built-in middleware is automatically applied by `create_app` when the correspond
 
 :-: ref path="src.fastware.middleware"
 
+:-: code-test path="tests/test_middleware.py" target="TestCORSMiddleware"
+:-: code-test path="tests/test_middleware.py" target="TestRequestIDMiddleware"
+:-: code-test path="tests/test_middleware.py" target="TestRequestTimingMiddleware"
+:-: code-test path="tests/test_middleware.py" target="TestTrustedHostMiddleware"
+
 ## CORS Configuration for a Typical SPA
 
 When building a single-page application with a separate frontend dev server (e.g., Vite on port 5173), you need to configure CORS to allow the frontend origin. The `CORSMiddleware` handles preflight OPTIONS requests automatically and injects the correct `Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, and `Access-Control-Allow-Headers` response headers on every cross-origin request:
@@ -94,3 +99,6 @@ app = create_app(
 ```
 
 For WebSocket connections, prefix-based routing is used: paths matching `api_prefix` or any `backend_prefixes` entry go to the backend; everything else is proxied to Vite (for HMR). HTTP requests use the try-backend-first approach regardless of path.
+
+:-: code-test path="tests/test_middleware.py" target="TestViteDevProxyHTTP"
+:-: code-test path="tests/test_middleware.py" target="TestViteDevProxyWS"
