@@ -58,6 +58,11 @@
     "description": "5fac39e6bae505097e7e505a73b9262933322b79a32f526bc8188c2d98318b06",
     "source_docstring": "ba92a0deee1a7267e589b5d0b07c8c75d01ce29a0d14744f5778cf23641e9706"
   },
+  "en/observability.md": {
+    "content": "f3e906acfa541281cb64dfd10fa6fe4d9693d3047e2ae61483b64b73124651a5",
+    "description": "5c920cb0524ed8d70d655bb22e64cd7e5903f1d6d2ade11d9059f8cb81c9427b",
+    "source_docstring": "beba8540723b2bef8dc0ce2d4bcbb7bdf929fa512d066edf8a653eae801e9620"
+  },
   "en/quickstart.md": {
     "content": "f9a2615003b35431d0e6a4a22d6d6c4a7de5fcb2fc4791d1dfbe3e868cfee703",
     "description": "52a6c563615e55822cc3ae64c65afe85f76a50577518cd7488c0e81623eef276"
@@ -197,6 +202,11 @@
     "content": "8b18c7e538bf87182df63eacad21d4053a0d3ee53d267e8b54e1e3b843edcb79",
     "description": "85759eabc04df2607c157402826e85aa8473fd3b71391d38a1e577efc768e2f6",
     "source_docstring": "7ca011e966e8046e6430cf4bc527d73698d0e9a6fd81d61f2d7a656b2c1e45ad"
+  },
+  "en/tasks-guide.md": {
+    "content": "dc4076ad854d71c090e8c475f66a3be9bacfa078414a15a8043cf1de41c3ff87",
+    "description": "09ead3bdf4d2b882f97a41b7394b39a770eef2086ba1534aaf269e2bf1b87bc6",
+    "source_docstring": "67aa161a94b28abf21f5d7d5dffc9d6cefcc2f7d975b4ce0f5d7d16eb47e5cc1"
   },
   "en/vite-guide.md": {
     "content": "c6ef0476e875c8b342ff2393250c6304d56c86e6bec7180b2e8b95abe1d50727",
