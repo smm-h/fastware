@@ -1,6 +1,6 @@
 ---
 title: src.fastware.request
-description: "Request wrapper with lazy msgspec JSON body parsing, json_as() decoding into dicts or msgspec.Struct/Pydantic targets, typed and constrained query-parameter extraction, header and cookie access, and a dual attribute/dict State object."
+description: "Request wrapper with lazy msgspec JSON parsing, json_as() decoding, typed query-parameter extraction, header/cookie access, and State object."
 generated: true
 nav_group: "API Reference"
 nav_order: 17

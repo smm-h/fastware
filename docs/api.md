@@ -1,6 +1,6 @@
 ---
 title: Core API Reference
-description: "Core API reference for fastware: the Scope/Receive/Send ASGI type aliases, six response types with auto-wrapping, msgspec-backed request parsing, path-based routing, WebSocket helpers, and the create_app factory."
+description: "Core API reference for fastware: ASGI type aliases, six response types, msgspec request parsing, path-based routing, WebSocket helpers, and create_app."
 date: 2026-07-01
 ---
 

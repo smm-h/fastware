@@ -1,6 +1,6 @@
 ---
 title: src.fastware.routing
-description: "Path-based Router with {param}, {param:int}, and {param:path} placeholders, get/post/put/patch/delete decorators, WebSocket route registration, prefixed sub-router inclusion with deps, and sub-app mounting."
+description: "Path-based Router with {param}/{param:int}/{param:path} placeholders, method decorators, WebSocket routes, sub-router inclusion, and sub-app mounting."
 generated: true
 nav_group: "API Reference"
 nav_order: 19

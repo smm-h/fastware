@@ -1,6 +1,6 @@
 ---
 title: Middleware API Reference
-description: "Reference for fastware's pure-ASGI middleware: CORS, request-ID tracing, request timing with error logging, trusted-host validation, and the ViteDevProxy that routes /api and configurable backend prefixes (including /ws WebSocket upgrades) to the backend."
+description: "Reference for fastware's pure-ASGI middleware: CORS, request-ID tracing, request timing, trusted-host validation, and ViteDevProxy backend-first routing."
 date: 2026-07-01
 ---
 

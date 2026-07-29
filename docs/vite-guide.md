@@ -139,8 +139,7 @@ With SPA fallback:
 
 ## Service workers and cache retirement
 
-When you serve a hashed production build, `create_app` requires an explicit
-`sw_mode` (`AppConfig.sw_mode`) alongside `static_dir`/`spa_fallback`:
+When you serve a hashed production build with `static_dir` and `spa_fallback` configured, `create_app` requires an explicit `sw_mode` setting via `AppConfig.sw_mode` to control how the service worker is served. There is no default: you must choose one of three modes to ensure predictable caching behavior across deployments and prevent stale workers from serving outdated assets:
 
 - `"cache"` -- a per-build caching worker at `/__fastware/sw.js` (cache-first for
   hashed assets, network-first for the shell).

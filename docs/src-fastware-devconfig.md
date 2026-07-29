@@ -1,6 +1,6 @@
 ---
 title: src.fastware.devconfig
-description: "Parses and validates the ``[tool.fastware.dev]`` table from the owning pyproject.toml into a typed DevConfig, failing hard on missing or ambiguous settings."
+description: "Parses and validates the [tool.fastware.dev] table from pyproject.toml into a typed DevConfig, failing hard on missing settings."
 generated: true
 nav_group: "API Reference"
 nav_order: 10

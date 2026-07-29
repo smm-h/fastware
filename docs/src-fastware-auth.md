@@ -1,6 +1,6 @@
 ---
 title: src.fastware.auth
-description: "JWT token creation and verification (HS256), bcrypt password hashing, user stores, get_current_user and require_role DI factories, double-submit CSRF middleware, session-cookie helpers, and token-bucket rate limiting."
+description: "JWT token creation/verification (HS256), bcrypt hashing, user stores, get_current_user/require_role DI, CSRF middleware, and rate limiting."
 generated: true
 nav_group: "API Reference"
 nav_order: 6

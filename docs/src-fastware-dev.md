@@ -1,6 +1,6 @@
 ---
 title: src.fastware.dev
-description: "Development-mode orchestrator whose dev() spawns Vite as a subprocess, polls for readiness, wraps the app with ViteDevProxy for backend-first routing, runs the server in the foreground, and cleanly stops Vite on exit."
+description: "Development-mode orchestrator: spawns Vite, polls for readiness, wraps the app with ViteDevProxy, runs the server, and stops Vite on exit."
 generated: true
 nav_group: "API Reference"
 nav_order: 9

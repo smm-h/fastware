@@ -1,6 +1,6 @@
 ---
 title: Dependency Injection
-description: "Guide to fastware dependency injection: per-request resolution with caching, sync/async factories, generator factories with reverse-order cleanup, router-level dependencies, and factory overrides for testing."
+description: "Guide to fastware DI: per-request resolution with caching, sync/async factories, generator cleanup, router deps, and test overrides."
 date: 2026-07-01
 ---
 

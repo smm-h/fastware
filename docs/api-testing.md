@@ -1,6 +1,6 @@
 ---
 title: Testing API Reference
-description: "Reference for fastware's in-process test clients: AsyncTestClient and TestClient over httpx ASGITransport that drive the ASGI lifespan, with a raise_server_exceptions flag (default True) surfacing unhandled handler errors and a __test__ opt-out so pytest ignores the client classes."
+description: "Reference for fastware's in-process test clients: AsyncTestClient and TestClient over httpx ASGITransport with ASGI lifespan support."
 date: 2026-07-01
 ---
 

@@ -19,7 +19,7 @@ fastware provides four complementary observability systems: structured logging v
 
 ### Setup
 
-Call `configure_logging()` once at startup, typically in a lifespan handler:
+Call `configure_logging()` once at startup, typically in a lifespan handler. This initializes the structlog processor chain with timestamping, log level tagging, callsite information, and contextvars merging. The output format is auto-detected based on whether stderr is a TTY, defaulting to JSON in production and colored console output in development:
 
 ```python
 from fastware.logging import configure_logging, get_logger
@@ -38,7 +38,7 @@ structlog is an optional dependency. Install with `pip install fastware[logging]
 
 ### Getting loggers
 
-Use `get_logger()` to obtain a bound structlog logger. The optional `component` argument adds a `component` key to every log entry, making it easy to filter logs by subsystem:
+Use `get_logger()` to obtain a bound structlog logger. The optional `component` argument adds a `component` key to every log entry, making it easy to filter logs by subsystem in log aggregation tools. Each logger is a standard structlog `BoundLogger` that supports `info`, `debug`, `warning`, `error`, and `exception` methods with arbitrary keyword arguments for structured data:
 
 ```python
 logger = get_logger("auth")
@@ -55,7 +55,7 @@ logger.info("invoice created", amount=42.50)
 
 ### What structlog adds to every entry
 
-The configured processor chain adds several fields automatically:
+The configured processor chain adds several fields automatically to every log entry, regardless of what the caller passes. These fields provide context for debugging and log correlation: the log level, an ISO 8601 timestamp, the source module and function name, the line number, and any contextvars values bound by middleware such as the request ID:
 
 | Field | Source | Example |
 |---|---|---|
@@ -70,7 +70,7 @@ The `merge_contextvars` processor pulls in any values bound via `structlog.conte
 
 ### JSON output example
 
-In production (non-TTY stderr), log entries are single JSON lines:
+In production (non-TTY stderr), log entries are emitted as single JSON lines, one per log call. Each line is a complete JSON object containing all processor-added fields plus any keyword arguments passed by the caller. This format is compatible with log aggregation services such as Elasticsearch, Loki, Datadog, and CloudWatch Logs:
 
 ```json
 {"log_level": "info", "timestamp": "2026-07-28T14:30:00.123456Z", "module": "auth", "func_name": "login", "lineno": 47, "request_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "component": "auth", "event": "login attempt", "username": "alice"}
@@ -93,7 +93,7 @@ No additional configuration is needed -- the middleware detects structlog and bi
 
 ### Integration with RequestTimingMiddleware
 
-When structlog is available, the `RequestTimingMiddleware` emits a debug-level log entry for every HTTP request with method, path, status code, and duration:
+When structlog is available, the `RequestTimingMiddleware` emits a debug-level structured log entry for every completed HTTP request. Each entry includes the HTTP method, request path, response status code, and duration in milliseconds. This provides a per-request performance trace that can be queried in log aggregation tools for latency analysis and anomaly detection:
 
 ```json
 {"log_level": "debug", "component": "request", "event": "request", "method": "POST", "path": "/api/deploy", "status": 200, "duration_ms": 42.5}
@@ -103,7 +103,7 @@ When structlog is available, the `RequestTimingMiddleware` emits a debug-level l
 
 ### Setup
 
-`init_sentry()` initializes the Sentry SDK with ASGI-compatible defaults. If `sentry-sdk` is not installed, the call is a no-op -- safe to call unconditionally:
+`init_sentry()` initializes the Sentry SDK with ASGI-compatible defaults, including a `before_send` hook that filters out 4xx HTTPError exceptions. If `sentry-sdk` is not installed, the call is a silent no-op, so it is safe to call unconditionally in shared startup code without guarding the import. Pass the DSN as the first argument and forward any additional keyword arguments to `sentry_sdk.init()`:
 
 ```python
 from fastware.logging import init_sentry
@@ -131,7 +131,7 @@ The `ErrorLog` class provides a persistent, queryable record of 5xx server error
 
 ### Setup
 
-Create an `ErrorLog` instance and pass it to `create_app` via `AppConfig`:
+Create an `ErrorLog` instance with a path to the SQLite database file and pass it to `create_app` via `AppConfig`. The `RequestTimingMiddleware` (enabled by default) detects the error log on the app config and automatically calls `error_log.append()` on every 5xx response. The database file and its parent directories are created on first write if they do not exist:
 
 ```python
 from fastware.error_log import ErrorLog
@@ -149,7 +149,7 @@ The `RequestTimingMiddleware` (enabled by default) detects the error log and cal
 
 ### What it captures
 
-Each error entry contains:
+Each error entry contains the HTTP method, request path, status code, error detail, request ID, user identifier, traceback, and a Unix timestamp. Together these fields provide enough context for dashboard display and post-mortem investigation without requiring access to log streams or external error tracking services:
 
 | Column | Type | Description |
 |---|---|---|
@@ -171,7 +171,7 @@ The timestamp is captured at `append()` time (not write time), so entry ordering
 
 ### Querying recent errors
 
-The `recent()` method returns the most recent errors as a list of dicts, newest first:
+The `recent()` method returns the most recent errors as a list of dicts, ordered newest first. It accepts an optional `limit` parameter (default 100) to control how many entries are returned. Before reading, `recent()` flushes the write queue so the result always reflects every preceding `append()` call, making it safe to use in admin dashboard endpoints:
 
 ```python
 errors = error_log.recent(limit=20)
@@ -189,7 +189,7 @@ async def list_errors(request):
 
 ### Manual writes
 
-You can append errors directly for cases not covered by the middleware (background tasks, custom error handlers):
+You can append errors directly for cases not covered by the automatic middleware integration, such as failures in background tasks, custom error handlers, or scheduled jobs. The `append()` method accepts the same fields as the automatic middleware writer -- method, path, status_code, detail, request_id, user, and traceback -- all of which are optional except method, path, and status_code:
 
 ```python
 error_log.append(
@@ -205,7 +205,7 @@ error_log.append(
 
 ### Lifecycle
 
-Call `error_log.close()` during shutdown to gracefully stop the background writer after draining pending writes:
+Call `error_log.close()` during application shutdown to gracefully stop the background writer thread. This drains all pending writes from the queue before closing the SQLite connection, ensuring no error entries are lost. Place the close call in the teardown phase of your lifespan handler (after the `yield`) so it runs when the server is shutting down:
 
 ```python
 async def lifespan(app):
@@ -231,7 +231,7 @@ The JSONL file is created on first write. Parent directories are created automat
 
 ### Logging events
 
-Call `audit.log()` with an event type and an optional payload dict:
+Call `audit.log()` with an event type string and an optional payload dict containing event-specific data. The event type should use dot-namespaced identifiers (e.g., `user.login`, `deployment.started`, `config.changed`) to enable structured querying. Each call appends a single JSON line to the JSONL file with an ISO 8601 timestamp, the event type, and the payload:
 
 ```python
 audit.log("user.login", {"user_id": "alice", "ip": "192.168.1.1"})
@@ -247,7 +247,7 @@ audit.log("system.startup")
 
 ### Entry format
 
-Each line in the JSONL file is a self-contained JSON object:
+Each line in the JSONL file is a self-contained JSON object with compact separators (no spaces) for minimal file size. The `timestamp` field is always present and uses ISO 8601 UTC format. The `event_type` field is always present. The `payload` field is included only when a payload dict was passed to `audit.log()`, keeping payloadless entries minimal:
 
 ```json
 {"timestamp":"2026-07-28T14:30:00.123456+00:00","event_type":"user.login","payload":{"user_id":"alice","ip":"192.168.1.1"}}
@@ -270,7 +270,7 @@ Writes are serialized via `LockedFileWriter` -- a `threading.Lock` ensures concu
 
 ### Querying audit logs
 
-JSONL files are line-oriented and can be processed with standard tools:
+JSONL files are line-oriented and can be processed with standard Unix text tools such as grep, jq, awk, and sort, or loaded into Python with the json module. Each line is a complete JSON object, so no streaming parser is needed. This makes audit logs easy to search, filter, aggregate, and archive without specialized tooling:
 
 ```bash
 # All login events
@@ -299,7 +299,7 @@ logins = [e for e in entries if e["event_type"] == "user.login"]
 
 ## How these systems work together
 
-In a production deployment, these four systems form layers with complementary coverage:
+In a production deployment, these four observability systems form complementary layers. Structured logging provides real-time console and aggregation output, Sentry delivers alerting and error grouping, the SQLite error log offers a self-hosted queryable record of 5xx failures, and the JSONL audit log records domain-level events for compliance and post-mortem analysis:
 
 **Request flow:**
 
@@ -378,12 +378,18 @@ if __name__ == "__main__":
 
 ### fastware.logging
 
+Structured logging configuration using structlog with automatic JSON output in production and colored console rendering in development. Provides `configure_logging()` for processor chain setup, `get_logger()` for component-bound loggers, and `init_sentry()` for Sentry SDK initialization with 4xx filtering.
+
 :-: ref path="src.fastware.logging"
 
 ### fastware.error_log
 
+SQLite-backed, thread-safe append-only error log that records 5xx server responses with request context, tracebacks, and timestamps. Provides the `ErrorLog` class with `append()` for non-blocking writes via a background thread and `recent()` for querying the most recent errors.
+
 :-: ref path="src.fastware.error_log"
 
 ### fastware.audit
+
+Append-only JSONL audit log writer for recording timestamped application events with structured payloads. Provides the `AuditLog` class with a `log()` method that writes thread-safe JSON lines containing ISO timestamps, dot-namespaced event types, and optional payload dicts.
 
 :-: ref path="src.fastware.audit"

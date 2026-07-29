@@ -1,6 +1,6 @@
 ---
 title: src.fastware.error_log
-description: "SQLite-backed, thread-safe append-only error log that records 5xx responses with request context, tracebacks, and timestamps and exposes a recent() query for post-mortem inspection."
+description: "SQLite-backed, thread-safe append-only error log that records 5xx responses with request context and exposes a recent() query."
 generated: true
 nav_group: "API Reference"
 nav_order: 12

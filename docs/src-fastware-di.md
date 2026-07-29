@@ -1,6 +1,6 @@
 ---
 title: src.fastware.di
-description: "DependencyResolver for per-request dependency injection: sync/async factories, sync/async generator factories with reverse-order cleanup, per-request caching, and factory overrides for testing."
+description: "DependencyResolver for per-request DI: sync/async factories, generator factories with reverse-order cleanup, caching, and test overrides."
 generated: true
 nav_group: "API Reference"
 nav_order: 11

@@ -1,6 +1,6 @@
 ---
 title: Migrating from FastAPI
-description: "Guide to porting a FastAPI application to fastware: import mappings, route-handler and dependency-injection translation, response and SSE equivalents, and the trade-offs of the switch."
+description: "Guide to porting a FastAPI app to fastware: import mappings, route-handler and DI translation, response equivalents, and trade-offs."
 date: 2026-07-01
 ---
 

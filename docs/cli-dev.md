@@ -1,8 +1,7 @@
 ---
 title: fastware dev
-description: "Run and manage the file-driven development environment"
+description: "CLI reference for fastware dev: run, status, and stop commands that manage the file-driven Vite + backend development environment."
 generated: true
-seeded: true
 nav_group: "CLI Reference"
 nav_order: 1
 ---
@@ -14,7 +13,7 @@ Run and manage the file-driven development environment
 
 ## dev run
 
-Start the dev environment (pre-spawn gates, aux services, Vite + backend) from the nearest [tool.fastware.dev] config
+Start the dev environment by reading [tool.fastware.dev] from the nearest pyproject.toml, running pre-spawn gates to check prerequisites, launching auxiliary services and the Vite frontend dev server, wrapping the ASGI app with ViteDevProxy for backend-first routing, and starting the Granian server in the foreground by default
 
 ### Flags
 
@@ -25,11 +24,11 @@ Start the dev environment (pre-spawn gates, aux services, Vite + backend) from t
 
 ## dev status
 
-List running dev environments registered in the instance registry
+List all running fastware dev environments registered in the instance registry, showing the instance name, process ID, and port for each entry. Instances register when started with --daemon and are automatically removed when they exit or are stopped with dev stop
 
 ## dev stop
 
-Stop running dev environments gracefully (then SIGKILL after the grace period)
+Stop all running dev environments by sending SIGTERM for a graceful shutdown. If a process does not exit within the grace period (default 10 seconds, configurable with --grace), it is forcibly terminated with SIGKILL. Stopped instances are removed from the instance registry
 
 ### Flags
 

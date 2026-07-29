@@ -1,6 +1,6 @@
 ---
 title: src.fastware.app
-description: "ASGI application factory (create_app and AppConfig) that composes the built-in middleware chain, static-file and SPA-fallback serving, async lifespan hooks, dependency resolution, response dispatch, and WebSocket routing."
+description: "ASGI application factory (create_app/AppConfig) with middleware chain, static-file serving, SPA fallback, lifespan hooks, DI, and WebSocket routing."
 generated: true
 nav_group: "API Reference"
 nav_order: 4

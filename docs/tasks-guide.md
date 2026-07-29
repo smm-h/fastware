@@ -1,6 +1,6 @@
 ---
 title: Background Tasks and Feature Flags
-description: "Guide to fastware background tasks, feature flags, and TOML configuration: defining tasks with the BackgroundTask protocol, registering factories in the TaskRegistry, feature-gating tasks, managing boolean feature flags with JSON overrides, and loading validated TOML config with Pydantic."
+description: "Guide to fastware background tasks, feature flags, and TOML config: BackgroundTask protocol, TaskRegistry, feature gating, and Pydantic validation."
 date: 2026-07-29
 ---
 
@@ -12,7 +12,7 @@ fastware provides three complementary systems for application lifecycle manageme
 
 ### The BackgroundTask protocol
 
-Any class that implements `start()` and `stop()` methods satisfies the `BackgroundTask` protocol. The protocol is runtime-checkable, so the registry can verify compliance at registration time:
+Any class that implements `start()` and `stop()` methods satisfies the `BackgroundTask` protocol. Both methods take no arguments and return `None`. The protocol is runtime-checkable via `isinstance()`, so the `TaskRegistry` can verify compliance at registration time and raise a `TypeError` immediately if a factory returns a non-compliant object rather than failing silently at start:
 
 ```python
 from fastware.tasks import BackgroundTask
@@ -56,7 +56,7 @@ registry.register("metrics", create_metrics_collector)
 
 ### Starting and stopping tasks
 
-Call `start_all()` to instantiate and start every registered task. Call `stop_all()` to stop all running tasks and clear the running set:
+Call `start_all()` to instantiate every registered task factory and invoke `start()` on each result. Call `stop_all()` to invoke `stop()` on all running tasks in reverse registration order and clear the running set. Both methods handle exceptions gracefully: if one task fails to start or stop, the error is logged and the remaining tasks continue processing normally:
 
 ```python
 # During app startup
@@ -90,7 +90,7 @@ If `start_all()` is called without a `FeatureFlags` instance (or with `None`), a
 
 ### Inspecting the registry
 
-The `list_tasks()` method returns a snapshot of all registered tasks with their running status and feature gate:
+The `list_tasks()` method returns a list of dictionaries describing all registered tasks, including each task's name, whether it is currently running, and the feature flag it is gated behind (if any). Use `get_task()` to retrieve a specific running task instance by name for direct interaction, or `None` if the task is not currently running:
 
 ```python
 for task in registry.list_tasks():
@@ -149,7 +149,7 @@ The lifespan context manager starts all tasks on entry and stops them on exit. Y
 
 ### Defining flags with defaults
 
-Create a `FeatureFlags` instance with a dictionary of flag names and their default boolean values. Every flag starts at its default unless overridden:
+Create a `FeatureFlags` instance with a `defaults` dictionary mapping flag names to their default boolean values. Every flag starts at its default unless overridden by a JSON overrides file or a runtime `set_override()` call. Unknown flags (names not in the defaults dict and not overridden) return `False` from `enabled()`, so new flags can be checked before they are formally defined:
 
 ```python
 from fastware.features import FeatureFlags
@@ -203,7 +203,7 @@ Override values take precedence over defaults. If the file does not exist or is 
 
 ### Setting overrides at runtime
 
-Use `set_override()` to toggle a flag and persist the change to the JSON file atomically. This is useful for admin endpoints, feature toggle dashboards, or gradual rollouts:
+Use `set_override()` to toggle a flag in memory and persist the change to the JSON overrides file atomically via `LockedFileWriter`. The override takes effect immediately for all subsequent `enabled()` calls. This is useful for admin endpoints, feature toggle dashboards, gradual rollouts, and automated operations that need to gate features without restarting the application:
 
 ```python
 flags.set_override("experimental_search", True)
@@ -231,7 +231,7 @@ All flag access is thread-safe -- `enabled()`, `set_override()`, and `reload()` 
 
 ### Admin endpoint example
 
-A common pattern is to expose feature flags through an admin API so operators can inspect and toggle them at runtime:
+A common pattern is to expose feature flags through an admin API so operators can inspect current flag state via a GET endpoint, toggle individual flags via a POST endpoint, and force a reload from disk to pick up changes made by external tools such as deployment scripts or configuration management systems:
 
 ```python
 from fastware import Router, HTTPError
@@ -269,7 +269,7 @@ async def reload_flags(request):
 
 ### Loading TOML config
 
-The `load_config()` function reads a TOML file and returns either a raw dictionary or a validated Pydantic model instance:
+The `load_config()` function reads a TOML file from the given path and returns the parsed data. Without a `schema` argument it returns a plain nested dictionary matching the TOML structure. With a Pydantic model class passed as `schema`, it validates the data and returns a typed model instance with attribute access:
 
 ```python
 from fastware.config import load_config
@@ -301,7 +301,7 @@ dark_mode = false
 
 ### Pydantic schema validation
 
-Pass a Pydantic model class as the `schema` argument to validate the TOML data and get a typed model instance back. Invalid data raises `pydantic.ValidationError` with detailed error messages:
+Pass a Pydantic `BaseModel` subclass as the `schema` argument to validate the TOML data against the model's type annotations and constraints, returning a typed model instance with attribute access. Invalid data raises `pydantic.ValidationError` with detailed per-field error messages showing exactly which fields failed and why. Requires the `[pydantic]` extra to be installed:
 
 ```python
 from pydantic import BaseModel
@@ -329,7 +329,7 @@ Schema validation requires the `[pydantic]` extra (`pip install fastware[pydanti
 
 ### Error handling
 
-`load_config()` raises specific exceptions for each failure mode:
+`load_config()` raises specific exceptions for each failure mode, all at startup time so misconfigurations are caught immediately rather than at request time. The three possible exceptions are `FileNotFoundError` for a missing TOML file, `tomllib.TOMLDecodeError` for invalid TOML syntax, and `pydantic.ValidationError` for data that does not match the provided schema:
 
 - `FileNotFoundError` -- the TOML file does not exist
 - `tomllib.TOMLDecodeError` -- the file is not valid TOML
@@ -339,7 +339,7 @@ All three are raised at startup, so misconfigurations are caught immediately rat
 
 ### Wiring config into the app
 
-A common pattern is to load config at startup, construct feature flags and task registries from it, and pass everything into the lifespan:
+A common pattern is to load and validate the TOML config at module level, construct `FeatureFlags` and `TaskRegistry` instances from the validated config, and pass everything into the async lifespan context so handlers can access config, flags, and registry via `request.state` throughout the application lifecycle:
 
 ```python
 from contextlib import asynccontextmanager
@@ -393,12 +393,18 @@ This gives you a single validated config file driving the server, feature flags,
 
 ### BackgroundTask and TaskRegistry
 
+Background task registry with feature-gated lifecycle management. Provides the `BackgroundTask` runtime-checkable protocol with `start()` and `stop()` methods, and the `TaskRegistry` class for registering factory functions, starting and stopping tasks, and querying task state.
+
 :-: ref path="src.fastware.tasks"
 
 ### FeatureFlags
 
+Boolean feature flags with per-machine JSON overrides, providing `enabled()` checks for conditional logic, `set_override()` for runtime toggling with atomic file persistence, `reload()` for picking up external changes, and `all_flags()` for snapshot inspection.
+
 :-: ref path="src.fastware.features"
 
 ### load_config
+
+Standalone TOML configuration loader with optional Pydantic-schema validation. Reads a TOML file from disk and returns either a plain nested dictionary or a validated Pydantic model instance, raising clear exceptions for missing files, invalid syntax, or schema violations.
 
 :-: ref path="src.fastware.config"

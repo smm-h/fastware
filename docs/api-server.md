@@ -1,6 +1,6 @@
 ---
 title: Server API Reference
-description: "Reference for fastware's Granian server lifecycle: foreground/background/reload serving with a selectable event loop (asyncio, uvloop, or rloop) and worker count, PID-file tracking, port checks with stale-instance recovery, stop, and status."
+description: "Reference for fastware's Granian server lifecycle: foreground/background/reload serving, selectable event loop, PID tracking, and port management."
 date: 2026-07-01
 ---
 

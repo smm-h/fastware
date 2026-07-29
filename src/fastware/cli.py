@@ -31,8 +31,11 @@ def _load_cfg():
 
 @dev.command(
     "run",
-    help="Start the dev environment (pre-spawn gates, aux services, Vite + backend) "
-    "from the nearest [tool.fastware.dev] config",
+    help="Start the dev environment by reading [tool.fastware.dev] from the nearest "
+    "pyproject.toml, running pre-spawn gates to check prerequisites, launching "
+    "auxiliary services and the Vite frontend dev server, wrapping the ASGI app with "
+    "ViteDevProxy for backend-first routing, and starting the Granian server in the "
+    "foreground by default",
 )
 @flag(
     "daemon",
@@ -70,7 +73,10 @@ def dev_run(daemon: bool, grace: int, **_kw: object) -> int:
 
 @dev.command(
     "status",
-    help="List running dev environments registered in the instance registry",
+    help="List all running fastware dev environments registered in the instance "
+    "registry, showing the instance name, process ID, and port for each entry. "
+    "Instances register when started with --daemon and are automatically removed "
+    "when they exit or are stopped with dev stop",
 )
 def dev_status(**_kw: object) -> int:
     """Handler for ``fastware dev status``."""
@@ -94,7 +100,10 @@ def dev_status(**_kw: object) -> int:
 
 @dev.command(
     "stop",
-    help="Stop running dev environments gracefully (then SIGKILL after the grace period)",
+    help="Stop all running dev environments by sending SIGTERM for a graceful "
+    "shutdown. If a process does not exit within the grace period (default 10 "
+    "seconds, configurable with --grace), it is forcibly terminated with SIGKILL. "
+    "Stopped instances are removed from the instance registry",
 )
 @flag(
     "grace",

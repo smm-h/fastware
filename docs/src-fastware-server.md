@@ -1,6 +1,6 @@
 ---
 title: src.fastware.server
-description: "Granian server lifecycle: serve() in foreground/background/reload modes with a selectable event loop (asyncio, uvloop, or rloop) and worker count, serve_background() as a detached subprocess, PID-file management, port checks with stale-instance recovery, stop(), and status()."
+description: "Granian server lifecycle: serve() in foreground/background/reload modes with selectable event loop, PID-file management, port checks, and stop/status."
 generated: true
 nav_group: "API Reference"
 nav_order: 20

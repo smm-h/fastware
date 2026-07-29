@@ -68,6 +68,11 @@
       "type": "doc"
     },
     {
+      "path": "observability.md",
+      "title": "Observability",
+      "type": "doc"
+    },
+    {
       "path": "quickstart.md",
       "title": "Quickstart",
       "type": "doc"
@@ -203,6 +208,11 @@
       "type": "doc"
     },
     {
+      "path": "tasks-guide.md",
+      "title": "Background Tasks and Feature Flags",
+      "type": "doc"
+    },
+    {
       "path": "vite-guide.md",
       "title": "Vite Dev Mode",
       "type": "doc"
@@ -229,5 +239,5 @@
     }
   ],
   "posts": [],
-  "last_gen": "2026-07-29T15:02:10.431046+00:00"
+  "last_gen": "2026-07-29T15:07:12.771217+00:00"
 }

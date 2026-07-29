@@ -21,6 +21,8 @@ pip install fastware[all]         # everything above
 
 ## Extras overview
 
+The table below summarizes every extras group, listing the packages each one installs, which fastware modules require them, and the specific features they unlock. Use it to decide which groups your application needs, or install `[all]` if you want everything available without choosing individually.
+
 :-: table-extras
 
 ## All dependencies
