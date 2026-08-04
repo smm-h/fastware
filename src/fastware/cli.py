@@ -31,6 +31,10 @@ def _load_cfg():
 
 @dev.command(
     "run",
+    # mutating: spawns the Vite dev server and the Granian backend as real
+    # child processes, writes a PID file, and registers the instance in the
+    # on-disk registry (which --daemon then leaves behind after detaching).
+    effect="mutating",
     help="Start the dev environment by reading [tool.fastware.dev] from the nearest "
     "pyproject.toml, running pre-spawn gates to check prerequisites, launching "
     "auxiliary services and the Vite frontend dev server, wrapping the ASGI app with "
@@ -51,7 +55,7 @@ def _load_cfg():
     default=10,
     help="Seconds to wait for a component to stop gracefully before SIGKILL.",
 )
-def dev_run(daemon: bool, grace: int, **_kw: object) -> int:
+def dev_run(ctx, daemon: bool, grace: int) -> int:
     """Handler for ``fastware dev run``."""
     from fastware.devconfig import DevConfigError
     from fastware.supervise import ComponentDied, DevRunError, run_dev
@@ -73,12 +77,20 @@ def dev_run(daemon: bool, grace: int, **_kw: object) -> int:
 
 @dev.command(
     "status",
+    # mutating, which is not obvious and is the reason this comment exists:
+    # listing the registry prunes it. `server.list_instances` unlinks every
+    # descriptor whose PID is no longer alive and every descriptor it cannot
+    # decode, so a plain `dev status` deletes files from disk. That is
+    # bookkeeping rather than anything the user asked for, but it is still a
+    # delete, and declaring it read-only would make routing the unlink through
+    # `ctx.effects.remove` a hard error at call time later on.
+    effect="mutating",
     help="List all running fastware dev environments registered in the instance "
     "registry, showing the instance name, process ID, and port for each entry. "
     "Instances register when started with --daemon and are automatically removed "
     "when they exit or are stopped with dev stop",
 )
-def dev_status(**_kw: object) -> int:
+def dev_status(ctx) -> int:
     """Handler for ``fastware dev status``."""
     from fastware.devconfig import DevConfigError
     from fastware.supervise import list_dev_instances
@@ -100,6 +112,9 @@ def dev_status(**_kw: object) -> int:
 
 @dev.command(
     "stop",
+    # mutating: sends SIGTERM (then SIGKILL) to every registered dev process
+    # and drops the corresponding registry entries.
+    effect="mutating",
     help="Stop all running dev environments by sending SIGTERM for a graceful "
     "shutdown. If a process does not exit within the grace period (default 10 "
     "seconds, configurable with --grace), it is forcibly terminated with SIGKILL. "
@@ -111,7 +126,7 @@ def dev_status(**_kw: object) -> int:
     default=10,
     help="Seconds to wait for a dev environment to stop gracefully before SIGKILL.",
 )
-def dev_stop(grace: int, **_kw: object) -> int:
+def dev_stop(ctx, grace: int) -> int:
     """Handler for ``fastware dev stop``."""
     from fastware.devconfig import DevConfigError
     from fastware.supervise import stop_dev_instances

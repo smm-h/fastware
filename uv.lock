@@ -1002,11 +1002,14 @@ wheels = [
 
 [[package]]
 name = "strictcli"
-version = "0.26.0"
+version = "0.36.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/53/cb/35cab4d90376410bf56804d243ac33a76d5b5d47e1fe19296fd0a56ee604/strictcli-0.26.0.tar.gz", hash = "sha256:37527de355ec3b7e4b5d35eb0a4bbdfd77c248980be9665cb4662cae82b79726", size = 166406, upload-time = "2026-07-09T14:51:03.795Z" }
+dependencies = [
+    { name = "tomlkit" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e3/b4/5ad0aa4f8912a87716e75614d85c8d8c27b6dcc6bdbf9b3de1303c22714a/strictcli-0.36.0.tar.gz", hash = "sha256:3ad801d2919ac1b0ecb68f04a1062e2cedd7d58d3ad6d4aa1ba0eca7e11d7d05", size = 260732, upload-time = "2026-08-04T20:49:45.559Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/52/f6/f01f9cf34c3c9ab792222a75c7a20ac0ecb3edfc3f8234a1a8d9204fb3b2/strictcli-0.26.0-py3-none-any.whl", hash = "sha256:5f58204e5a5aa18eafd7cfe0d14b4154c0ef6003e99ab963565ab082e6137f31", size = 56676, upload-time = "2026-07-09T14:51:02.691Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/be/a924f2e95af0642a0c6358ec6b5b998b5adef5625814cb5024d1a564b677/strictcli-0.36.0-py3-none-any.whl", hash = "sha256:1aa2fa464fb7b1505485c79e3436942ca5c2dfe39958f8de7f2e3e7271baa98f", size = 101923, upload-time = "2026-08-04T20:49:43.962Z" },
 ]
 
 [[package]]
@@ -1016,6 +1019,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/5e/89/b4a0bcfdf4f71a3dea31379f095929613d7e4528a0996bca6aa964cd0dca/structlog-26.1.0.tar.gz", hash = "sha256:f63a716cbd1b1291cf7661de7794b455acfa4c43c5bcf1630e6ad5ddc1adb3b7", size = 1459881, upload-time = "2026-06-06T07:33:39.348Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a9/18/489c97b834dfff9cf2fc2507cede4bcd4b11e67f84bc462acd1992496f86/structlog-26.1.0-py3-none-any.whl", hash = "sha256:e081a26d6c373e6d201eca24eede26d8ffab07f88f477822e679183428d3d91e", size = 73764, upload-time = "2026-06-06T07:33:38.046Z" },
+]
+
+[[package]]
+name = "tomlkit"
+version = "0.15.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/94/96/e07752635b98536177fa1f37671c8f3cdde2e724c6bcf6034b2cfb571565/tomlkit-0.15.1.tar.gz", hash = "sha256:e25bbf38843005246210a12982776f27f99cb9be67160e14434d0c0d21ee1e97", size = 180129, upload-time = "2026-07-17T01:48:04.562Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/13/bc/8c13eb66537dce1d2bd3a57132902f38d0e7f5bb46fa9f4daed9fe9d76ee/tomlkit-0.15.1-py3-none-any.whl", hash = "sha256:177a05aece5a8ca5266fd3c448abb47b8d352f09d477d3ca8332db4d89b24304", size = 49449, upload-time = "2026-07-17T01:48:05.728Z" },
 ]
 
 [[package]]
