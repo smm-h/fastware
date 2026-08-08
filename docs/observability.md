@@ -249,7 +249,7 @@ audit.log("system.startup")
 
 Each line in the JSONL file is a self-contained JSON object with compact separators (no spaces) for minimal file size. The `timestamp` field is always present and uses ISO 8601 UTC format. The `event_type` field is always present. The `payload` field is included only when a payload dict was passed to `audit.log()`, keeping payloadless entries minimal:
 
-```json
+```jsonl
 {"timestamp":"2026-07-28T14:30:00.123456+00:00","event_type":"user.login","payload":{"user_id":"alice","ip":"192.168.1.1"}}
 {"timestamp":"2026-07-28T14:30:01.456789+00:00","event_type":"system.startup"}
 ```
