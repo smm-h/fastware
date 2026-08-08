@@ -85,6 +85,28 @@ def test_stale_entry_pruned_on_read(tmp_path: Path) -> None:
     assert not stale_file.exists()  # pruned on read
 
 
+def test_dead_child_entry_pruned_on_read(tmp_path: Path, zombie_pid: int) -> None:
+    """A descriptor for our own exited-but-unreaped child is pruned, not listed.
+
+    The PID a ``serve_background`` child registers is a child of whoever called
+    it, so once it exits it stays a zombie until this process waits on it -- and
+    the raw ``kill -0`` liveness probe succeeds for zombies. Without a reap the
+    registry would keep serving that dead instance forever.
+    """
+    os.kill(zombie_pid, 0)  # precondition: the corpse still answers the raw probe
+
+    pid_path = tmp_path / "app.pid"
+    reg_dir = _registry_dir(pid_path)
+    reg_dir.mkdir(parents=True, exist_ok=True)
+    entry_file = _registry_entry_path(pid_path, zombie_pid)
+    entry_file.write_bytes(
+        msgspec.json.encode({"pid": zombie_pid, "port": 9999, "name": "corpse"})
+    )
+
+    assert list_instances(pid_path) == []
+    assert not entry_file.exists()  # pruned on read
+
+
 def test_corrupt_entry_pruned_on_read(tmp_path: Path) -> None:
     pid_path = tmp_path / "app.pid"
     reg_dir = _registry_dir(pid_path)

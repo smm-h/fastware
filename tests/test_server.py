@@ -3,13 +3,16 @@ from __future__ import annotations
 import http.server
 import socket
 import threading
+import time
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from granian.constants import Loops
 
+from fastware import server as server_module
 from fastware.server import (
+    _STOP_GRACE_SECONDS,
     AlreadyRunningError,
     PortInUseError,
     _find_free_port,
@@ -19,6 +22,8 @@ from fastware.server import (
     ensure_port_available,
     read_port_file,
     serve,
+    status,
+    stop,
 )
 
 
@@ -392,3 +397,121 @@ def test_serve_writes_port_file(mock_make_embed: MagicMock, tmp_path: Path) -> N
     port_path = pid_path.with_suffix(".port")
     assert port_path.exists()
     assert int(port_path.read_text().strip()) == free_port
+
+
+# ---------------------------------------------------------------------------
+# Liveness probes must not mistake a corpse for a running server
+# ---------------------------------------------------------------------------
+# `os.kill(pid, 0)` -- the probe behind every entry point here -- succeeds for a
+# zombie, and a `serve_background` child is a child of whoever called it, so it
+# stays a zombie until this process waits on it. Each probe reaps first; these
+# tests pin that per probe with a real unreaped child (the `zombie_pid`
+# fixture), with no dependence on granian or on signal-delivery timing.
+
+
+def test_status_reports_a_dead_child_as_not_running(
+    tmp_path: Path, zombie_pid: int
+) -> None:
+    """status() must reap its own exited child rather than believe kill-0."""
+    import os
+
+    os.kill(zombie_pid, 0)  # precondition: the corpse still answers the raw probe
+
+    pid_path = tmp_path / "app.pid"
+    pid_path.write_text(str(zombie_pid))
+
+    result = status(pid_path)
+    assert result.running is False
+    assert result.pid == zombie_pid
+
+
+def test_check_already_running_ignores_a_dead_child(
+    tmp_path: Path, zombie_pid: int
+) -> None:
+    """check_already_running() must not block a restart on an exited child."""
+    pid_path = tmp_path / "app.pid"
+    pid_path.write_text(str(zombie_pid))
+
+    assert check_already_running(pid_path) is None
+    assert not pid_path.exists(), "the dead instance's PID file should be cleaned up"
+
+
+def test_stop_returns_promptly_for_an_already_dead_child(
+    tmp_path: Path, zombie_pid: int
+) -> None:
+    """stop() must reap its own exited child instead of waiting it out.
+
+    Without the reap, ``os.kill(pid, 0)`` keeps succeeding for the zombie, so
+    stop() signals a corpse, polls it for the entire grace window and then
+    escalates to SIGKILL -- every single time, never gracefully. The zombie is
+    built directly here, so this pins the reap and nothing else: no live server,
+    no SIGTERM delivery, no dependence on machine load.
+    """
+    import os
+
+    pid_path = tmp_path / "app.pid"
+    pid_path.write_text(str(zombie_pid))
+
+    started = time.monotonic()
+    stop(pid_path)
+    elapsed = time.monotonic() - started
+
+    assert elapsed < _STOP_GRACE_SECONDS / 2, (
+        f"stop() took {elapsed:.1f}s -- it burnt the grace window waiting on a "
+        f"zombie child instead of reaping it"
+    )
+    assert not pid_path.exists()
+    with pytest.raises(ProcessLookupError):
+        os.kill(zombie_pid, 0)
+
+
+def test_stop_confirms_death_before_returning_after_sigkill(
+    tmp_path: Path, sigterm_deaf_pid: int, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """stop() must not return until the SIGKILL it sent has actually landed.
+
+    SIGKILL is delivered asynchronously, and once it lands this process's own
+    child lingers as a zombie until waited on -- so a stop() that returns right
+    after ``os.kill`` leaves a PID that still answers every liveness probe.
+    Callers that probe immediately (status, list_instances,
+    check_already_running, or a bare kill-0) are then told a corpse is running.
+    """
+    import os
+
+    monkeypatch.setattr(server_module, "_STOP_GRACE_SECONDS", 0.5)
+
+    pid_path = tmp_path / "app.pid"
+    pid_path.write_text(str(sigterm_deaf_pid))
+
+    stop(pid_path)
+
+    with pytest.raises(ProcessLookupError):
+        os.kill(sigterm_deaf_pid, 0)
+    assert not pid_path.exists()
+
+
+def test_stop_still_escalates_to_sigkill_after_the_grace_window(
+    tmp_path: Path, sigterm_deaf_pid: int, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The graceful-then-forceful sequence itself is unchanged.
+
+    A SIGTERM-deaf child survives the whole grace window and only dies to the
+    escalation, so stop() must spend at least that window before killing it.
+    """
+    import os
+
+    monkeypatch.setattr(server_module, "_STOP_GRACE_SECONDS", 0.5)
+
+    pid_path = tmp_path / "app.pid"
+    pid_path.write_text(str(sigterm_deaf_pid))
+
+    started = time.monotonic()
+    stop(pid_path)
+    elapsed = time.monotonic() - started
+
+    assert elapsed >= 0.5, (
+        f"stop() returned after {elapsed:.2f}s -- it skipped the grace window "
+        f"instead of giving the child a chance to exit on SIGTERM"
+    )
+    with pytest.raises(ProcessLookupError):
+        os.kill(sigterm_deaf_pid, 0)
