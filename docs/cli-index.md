@@ -18,3 +18,14 @@ Version: :-: var key="project.version"
 ## Command Groups
 
 - [dev](cli-dev.html) -- Run and manage the file-driven development environment
+
+## Framework flags
+
+These flags are owned by the strictcli framework, not by the app. No command may declare a flag with one of these names, and each is recognized anywhere on the command line.
+
+| Flag | Effect |
+| --- | --- |
+| `--dry-run` | Preview mode: no mutation runs. The framework prints a log of every effect the command would have performed. |
+| `--approve-consequential` | Skips the confirmation prompt a consequential command shows before it runs. |
+| `--quiet` | Hides informational output. Warnings, errors, structured data and the dry-run log are never suppressed. |
+| `--verbose` | Shows debug output. `--quiet` wins when both are passed. |
