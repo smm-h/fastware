@@ -166,6 +166,29 @@ def _remove_pid(pid_path: Path) -> None:
         pass
 
 
+def _reap_if_dead_child(pid: int) -> None:
+    """Clear *pid* from the process table if it is our own already-exited child.
+
+    Every liveness probe in this module is ``os.kill(pid, 0)``, which SUCCEEDS
+    for a zombie -- a process that has exited but whose parent has not waited on
+    it yet. ``serve_background`` spawns the server as a direct child of the
+    caller and discards the handle, so in the very common case where the same
+    process later calls ``stop``/``status``/``list_instances``, a dead server
+    reads as alive: ``stop`` polls out its entire 10s grace window and escalates
+    to SIGKILL every time, ``status`` reports it running, ``list_instances``
+    keeps serving a stale descriptor, and ``check_already_running`` refuses to
+    start a replacement.
+
+    A non-blocking wait clears the zombie so the probe that follows tells the
+    truth. A pid that is not our child raises ``ChildProcessError`` and one that
+    is still running returns immediately with ``(0, 0)`` -- both are no-ops.
+    """
+    try:
+        os.waitpid(pid, os.WNOHANG)
+    except (ChildProcessError, OSError):
+        pass
+
+
 def check_already_running(pid_path: Path) -> int | None:
     """Check if another instance is running. Returns the PID if running, None otherwise.
 
@@ -179,6 +202,7 @@ def check_already_running(pid_path: Path) -> int | None:
         # Corrupt or unreadable PID file -- treat as stale.
         _remove_pid(pid_path)
         return None
+    _reap_if_dead_child(pid)
     try:
         os.kill(pid, 0)  # probe whether the process is alive
     except ProcessLookupError:
@@ -460,6 +484,7 @@ def _registry_entry_path(pid_path: Path, pid: int) -> Path:
 
 def _pid_alive(pid: int) -> bool:
     """Return True if *pid* is alive (mirrors check_already_running's kill-0)."""
+    _reap_if_dead_child(pid)
     try:
         os.kill(pid, 0)
     except ProcessLookupError:
@@ -1115,6 +1140,7 @@ def stop(pid_path: Path) -> None:
         raise FileNotFoundError(f"Corrupt or unreadable PID file: {pid_path}") from exc
 
     # Check if process is alive first
+    _reap_if_dead_child(pid)
     try:
         os.kill(pid, 0)
     except ProcessLookupError:
@@ -1149,6 +1175,7 @@ def stop(pid_path: Path) -> None:
     # Wait up to 10s for process to exit
     deadline = time.monotonic() + 10.0
     while time.monotonic() < deadline:
+        _reap_if_dead_child(pid)
         try:
             os.kill(pid, 0)
         except ProcessLookupError:
@@ -1198,6 +1225,7 @@ def status(pid_path: Path, health_url: str | None = None) -> ServerStatus:
         return ServerStatus(running=False, pid=None, healthy=None)
 
     # Check liveness
+    _reap_if_dead_child(pid)
     try:
         os.kill(pid, 0)
     except ProcessLookupError:
