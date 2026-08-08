@@ -77,6 +77,13 @@ class TestReadinessPoll:
 class TestCallableTargetBackground:
     """serve_background with a callable target must work in the spawned child."""
 
+    # The spawned child re-imports the target through the generated shim, and
+    # it can only resolve `tests.target_app_module` from the repo root on its
+    # sys.path -- which it inherits as the process cwd. stricttest's autouse
+    # tmp-cwd isolation would leave the child unable to import the target, so
+    # this test opts out and keeps the real repo cwd. It writes only into
+    # tmp_path.
+    @pytest.mark.repo_cwd
     def test_module_level_callable_serves(self, tmp_path: Path) -> None:
         """A module-level callable target starts and answers HTTP in the child."""
         from tests.target_app_module import app
@@ -108,6 +115,9 @@ class TestCallableTargetBackground:
 class TestEventLoopSelection:
     """The default serve()/serve_background() loop must be stdlib asyncio."""
 
+    # Same reason as TestCallableTargetBackground above: the spawned child
+    # imports `tests.loop_probe_app` off the inherited repo cwd.
+    @pytest.mark.repo_cwd
     def test_default_loop_is_asyncio(self, tmp_path: Path) -> None:
         """A real background server runs under an asyncio loop by default.
 

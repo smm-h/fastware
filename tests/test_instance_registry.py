@@ -13,6 +13,7 @@ import urllib.request
 from pathlib import Path
 
 import msgspec
+import pytest
 
 from fastware.server import (
     RegistryEntry,
@@ -95,6 +96,11 @@ def test_corrupt_entry_pruned_on_read(tmp_path: Path) -> None:
     assert not corrupt.exists()
 
 
+# The spawned child imports `tests.target_app_module` through the generated
+# shim, resolving it off the repo root it inherits as its cwd. stricttest's
+# autouse tmp-cwd isolation would break that import, so this test keeps the
+# real repo cwd; it writes only into tmp_path.
+@pytest.mark.repo_cwd
 def test_serve_background_registers_instance(tmp_path: Path) -> None:
     """A real background child registers itself with its PID, port, and name."""
     from tests.target_app_module import app

@@ -316,6 +316,7 @@ dev = [
     { name = "pydantic" },
     { name = "pyjwt" },
     { name = "pytest" },
+    { name = "stricttest" },
     { name = "structlog" },
     { name = "watchfiles" },
     { name = "websockets" },
@@ -352,6 +353,7 @@ dev = [
     { name = "pydantic" },
     { name = "pyjwt" },
     { name = "pytest" },
+    { name = "stricttest", specifier = ">=0.2.0" },
     { name = "structlog" },
     { name = "watchfiles" },
     { name = "websockets" },
@@ -1010,6 +1012,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e3/b4/5ad0aa4f8912a87716e75614d85c8d8c27b6dcc6bdbf9b3de1303c22714a/strictcli-0.36.0.tar.gz", hash = "sha256:3ad801d2919ac1b0ecb68f04a1062e2cedd7d58d3ad6d4aa1ba0eca7e11d7d05", size = 260732, upload-time = "2026-08-04T20:49:45.559Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/be/a924f2e95af0642a0c6358ec6b5b998b5adef5625814cb5024d1a564b677/strictcli-0.36.0-py3-none-any.whl", hash = "sha256:1aa2fa464fb7b1505485c79e3436942ca5c2dfe39958f8de7f2e3e7271baa98f", size = 101923, upload-time = "2026-08-04T20:49:43.962Z" },
+]
+
+[[package]]
+name = "stricttest"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/20/5d/abb037f117142f4063f43c0e92123d324bed5420a13bbae27bf21c3e7358/stricttest-0.2.0.tar.gz", hash = "sha256:f0d180017fe4781dc82500024f0123c761e0ed4ce930135afc7ffc00e7efbd69", size = 51302, upload-time = "2026-08-07T12:02:35.988Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6e/b1/d79c6786287ec589e94d5255d585d3f5e837e9ecbaf15c3c0d7fdee65c23/stricttest-0.2.0-py3-none-any.whl", hash = "sha256:e945a7b0f7d47bba88f4de43417683b2db57dc38d4dfc304f52f1b3605a58964", size = 28626, upload-time = "2026-08-07T12:02:34.723Z" },
 ]
 
 [[package]]

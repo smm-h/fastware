@@ -30,8 +30,11 @@ all = [
 ]
 
 [dependency-groups]
+# Installing stricttest IS adoption of the test-isolation floor; the stance is
+# declared in [tool.pytest.ini_options] below.
 dev = [
     "pytest",
+    "stricttest>=0.2.0",
     "httpx>=0.28",
     "pyjwt",
     "bcrypt",
@@ -54,6 +57,22 @@ artifacts = ["src/fastware/_assets/*.js.tmpl"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# The stricttest floor's stance. No implicit defaults exist: a missing key
+# aborts the session at configure time.
+stricttest_sockets = "deny"
+stricttest_socket_allowlist = []
+stricttest_unix_socket_allowlist = []
+# `allow`, not `allowlist`. This suite runs REAL background servers: the
+# serve/serve_background/supervise and granian-embed tests bind
+# ("127.0.0.1", 0) and dial the result back, and `_probe_health` stands up a
+# threaded HTTPServer the same way. The kernel assigns the port at bind time,
+# so the host:port pair an exact allowlist would have to name does not exist
+# at configuration time -- port 0 is inexpressible in an allowlist. Off-machine
+# egress stays denied by `stricttest_sockets = "deny"`.
+stricttest_loopback = "allow"
+# No sandbox runner in this repo yet; the bwrap runner ships as an rlsbl
+# scaffold template. Flip to "true" at adoption.
+stricttest_sandbox_required = "false"
 
 [tool.ruff]
 line-length = 120
