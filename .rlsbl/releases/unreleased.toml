@@ -2,11 +2,27 @@
 format_version = 1
 # Version bump type: patch, minor, major, infra, or prerelease
 #   prerelease: advance an existing pre-release (0.6.0-beta.0 -> -beta.1)
-bump = ""
+bump = "minor"
 # Short description of this release (required)
-description = ""
+description = "Graceful background-server shutdown, two new documentation guides, and a declared strictcli floor."
 # Optional context explaining why these changes were made
-context = ""
+context = """
+The release's headline fix is in the server lifecycle. A server started with
+serve_background() is a direct child of the caller, so on exit it stayed a
+zombie in the caller's process table -- and every liveness probe in the module
+is kill(pid, 0), which succeeds for zombies. stop() therefore never terminated
+anything gracefully: it polled a server that was already gone for its whole
+10-second grace window and then escalated to SIGKILL, every single time.
+status(), list_instances() and check_already_running() lied in the same way.
+The probes now reap their own exited children first.
+
+This visit also adopts the stricttest test-isolation floor. The loopback stance
+is "allow" rather than an exact allowlist because this suite boots real servers
+on ("127.0.0.1", 0) -- the kernel picks the port at bind time, so there is no
+host:port pair for an allowlist to name at configuration time. Off-machine
+egress stays denied. Three tests whose spawned child re-imports its target off
+the inherited repo cwd carry @pytest.mark.repo_cwd.
+"""
 # Pre-release channel: alpha, beta, rc, or stable (ordered;
 # demotion is an error). With patch/minor/major it ENTERS the
 # channel (0.5.2 + minor + alpha -> 0.6.0-alpha.0); with
