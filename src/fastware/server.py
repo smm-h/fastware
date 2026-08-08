@@ -182,6 +182,21 @@ def _reap_if_dead_child(pid: int) -> None:
     A non-blocking wait clears the zombie so the probe that follows tells the
     truth. A pid that is not our child raises ``ChildProcessError`` and one that
     is still running returns immediately with ``(0, 0)`` -- both are no-ops.
+
+    Consequence worth stating, because the wait is unconditional: if the calling
+    program *also* holds a ``subprocess.Popen`` for this PID, this reap consumes
+    the exit status that Popen was waiting for. CPython's ``Popen._try_wait``
+    swallows the resulting ``ChildProcessError`` and records returncode ``0``,
+    so the consumer's later ``poll()``/``wait()`` reports a clean exit it never
+    observed -- including for a process that crashed or was SIGKILLed here.
+
+    That is acceptable at these call sites because the PIDs reaching them are
+    fastware's own: they come from a PID file or an instance descriptor that
+    only ``serve``/``serve_background`` write, for the supervisor process
+    fastware itself spawned and whose ``Popen`` handle it deliberately discards
+    (``serve_background`` detaches; nothing in this module keeps one to wait on).
+    The rule that keeps it true: never point a fastware PID file or registry
+    descriptor at a process whose exit status someone else needs.
     """
     try:
         os.waitpid(pid, os.WNOHANG)
@@ -1108,6 +1123,15 @@ class ServerStatus:
     healthy: bool | None
 
 
+# How long stop() lets a server exit on SIGTERM before escalating to SIGKILL.
+_STOP_GRACE_SECONDS = 10.0
+
+# How long stop() spends confirming that the SIGKILL it sent actually landed.
+# Bounded: a PID that outlives it is not ours to reap and no amount of waiting
+# will change that.
+_STOP_KILL_CONFIRM_SECONDS = 2.0
+
+
 def _cleanup_pid_and_port(pid_path: Path) -> None:
     """Remove both the PID file and its companion port file."""
     _remove_pid(pid_path)
@@ -1123,8 +1147,10 @@ def stop(pid_path: Path) -> None:
     startup), only the single PID is signalled -- a group the server does not
     lead may contain unrelated processes such as the launching shell.
 
-    Waits up to 10s polling with os.kill(pid, 0), then escalates to SIGKILL.
-    Cleans up the PID file and port file.
+    Waits up to 10s polling with os.kill(pid, 0), then escalates to SIGKILL and
+    waits (briefly, bounded) for that kill to land before returning, so a caller
+    that probes immediately afterwards is never told the corpse is still
+    running. Cleans up the PID file and port file.
 
     Raises FileNotFoundError if PID file does not exist.
     If the process is already gone (stale PID file), removes the PID file
@@ -1172,8 +1198,18 @@ def stop(pid_path: Path) -> None:
         _cleanup_pid_and_port(pid_path)
         raise
 
-    # Wait up to 10s for process to exit
-    deadline = time.monotonic() + 10.0
+    # Wait out the grace window for the process to exit.
+    #
+    # Measured behaviour worth knowing before you shorten this: a granian
+    # supervisor drops SIGTERM outright a few percent of the time (~3-8% per
+    # stop() under system load). The child stays in state S -- running, not a
+    # zombie -- for the entire window and only dies to the escalation below, so
+    # a stop() that normally returns in milliseconds occasionally takes the full
+    # window. That is a granian signal-handling mode, not a bug in this loop and
+    # not the zombie case the reap covers; the two are independent. Nothing here
+    # can shorten it, so do not write timing assertions over a live granian
+    # stop() -- they fail on load, not on what they claim to pin.
+    deadline = time.monotonic() + _STOP_GRACE_SECONDS
     while time.monotonic() < deadline:
         _reap_if_dead_child(pid)
         try:
@@ -1196,7 +1232,45 @@ def stop(pid_path: Path) -> None:
         _cleanup_pid_and_port(pid_path)
         raise
 
+    _confirm_dead(pid)
     _cleanup_pid_and_port(pid_path)
+
+
+def _confirm_dead(pid: int) -> bool:
+    """Wait (briefly, bounded) until *pid* is gone from the process table.
+
+    ``os.kill`` only *queues* SIGKILL: it returns before the kernel has torn the
+    target down, and once it has, a process of ours lingers as a zombie until it
+    is waited on. Both states answer ``os.kill(pid, 0)``, so a ``stop()`` that
+    returned straight after signalling would leave every liveness probe --
+    ``status``, ``list_instances``, ``check_already_running``, or a caller's own
+    kill-0 -- reporting a corpse as a running server.
+
+    Returns True once the PID is confirmed gone. Returns False if the bounded
+    window expires or the PID is not ours to probe: a PID that survives SIGKILL
+    is one we neither own nor can reap (a foreign zombie held by another parent,
+    or a process we may signal but not wait on), and waiting longer cannot
+    change that.
+    """
+    deadline = time.monotonic() + _STOP_KILL_CONFIRM_SECONDS
+    while True:
+        _reap_if_dead_child(pid)
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return True
+        except PermissionError:
+            return False  # not ours to probe -- nothing to confirm
+        if time.monotonic() >= deadline:
+            log.warning(
+                "Process %d still present %.1fs after SIGKILL; it is not ours to "
+                "reap. Liveness probes may keep reporting it until its own parent "
+                "waits on it.",
+                pid,
+                _STOP_KILL_CONFIRM_SECONDS,
+            )
+            return False
+        time.sleep(0.01)
 
 
 def status(pid_path: Path, health_url: str | None = None) -> ServerStatus:
