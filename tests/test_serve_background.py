@@ -97,32 +97,15 @@ class TestCallableTargetBackground:
         finally:
             stop(pid_path)
 
-    # Same repo-cwd reason as the test above.
-    @pytest.mark.repo_cwd
-    def test_stop_does_not_burn_the_grace_window_on_its_own_child(
-        self, tmp_path: Path
-    ) -> None:
-        """stop() must reap its own exited child instead of waiting it out.
-
-        A process that exits stays in the process table as a zombie until its
-        parent waits on it, and ``os.kill(pid, 0)`` succeeds for zombies. The
-        caller of ``serve_background`` IS the parent, so without a reap ``stop``
-        polls a server that is already gone for the whole 10s grace window and
-        then escalates to SIGKILL -- every single time, never gracefully.
-        """
-        from tests.target_app_module import app
-
-        pid_path = tmp_path / "bg.pid"
-        serve_background(app, host="127.0.0.1", port=0, pid_path=pid_path)
-
-        started = time.monotonic()
-        stop(pid_path)
-        elapsed = time.monotonic() - started
-
-        assert elapsed < 5.0, (
-            f"stop() took {elapsed:.1f}s -- it burnt the 10s grace window "
-            f"waiting on a zombie child instead of reaping it"
-        )
+    # The zombie-reap regression this class used to pin with a wall-clock
+    # assertion on a live granian stop now lives in test_server.py
+    # (test_stop_returns_promptly_for_an_already_dead_child). It was moved
+    # because granian children drop SIGTERM under system load a few percent of
+    # the time (see the grace-window comment in server.py), which stalls stop()
+    # for the whole grace window for reasons that have nothing to do with the
+    # reap -- the assertion failed on load, not on the regression it named. The
+    # replacement builds the zombie directly, so it pins the reap and nothing
+    # else.
 
     def test_local_callable_raises_clear_error(self, tmp_path: Path) -> None:
         """A non-importable callable (local function) raises immediately."""
