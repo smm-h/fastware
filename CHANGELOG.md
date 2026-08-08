@@ -2,6 +2,12 @@
 
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- **`stop()` no longer reports a killed server as running.** After escalating to SIGKILL it now waits for the kill to actually land, so `status()`, `list_instances()` and `check_already_running()` called right after a stop tell the truth instead of seeing the corpse's PID.
+
 ## 0.6.0
 
 Graceful background-server shutdown, two new documentation guides, and a declared strictcli floor.
@@ -22,7 +28,7 @@ This visit also adopts the stricttest test-isolation floor. The loopback stance
 is "allow" rather than an exact allowlist because this suite boots real servers
 on ("127.0.0.1", 0) -- the kernel picks the port at bind time, so there is no
 host:port pair for an allowlist to name at configuration time. Off-machine
-egress stays denied. Three tests whose spawned child re-imports its target off
+egress stays denied. Four tests whose spawned child re-imports its target off
 the inherited repo cwd carry @pytest.mark.repo_cwd.
 
 </details>
