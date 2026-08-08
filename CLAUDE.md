@@ -81,7 +81,7 @@ Internal import structure, from leaves to hub:
 | --- | --- |
 | `msgspec` | >=0.21.1 |
 | `granian` | >=2.7,<3.0 |
-| `strictcli` | * |
+| `strictcli` | >=0.36.0 |
 | **[auth]** |  |
 | `pyjwt` | * |
 | `bcrypt` | * |
