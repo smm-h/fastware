@@ -338,7 +338,7 @@ requires-dist = [
     { name = "msgspec", specifier = ">=0.21.1" },
     { name = "pydantic", marker = "extra == 'pydantic'" },
     { name = "pyjwt", marker = "extra == 'auth'" },
-    { name = "strictcli" },
+    { name = "strictcli", specifier = ">=0.36.0" },
     { name = "structlog", marker = "extra == 'logging'" },
     { name = "watchfiles", marker = "extra == 'dev'" },
     { name = "websockets", marker = "extra == 'dev'" },
