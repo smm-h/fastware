@@ -1020,7 +1020,7 @@ class TestFactorySignatureIntrospection:
 
     @pytest.mark.anyio
     async def test_positional_before_keyword_only(self):
-        """def f(request, *, x=1) receives request positionally, x defaults."""
+        """def f(request, *, x=1) receives request as a positional argument, x defaults."""
 
         def get_thing(request, *, scale=2):
             return f"{request}-{scale}"

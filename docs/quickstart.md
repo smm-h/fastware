@@ -220,7 +220,7 @@ app = create_app(router, middleware=[my_middleware])
 
 ## Next steps
 
-- [Core API Reference](../api.md) -- full documentation of routing, request, and response types
-- [Auth and Security](../api-auth.md) -- JWT, passwords, CSRF, rate limiting
-- [Optional Extras](../extras.md) -- install only what you need
-- [Migration from FastAPI](../migration-fastapi.md) -- porting guide with side-by-side comparisons
+- [Core API Reference](api.md) -- full documentation of routing, request, and response types
+- [Auth and Security](api-auth.md) -- JWT, passwords, CSRF, rate limiting
+- [Optional Extras](extras.md) -- install only what you need
+- [Migration from FastAPI](migration-fastapi.md) -- porting guide with side-by-side comparisons

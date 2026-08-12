@@ -340,7 +340,8 @@ def _cache_control_for(filename: str) -> str:
     """Return the Cache-Control value for a served static filename.
 
     Hashed Vite-style assets are immutable and cached for a year; everything
-    else (unhashed assets, index.html, SPA fallback) is ``no-cache`` so clients
+    else (assets with no content hash, index.html, SPA fallback) is ``no-cache``
+    so clients
     always revalidate.
     """
     if _HASHED_ASSET_RE.search(filename):

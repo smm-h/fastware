@@ -47,7 +47,7 @@ def create_token(
     secret: str,
     expires_hours: int = 720,
 ) -> str:
-    """Create a signed JWT with sub, role, exp, and iat claims (HS256)."""
+    """Create a signed JWT with ``sub``, ``role``, ``exp`` and ``iat`` claims (HS256)."""
     import jwt
 
     now = datetime.now(UTC)
@@ -355,8 +355,8 @@ def set_session_cookies(token: str, csrf_token: str) -> list[str]:
     """Build Set-Cookie header strings for session and CSRF cookies.
 
     Returns a list of two Set-Cookie strings:
-    - session: httponly, samesite=lax (not readable by JS)
-    - csrf_token: js-readable (no httponly), samesite=lax
+    - session: ``httponly``, ``samesite=lax`` (not readable by JS)
+    - csrf_token: js-readable (no ``httponly``), ``samesite=lax``
     """
     return [
         set_cookie("session", token, httponly=True, samesite="lax"),

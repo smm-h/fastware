@@ -51,11 +51,12 @@ import msgspec
 from granian import Granian
 
 # Explicit event-loop choices exposed to callers. Deliberately excludes
-# Granian's "auto", which silently resolves rloop -> uvloop -> asyncio based
+# Granian's "auto", which silently resolves ``rloop`` -> ``uvloop`` -> ``asyncio``
+# based
 # on which packages happen to be installed. fastware pins the default to
 # "asyncio" so behaviour never changes just because a transitive dependency
-# pulls in rloop/uvloop (a "no silent degradation" hazard, and rloop in
-# particular breaks asyncio-subprocess workloads like Playwright).
+# pulls in ``rloop``/``uvloop`` (a "no silent degradation" risk, and ``rloop``
+# in particular breaks asyncio-subprocess workloads like Playwright).
 LoopChoice = Literal["asyncio", "uvloop", "rloop"]
 
 __all__ = [
@@ -185,10 +186,12 @@ def _reap_if_dead_child(pid: int) -> None:
 
     Consequence worth stating, because the wait is unconditional: if the calling
     program *also* holds a ``subprocess.Popen`` for this PID, this reap consumes
-    the exit status that Popen was waiting for. CPython's ``Popen._try_wait``
-    swallows the resulting ``ChildProcessError`` and records returncode ``0``,
+    the exit status that ``Popen`` was waiting for. CPython's ``Popen._try_wait``
+    swallows the resulting ``ChildProcessError`` and records a ``returncode`` of
+    ``0``,
     so the consumer's later ``poll()``/``wait()`` reports a clean exit it never
-    observed -- including for a process that crashed or was SIGKILLed here.
+    observed -- including for a process that crashed or was killed with
+    ``SIGKILL`` here.
 
     That is acceptable at these call sites because the PIDs reaching them are
     fastware's own: they come from a PID file or an instance descriptor that
@@ -292,7 +295,7 @@ def ensure_port_available(
 
 
 def _find_port_holder_pids(port: int) -> list[int]:
-    """Return the PIDs of processes holding a TCP port, via lsof or fuser.
+    """Return the PIDs of processes holding a TCP port, via ``lsof`` or ``fuser``.
 
     Returns an empty list when no holder can be identified (including when
     neither tool is available) -- callers must treat that as "ownership not
@@ -972,13 +975,14 @@ def serve(
     loop:
         Event-loop implementation: ``"asyncio"`` (default), ``"uvloop"``, or
         ``"rloop"``. fastware deliberately does NOT expose Granian's ``"auto"``
-        mode, which silently resolves rloop -> uvloop -> asyncio based on which
-        packages are installed -- meaning the same code would pick a different
-        loop just because a transitive dependency pulled in rloop or uvloop.
+        mode, which silently resolves ``rloop`` -> ``uvloop`` -> ``asyncio``
+        based on which packages are installed -- meaning the same code would pick
+        a different loop just because a transitive dependency pulled in
+        ``rloop`` or ``uvloop``.
         The pinned ``"asyncio"`` default keeps behaviour environment-independent
-        and preserves stdlib asyncio-subprocess semantics (rloop, which would
-        win "auto" resolution, breaks asyncio.create_subprocess_* workloads such
-        as Playwright). Choose ``"uvloop"``/``"rloop"`` explicitly if you want
+        and preserves stdlib asyncio-subprocess semantics (``rloop``, which
+        would win "auto" resolution, breaks asyncio.create_subprocess_* workloads
+        such as Playwright). Choose ``"uvloop"``/``"rloop"`` explicitly if you want
         their throughput and understand the trade-offs.
     workers:
         Number of Granian worker processes (default 1). WARNING: ``workers > 1``
@@ -1143,7 +1147,7 @@ def stop(pid_path: Path) -> None:
 
     Sends SIGTERM to the server's process group when the server is its own
     group leader (as arranged by _write_pid), so granian worker subprocesses
-    die with it. If the server does not lead its group (setpgid failed at
+    die with it. If the server does not lead its group (``setpgid`` failed at
     startup), only the single PID is signalled -- a group the server does not
     lead may contain unrelated processes such as the launching shell.
 

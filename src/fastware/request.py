@@ -153,8 +153,8 @@ class Request:
         Constraints (checked after type coercion):
         - ``ge``: value must be >= this (numeric)
         - ``le``: value must be <= this (numeric)
-        - ``min_length``: len(value) must be >= this (strings)
-        - ``max_length``: len(value) must be <= this (strings)
+        - ``min_length``: ``len(value)`` must be >= this (strings)
+        - ``max_length``: ``len(value)`` must be <= this (strings)
 
         Raises HTTPError(422) on coercion failure or constraint violation.
         """

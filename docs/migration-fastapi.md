@@ -237,7 +237,7 @@ async def notify(request):
 app = create_app(router)
 ```
 
-The Broadcaster manages per-client queues, prunes disconnected clients, and optionally sends heartbeat comments to keep connections alive. See the [SSE Broadcasting guide](../sse-guide.md) for full details.
+The Broadcaster manages per-client queues, prunes disconnected clients, and optionally sends heartbeat comments to keep connections alive. See the [SSE Broadcasting guide](sse-guide.md) for full details.
 
 ## What's different (trade-offs)
 
