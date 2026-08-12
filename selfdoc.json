@@ -16,8 +16,7 @@
   ],
   "versions": [
     {
-      "version": "0.6.0",
-      "indexed": true
+      "version": "0.6.0"
     }
   ],
   "locales": [
@@ -40,7 +39,7 @@
   },
   "topology": {
     "slug": "fastware",
-    "docs_base": "https://docs.smmh.dev",
+    "docs_base": "https://smmh.dev",
     "posts_base": "https://blog.smmh.dev",
     "projects": {
       "wesktop": "https://docs.smmh.dev/wesktop",
@@ -55,5 +54,13 @@
   },
   "assembly": {
     "repo": "smm-h/selfdoc-cache"
+  },
+  "search_engine": "pagefind",
+  "author": {
+    "name": "SMMH",
+    "url": "https://smmh.dev",
+    "same_as": [
+      "https://github.com/smm-h"
+    ]
   }
 }
