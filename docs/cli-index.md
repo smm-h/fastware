@@ -17,7 +17,7 @@ Version: :-: var key="project.version"
 
 ## Command Groups
 
-- [dev](cli-dev.html) -- Run and manage the file-driven development environment
+- [dev](../cli-dev/) -- Run and manage the file-driven development environment
 
 ## Framework flags
 

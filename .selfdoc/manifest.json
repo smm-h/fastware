@@ -10,234 +10,4191 @@
     {
       "path": "api-auth.md",
       "title": "Auth API Reference",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Auth API Reference",
+          "anchor": "auth-api-reference"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.auth",
+          "anchor": "srcfastwareauth"
+        },
+        {
+          "level": 3,
+          "text": "create_token",
+          "anchor": "create_token"
+        },
+        {
+          "level": 3,
+          "text": "verify_token",
+          "anchor": "verify_token"
+        },
+        {
+          "level": 3,
+          "text": "hash_password",
+          "anchor": "hash_password"
+        },
+        {
+          "level": 3,
+          "text": "verify_password",
+          "anchor": "verify_password"
+        },
+        {
+          "level": 3,
+          "text": "UserStore",
+          "anchor": "userstore"
+        },
+        {
+          "level": 4,
+          "text": "load_users",
+          "anchor": "load_users"
+        },
+        {
+          "level": 4,
+          "text": "save_users",
+          "anchor": "save_users"
+        },
+        {
+          "level": 4,
+          "text": "find_user",
+          "anchor": "find_user"
+        },
+        {
+          "level": 4,
+          "text": "create_user",
+          "anchor": "create_user"
+        },
+        {
+          "level": 4,
+          "text": "delete_user",
+          "anchor": "delete_user"
+        },
+        {
+          "level": 3,
+          "text": "JSONFileUserStore",
+          "anchor": "jsonfileuserstore"
+        },
+        {
+          "level": 4,
+          "text": "load_users",
+          "anchor": "load_users-1"
+        },
+        {
+          "level": 4,
+          "text": "save_users",
+          "anchor": "save_users-1"
+        },
+        {
+          "level": 3,
+          "text": "get_current_user",
+          "anchor": "get_current_user"
+        },
+        {
+          "level": 3,
+          "text": "require_role",
+          "anchor": "require_role"
+        },
+        {
+          "level": 3,
+          "text": "CSRFMiddleware",
+          "anchor": "csrfmiddleware"
+        },
+        {
+          "level": 3,
+          "text": "set_session_cookies",
+          "anchor": "set_session_cookies"
+        },
+        {
+          "level": 3,
+          "text": "clear_session_cookies",
+          "anchor": "clear_session_cookies"
+        },
+        {
+          "level": 3,
+          "text": "rate_limit",
+          "anchor": "rate_limit"
+        },
+        {
+          "level": 2,
+          "text": "Practical Example: JWT Auth on a Route",
+          "anchor": "practical-example-jwt-auth-on-a-route"
+        }
+      ]
     },
     {
       "path": "api-middleware.md",
       "title": "Middleware API Reference",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Middleware API Reference",
+          "anchor": "middleware-api-reference"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.middleware",
+          "anchor": "srcfastwaremiddleware"
+        },
+        {
+          "level": 3,
+          "text": "RequestIDMiddleware",
+          "anchor": "requestidmiddleware"
+        },
+        {
+          "level": 3,
+          "text": "RequestTimingMiddleware",
+          "anchor": "requesttimingmiddleware"
+        },
+        {
+          "level": 3,
+          "text": "CORSMiddleware",
+          "anchor": "corsmiddleware"
+        },
+        {
+          "level": 4,
+          "text": "_cors_headers",
+          "anchor": "_cors_headers"
+        },
+        {
+          "level": 3,
+          "text": "TrustedHostMiddleware",
+          "anchor": "trustedhostmiddleware"
+        },
+        {
+          "level": 3,
+          "text": "ViteDevProxy",
+          "anchor": "vitedevproxy"
+        },
+        {
+          "level": 4,
+          "text": "__init__",
+          "anchor": "__init__"
+        },
+        {
+          "level": 4,
+          "text": "_is_api_request",
+          "anchor": "_is_api_request"
+        },
+        {
+          "level": 4,
+          "text": "close",
+          "anchor": "close"
+        },
+        {
+          "level": 4,
+          "text": "_proxy_http",
+          "anchor": "_proxy_http"
+        },
+        {
+          "level": 4,
+          "text": "_proxy_ws",
+          "anchor": "_proxy_ws"
+        },
+        {
+          "level": 2,
+          "text": "CORS Configuration for a Typical SPA",
+          "anchor": "cors-configuration-for-a-typical-spa"
+        },
+        {
+          "level": 2,
+          "text": "ViteDevProxy Routing",
+          "anchor": "vitedevproxy-routing"
+        }
+      ]
     },
     {
       "path": "api-server.md",
       "title": "Server API Reference",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Server API Reference",
+          "anchor": "server-api-reference"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.server",
+          "anchor": "srcfastwareserver"
+        },
+        {
+          "level": 3,
+          "text": "PortInUseError",
+          "anchor": "portinuseerror"
+        },
+        {
+          "level": 3,
+          "text": "AlreadyRunningError",
+          "anchor": "alreadyrunningerror"
+        },
+        {
+          "level": 3,
+          "text": "_probe_health",
+          "anchor": "_probe_health"
+        },
+        {
+          "level": 3,
+          "text": "_write_pid",
+          "anchor": "_write_pid"
+        },
+        {
+          "level": 3,
+          "text": "_remove_pid",
+          "anchor": "_remove_pid"
+        },
+        {
+          "level": 3,
+          "text": "_reap_if_dead_child",
+          "anchor": "_reap_if_dead_child"
+        },
+        {
+          "level": 3,
+          "text": "check_already_running",
+          "anchor": "check_already_running"
+        },
+        {
+          "level": 3,
+          "text": "ensure_port_available",
+          "anchor": "ensure_port_available"
+        },
+        {
+          "level": 3,
+          "text": "_find_port_holder_pids",
+          "anchor": "_find_port_holder_pids"
+        },
+        {
+          "level": 3,
+          "text": "_resolve_target",
+          "anchor": "_resolve_target"
+        },
+        {
+          "level": 3,
+          "text": "_materialize_target",
+          "anchor": "_materialize_target"
+        },
+        {
+          "level": 3,
+          "text": "_remove_shim_dir",
+          "anchor": "_remove_shim_dir"
+        },
+        {
+          "level": 3,
+          "text": "_find_free_port",
+          "anchor": "_find_free_port"
+        },
+        {
+          "level": 3,
+          "text": "_port_file_path",
+          "anchor": "_port_file_path"
+        },
+        {
+          "level": 3,
+          "text": "_write_port_file",
+          "anchor": "_write_port_file"
+        },
+        {
+          "level": 3,
+          "text": "_remove_port_file",
+          "anchor": "_remove_port_file"
+        },
+        {
+          "level": 3,
+          "text": "read_port_file",
+          "anchor": "read_port_file"
+        },
+        {
+          "level": 3,
+          "text": "RegistryEntry",
+          "anchor": "registryentry"
+        },
+        {
+          "level": 3,
+          "text": "_registry_dir",
+          "anchor": "_registry_dir"
+        },
+        {
+          "level": 3,
+          "text": "_registry_entry_path",
+          "anchor": "_registry_entry_path"
+        },
+        {
+          "level": 3,
+          "text": "_pid_alive",
+          "anchor": "_pid_alive"
+        },
+        {
+          "level": 3,
+          "text": "register_instance",
+          "anchor": "register_instance"
+        },
+        {
+          "level": 3,
+          "text": "deregister_instance",
+          "anchor": "deregister_instance"
+        },
+        {
+          "level": 3,
+          "text": "list_instances",
+          "anchor": "list_instances"
+        },
+        {
+          "level": 3,
+          "text": "_marker_path",
+          "anchor": "_marker_path"
+        },
+        {
+          "level": 3,
+          "text": "write_marker",
+          "anchor": "write_marker"
+        },
+        {
+          "level": 3,
+          "text": "list_markers",
+          "anchor": "list_markers"
+        },
+        {
+          "level": 3,
+          "text": "remove_marker",
+          "anchor": "remove_marker"
+        },
+        {
+          "level": 3,
+          "text": "_resolve_host_port",
+          "anchor": "_resolve_host_port"
+        },
+        {
+          "level": 3,
+          "text": "_make_server",
+          "anchor": "_make_server"
+        },
+        {
+          "level": 3,
+          "text": "_make_embed_server",
+          "anchor": "_make_embed_server"
+        },
+        {
+          "level": 3,
+          "text": "_run_server",
+          "anchor": "_run_server"
+        },
+        {
+          "level": 3,
+          "text": "_serve_subprocess",
+          "anchor": "_serve_subprocess"
+        },
+        {
+          "level": 3,
+          "text": "serve_background",
+          "anchor": "serve_background"
+        },
+        {
+          "level": 3,
+          "text": "serve",
+          "anchor": "serve"
+        },
+        {
+          "level": 3,
+          "text": "stop_background",
+          "anchor": "stop_background"
+        },
+        {
+          "level": 3,
+          "text": "ServerStatus",
+          "anchor": "serverstatus"
+        },
+        {
+          "level": 3,
+          "text": "_cleanup_pid_and_port",
+          "anchor": "_cleanup_pid_and_port"
+        },
+        {
+          "level": 3,
+          "text": "stop",
+          "anchor": "stop"
+        },
+        {
+          "level": 3,
+          "text": "_confirm_dead",
+          "anchor": "_confirm_dead"
+        },
+        {
+          "level": 3,
+          "text": "status",
+          "anchor": "status"
+        },
+        {
+          "level": 2,
+          "text": "ServerStatus",
+          "anchor": "serverstatus-1"
+        },
+        {
+          "level": 2,
+          "text": "Error Types",
+          "anchor": "error-types"
+        },
+        {
+          "level": 3,
+          "text": "PortInUseError",
+          "anchor": "portinuseerror-1"
+        },
+        {
+          "level": 3,
+          "text": "AlreadyRunningError",
+          "anchor": "alreadyrunningerror-1"
+        },
+        {
+          "level": 2,
+          "text": "serve() vs serve_background()",
+          "anchor": "serve-vs-serve_background"
+        },
+        {
+          "level": 2,
+          "text": "Hot Reload",
+          "anchor": "hot-reload"
+        }
+      ]
     },
     {
       "path": "api-testing.md",
       "title": "Testing API Reference",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Testing API Reference",
+          "anchor": "testing-api-reference"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.testing",
+          "anchor": "srcfastwaretesting"
+        },
+        {
+          "level": 3,
+          "text": "_wrap_raise_server_exceptions",
+          "anchor": "_wrap_raise_server_exceptions"
+        },
+        {
+          "level": 3,
+          "text": "_LifespanManager",
+          "anchor": "_lifespanmanager"
+        },
+        {
+          "level": 4,
+          "text": "startup",
+          "anchor": "startup"
+        },
+        {
+          "level": 4,
+          "text": "shutdown",
+          "anchor": "shutdown"
+        },
+        {
+          "level": 4,
+          "text": "_wait",
+          "anchor": "_wait"
+        },
+        {
+          "level": 3,
+          "text": "AsyncTestClient",
+          "anchor": "asynctestclient"
+        },
+        {
+          "level": 3,
+          "text": "_SyncTestClient",
+          "anchor": "_synctestclient"
+        },
+        {
+          "level": 4,
+          "text": "_start_loop",
+          "anchor": "_start_loop"
+        },
+        {
+          "level": 4,
+          "text": "_run",
+          "anchor": "_run"
+        },
+        {
+          "level": 4,
+          "text": "get",
+          "anchor": "get"
+        },
+        {
+          "level": 4,
+          "text": "post",
+          "anchor": "post"
+        },
+        {
+          "level": 4,
+          "text": "put",
+          "anchor": "put"
+        },
+        {
+          "level": 4,
+          "text": "patch",
+          "anchor": "patch"
+        },
+        {
+          "level": 4,
+          "text": "delete",
+          "anchor": "delete"
+        },
+        {
+          "level": 4,
+          "text": "options",
+          "anchor": "options"
+        },
+        {
+          "level": 4,
+          "text": "head",
+          "anchor": "head"
+        },
+        {
+          "level": 4,
+          "text": "close",
+          "anchor": "close"
+        },
+        {
+          "level": 2,
+          "text": "AsyncTestClient (async)",
+          "anchor": "asynctestclient-async"
+        },
+        {
+          "level": 2,
+          "text": "TestClient (sync)",
+          "anchor": "testclient-sync"
+        },
+        {
+          "level": 2,
+          "text": "Example From the Test Suite",
+          "anchor": "example-from-the-test-suite"
+        },
+        {
+          "level": 2,
+          "text": "pytest Integration",
+          "anchor": "pytest-integration"
+        }
+      ]
     },
     {
       "path": "api.md",
       "title": "Core API Reference",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Core API Reference",
+          "anchor": "core-api-reference"
+        },
+        {
+          "level": 2,
+          "text": "ASGI Types",
+          "anchor": "asgi-types"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.types",
+          "anchor": "srcfastwaretypes"
+        },
+        {
+          "level": 3,
+          "text": "Scope",
+          "anchor": "scope"
+        },
+        {
+          "level": 3,
+          "text": "Receive",
+          "anchor": "receive"
+        },
+        {
+          "level": 3,
+          "text": "Send",
+          "anchor": "send"
+        },
+        {
+          "level": 2,
+          "text": "Response Types",
+          "anchor": "response-types"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.responses",
+          "anchor": "srcfastwareresponses"
+        },
+        {
+          "level": 3,
+          "text": "set_cookie",
+          "anchor": "set_cookie"
+        },
+        {
+          "level": 3,
+          "text": "delete_cookie",
+          "anchor": "delete_cookie"
+        },
+        {
+          "level": 3,
+          "text": "HTTPError",
+          "anchor": "httperror"
+        },
+        {
+          "level": 3,
+          "text": "JSONResponse",
+          "anchor": "jsonresponse"
+        },
+        {
+          "level": 3,
+          "text": "TextResponse",
+          "anchor": "textresponse"
+        },
+        {
+          "level": 3,
+          "text": "HTMLResponse",
+          "anchor": "htmlresponse"
+        },
+        {
+          "level": 3,
+          "text": "BytesResponse",
+          "anchor": "bytesresponse"
+        },
+        {
+          "level": 3,
+          "text": "StreamResponse",
+          "anchor": "streamresponse"
+        },
+        {
+          "level": 3,
+          "text": "FileResponse",
+          "anchor": "fileresponse"
+        },
+        {
+          "level": 3,
+          "text": "_build_headers",
+          "anchor": "_build_headers"
+        },
+        {
+          "level": 3,
+          "text": "_send_response",
+          "anchor": "_send_response"
+        },
+        {
+          "level": 3,
+          "text": "send_error",
+          "anchor": "send_error"
+        },
+        {
+          "level": 2,
+          "text": "Request Handling",
+          "anchor": "request-handling"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.request",
+          "anchor": "srcfastwarerequest"
+        },
+        {
+          "level": 3,
+          "text": "State",
+          "anchor": "state"
+        },
+        {
+          "level": 4,
+          "text": "get",
+          "anchor": "get"
+        },
+        {
+          "level": 3,
+          "text": "Request",
+          "anchor": "request"
+        },
+        {
+          "level": 4,
+          "text": "json",
+          "anchor": "json"
+        },
+        {
+          "level": 4,
+          "text": "body",
+          "anchor": "body"
+        },
+        {
+          "level": 4,
+          "text": "_qs",
+          "anchor": "_qs"
+        },
+        {
+          "level": 4,
+          "text": "query",
+          "anchor": "query"
+        },
+        {
+          "level": 4,
+          "text": "query_list",
+          "anchor": "query_list"
+        },
+        {
+          "level": 4,
+          "text": "query_params",
+          "anchor": "query_params"
+        },
+        {
+          "level": 4,
+          "text": "header",
+          "anchor": "header"
+        },
+        {
+          "level": 4,
+          "text": "body_size",
+          "anchor": "body_size"
+        },
+        {
+          "level": 4,
+          "text": "state",
+          "anchor": "state-1"
+        },
+        {
+          "level": 4,
+          "text": "method",
+          "anchor": "method"
+        },
+        {
+          "level": 4,
+          "text": "path",
+          "anchor": "path"
+        },
+        {
+          "level": 4,
+          "text": "is_disconnected",
+          "anchor": "is_disconnected"
+        },
+        {
+          "level": 4,
+          "text": "_mark_disconnected",
+          "anchor": "_mark_disconnected"
+        },
+        {
+          "level": 4,
+          "text": "_register_stream_task",
+          "anchor": "_register_stream_task"
+        },
+        {
+          "level": 4,
+          "text": "cookies",
+          "anchor": "cookies"
+        },
+        {
+          "level": 4,
+          "text": "cookie",
+          "anchor": "cookie"
+        },
+        {
+          "level": 4,
+          "text": "json_as",
+          "anchor": "json_as"
+        },
+        {
+          "level": 2,
+          "text": "Routing",
+          "anchor": "routing"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.routing",
+          "anchor": "srcfastwarerouting"
+        },
+        {
+          "level": 3,
+          "text": "_parse_segment",
+          "anchor": "_parse_segment"
+        },
+        {
+          "level": 3,
+          "text": "Router",
+          "anchor": "router"
+        },
+        {
+          "level": 4,
+          "text": "mount",
+          "anchor": "mount"
+        },
+        {
+          "level": 4,
+          "text": "_method_decorator",
+          "anchor": "_method_decorator"
+        },
+        {
+          "level": 4,
+          "text": "get",
+          "anchor": "get-1"
+        },
+        {
+          "level": 4,
+          "text": "post",
+          "anchor": "post"
+        },
+        {
+          "level": 4,
+          "text": "delete",
+          "anchor": "delete"
+        },
+        {
+          "level": 4,
+          "text": "put",
+          "anchor": "put"
+        },
+        {
+          "level": 4,
+          "text": "patch",
+          "anchor": "patch"
+        },
+        {
+          "level": 4,
+          "text": "add_route",
+          "anchor": "add_route"
+        },
+        {
+          "level": 4,
+          "text": "ws",
+          "anchor": "ws"
+        },
+        {
+          "level": 4,
+          "text": "add_ws_route",
+          "anchor": "add_ws_route"
+        },
+        {
+          "level": 4,
+          "text": "include_router",
+          "anchor": "include_router"
+        },
+        {
+          "level": 4,
+          "text": "match",
+          "anchor": "match"
+        },
+        {
+          "level": 4,
+          "text": "_match_pattern",
+          "anchor": "_match_pattern"
+        },
+        {
+          "level": 4,
+          "text": "_match_with_deps",
+          "anchor": "_match_with_deps"
+        },
+        {
+          "level": 4,
+          "text": "allowed_methods",
+          "anchor": "allowed_methods"
+        },
+        {
+          "level": 4,
+          "text": "_match_with_path_param",
+          "anchor": "_match_with_path_param"
+        },
+        {
+          "level": 4,
+          "text": "match_ws",
+          "anchor": "match_ws"
+        },
+        {
+          "level": 4,
+          "text": "_match_ws_with_deps",
+          "anchor": "_match_ws_with_deps"
+        },
+        {
+          "level": 2,
+          "text": "WebSocket",
+          "anchor": "websocket"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.websocket",
+          "anchor": "srcfastwarewebsocket"
+        },
+        {
+          "level": 3,
+          "text": "WebSocketDisconnect",
+          "anchor": "websocketdisconnect"
+        },
+        {
+          "level": 3,
+          "text": "WebSocket",
+          "anchor": "websocket-1"
+        },
+        {
+          "level": 4,
+          "text": "path_params",
+          "anchor": "path_params"
+        },
+        {
+          "level": 4,
+          "text": "headers",
+          "anchor": "headers"
+        },
+        {
+          "level": 4,
+          "text": "query_string",
+          "anchor": "query_string"
+        },
+        {
+          "level": 4,
+          "text": "accept",
+          "anchor": "accept"
+        },
+        {
+          "level": 4,
+          "text": "close",
+          "anchor": "close"
+        },
+        {
+          "level": 4,
+          "text": "send_json",
+          "anchor": "send_json"
+        },
+        {
+          "level": 4,
+          "text": "send_bytes",
+          "anchor": "send_bytes"
+        },
+        {
+          "level": 4,
+          "text": "send_text",
+          "anchor": "send_text"
+        },
+        {
+          "level": 4,
+          "text": "_receive_data",
+          "anchor": "_receive_data"
+        },
+        {
+          "level": 4,
+          "text": "receive_json",
+          "anchor": "receive_json"
+        },
+        {
+          "level": 4,
+          "text": "receive_bytes",
+          "anchor": "receive_bytes"
+        },
+        {
+          "level": 4,
+          "text": "receive_text",
+          "anchor": "receive_text"
+        },
+        {
+          "level": 4,
+          "text": "receive_raw",
+          "anchor": "receive_raw"
+        },
+        {
+          "level": 2,
+          "text": "Application Factory",
+          "anchor": "application-factory"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.app",
+          "anchor": "srcfastwareapp"
+        },
+        {
+          "level": 3,
+          "text": "_disconnect_watcher",
+          "anchor": "_disconnect_watcher"
+        },
+        {
+          "level": 3,
+          "text": "_send_stream",
+          "anchor": "_send_stream"
+        },
+        {
+          "level": 3,
+          "text": "_accepted_params",
+          "anchor": "_accepted_params"
+        },
+        {
+          "level": 3,
+          "text": "_deep_convert_pydantic",
+          "anchor": "_deep_convert_pydantic"
+        },
+        {
+          "level": 3,
+          "text": "_send_result",
+          "anchor": "_send_result"
+        },
+        {
+          "level": 3,
+          "text": "_MountLifespan",
+          "anchor": "_mountlifespan"
+        },
+        {
+          "level": 4,
+          "text": "startup",
+          "anchor": "startup"
+        },
+        {
+          "level": 4,
+          "text": "shutdown",
+          "anchor": "shutdown"
+        },
+        {
+          "level": 3,
+          "text": "_compute_static_build_id",
+          "anchor": "_compute_static_build_id"
+        },
+        {
+          "level": 3,
+          "text": "_cache_control_for",
+          "anchor": "_cache_control_for"
+        },
+        {
+          "level": 3,
+          "text": "_serve_static",
+          "anchor": "_serve_static"
+        },
+        {
+          "level": 3,
+          "text": "_serve_spa_fallback",
+          "anchor": "_serve_spa_fallback"
+        },
+        {
+          "level": 3,
+          "text": "AppConfig",
+          "anchor": "appconfig"
+        },
+        {
+          "level": 3,
+          "text": "create_app",
+          "anchor": "create_app"
+        }
+      ]
     },
     {
       "path": "cli-dev.md",
       "title": "fastware dev",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "fastware dev",
+          "anchor": "fastware-dev"
+        },
+        {
+          "level": 2,
+          "text": "dev run",
+          "anchor": "dev-run"
+        },
+        {
+          "level": 3,
+          "text": "Flags",
+          "anchor": "flags"
+        },
+        {
+          "level": 2,
+          "text": "dev status",
+          "anchor": "dev-status"
+        },
+        {
+          "level": 2,
+          "text": "dev stop",
+          "anchor": "dev-stop"
+        },
+        {
+          "level": 3,
+          "text": "Flags",
+          "anchor": "flags-1"
+        }
+      ]
     },
     {
       "path": "cli-index.md",
       "title": "fastware CLI Reference",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "fastware CLI Reference",
+          "anchor": "fastware-cli-reference"
+        },
+        {
+          "level": 2,
+          "text": "Command Groups",
+          "anchor": "command-groups"
+        },
+        {
+          "level": 2,
+          "text": "Framework flags",
+          "anchor": "framework-flags"
+        }
+      ]
     },
     {
       "path": "di-guide.md",
       "title": "Dependency Injection",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Dependency Injection",
+          "anchor": "dependency-injection"
+        },
+        {
+          "level": 2,
+          "text": "What DI solves",
+          "anchor": "what-di-solves"
+        },
+        {
+          "level": 2,
+          "text": "Basic usage",
+          "anchor": "basic-usage"
+        },
+        {
+          "level": 3,
+          "text": "1. Define factory functions",
+          "anchor": "1-define-factory-functions"
+        },
+        {
+          "level": 3,
+          "text": "2. Declare dependencies on routes",
+          "anchor": "2-declare-dependencies-on-routes"
+        },
+        {
+          "level": 3,
+          "text": "3. Create the app",
+          "anchor": "3-create-the-app"
+        },
+        {
+          "level": 2,
+          "text": "Sync and async factories",
+          "anchor": "sync-and-async-factories"
+        },
+        {
+          "level": 2,
+          "text": "Generator factories (yield pattern)",
+          "anchor": "generator-factories-yield-pattern"
+        },
+        {
+          "level": 3,
+          "text": "Sync generator",
+          "anchor": "sync-generator"
+        },
+        {
+          "level": 3,
+          "text": "Async generator",
+          "anchor": "async-generator"
+        },
+        {
+          "level": 2,
+          "text": "Per-request caching",
+          "anchor": "per-request-caching"
+        },
+        {
+          "level": 2,
+          "text": "Router-level dependencies",
+          "anchor": "router-level-dependencies"
+        },
+        {
+          "level": 2,
+          "text": "Dependency overrides for testing",
+          "anchor": "dependency-overrides-for-testing"
+        },
+        {
+          "level": 2,
+          "text": "Error handling during resolution",
+          "anchor": "error-handling-during-resolution"
+        },
+        {
+          "level": 2,
+          "text": "Complete example",
+          "anchor": "complete-example"
+        },
+        {
+          "level": 2,
+          "text": "API reference",
+          "anchor": "api-reference"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.di",
+          "anchor": "srcfastwaredi"
+        },
+        {
+          "level": 3,
+          "text": "_request_call_mode",
+          "anchor": "_request_call_mode"
+        },
+        {
+          "level": 3,
+          "text": "DependencyResolver",
+          "anchor": "dependencyresolver"
+        },
+        {
+          "level": 4,
+          "text": "resolve",
+          "anchor": "resolve"
+        },
+        {
+          "level": 4,
+          "text": "cleanup",
+          "anchor": "cleanup"
+        }
+      ]
     },
     {
       "path": "extras.md",
       "title": "Optional Extras",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Optional Extras",
+          "anchor": "optional-extras"
+        },
+        {
+          "level": 2,
+          "text": "Extras overview",
+          "anchor": "extras-overview"
+        },
+        {
+          "level": 2,
+          "text": "All dependencies",
+          "anchor": "all-dependencies"
+        },
+        {
+          "level": 2,
+          "text": "Extras groups",
+          "anchor": "extras-groups"
+        },
+        {
+          "level": 3,
+          "text": "`auth` -- JWT and password hashing",
+          "anchor": "auth-jwt-and-password-hashing"
+        },
+        {
+          "level": 3,
+          "text": "`logging` -- structured logging",
+          "anchor": "logging-structured-logging"
+        },
+        {
+          "level": 3,
+          "text": "`dev` -- development tools",
+          "anchor": "dev-development-tools"
+        },
+        {
+          "level": 3,
+          "text": "`testing` -- test client",
+          "anchor": "testing-test-client"
+        },
+        {
+          "level": 3,
+          "text": "`mcp` -- MCP server support",
+          "anchor": "mcp-mcp-server-support"
+        },
+        {
+          "level": 3,
+          "text": "`pydantic` -- Pydantic model support",
+          "anchor": "pydantic-pydantic-model-support"
+        },
+        {
+          "level": 3,
+          "text": "`all` -- everything",
+          "anchor": "all-everything"
+        }
+      ]
     },
     {
       "path": "gen-index.md",
       "title": "API Reference",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "API Reference",
+          "anchor": "api-reference"
+        }
+      ]
     },
     {
       "path": "index.md",
       "title": "fastware",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "fastware",
+          "anchor": "fastware"
+        },
+        {
+          "level": 2,
+          "text": "Install",
+          "anchor": "install"
+        },
+        {
+          "level": 2,
+          "text": "Minimal example",
+          "anchor": "minimal-example"
+        },
+        {
+          "level": 2,
+          "text": "Features",
+          "anchor": "features"
+        },
+        {
+          "level": 2,
+          "text": "Why fastware?",
+          "anchor": "why-fastware"
+        },
+        {
+          "level": 2,
+          "text": "Dependencies",
+          "anchor": "dependencies"
+        },
+        {
+          "level": 2,
+          "text": "Project structure",
+          "anchor": "project-structure"
+        }
+      ]
     },
     {
       "path": "migration-fastapi.md",
       "title": "Migrating from FastAPI",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Migrating from FastAPI",
+          "anchor": "migrating-from-fastapi"
+        },
+        {
+          "level": 2,
+          "text": "Why migrate?",
+          "anchor": "why-migrate"
+        },
+        {
+          "level": 2,
+          "text": "Import mapping",
+          "anchor": "import-mapping"
+        },
+        {
+          "level": 2,
+          "text": "Pattern translation",
+          "anchor": "pattern-translation"
+        },
+        {
+          "level": 3,
+          "text": "App creation",
+          "anchor": "app-creation"
+        },
+        {
+          "level": 3,
+          "text": "Route handlers",
+          "anchor": "route-handlers"
+        },
+        {
+          "level": 3,
+          "text": "Middleware",
+          "anchor": "middleware"
+        },
+        {
+          "level": 3,
+          "text": "Dependency injection",
+          "anchor": "dependency-injection"
+        },
+        {
+          "level": 3,
+          "text": "Testing",
+          "anchor": "testing"
+        },
+        {
+          "level": 3,
+          "text": "SSE (Server-Sent Events)",
+          "anchor": "sse-server-sent-events"
+        },
+        {
+          "level": 2,
+          "text": "What's different (trade-offs)",
+          "anchor": "whats-different-trade-offs"
+        },
+        {
+          "level": 2,
+          "text": "What's better",
+          "anchor": "whats-better"
+        },
+        {
+          "level": 2,
+          "text": "API reference",
+          "anchor": "api-reference"
+        },
+        {
+          "level": 3,
+          "text": "Router",
+          "anchor": "router"
+        },
+        {
+          "level": 4,
+          "text": "mount",
+          "anchor": "mount"
+        },
+        {
+          "level": 4,
+          "text": "_method_decorator",
+          "anchor": "_method_decorator"
+        },
+        {
+          "level": 4,
+          "text": "get",
+          "anchor": "get"
+        },
+        {
+          "level": 4,
+          "text": "post",
+          "anchor": "post"
+        },
+        {
+          "level": 4,
+          "text": "delete",
+          "anchor": "delete"
+        },
+        {
+          "level": 4,
+          "text": "put",
+          "anchor": "put"
+        },
+        {
+          "level": 4,
+          "text": "patch",
+          "anchor": "patch"
+        },
+        {
+          "level": 4,
+          "text": "add_route",
+          "anchor": "add_route"
+        },
+        {
+          "level": 4,
+          "text": "ws",
+          "anchor": "ws"
+        },
+        {
+          "level": 4,
+          "text": "add_ws_route",
+          "anchor": "add_ws_route"
+        },
+        {
+          "level": 4,
+          "text": "include_router",
+          "anchor": "include_router"
+        },
+        {
+          "level": 4,
+          "text": "match",
+          "anchor": "match"
+        },
+        {
+          "level": 4,
+          "text": "_match_pattern",
+          "anchor": "_match_pattern"
+        },
+        {
+          "level": 4,
+          "text": "_match_with_deps",
+          "anchor": "_match_with_deps"
+        },
+        {
+          "level": 4,
+          "text": "allowed_methods",
+          "anchor": "allowed_methods"
+        },
+        {
+          "level": 4,
+          "text": "_match_with_path_param",
+          "anchor": "_match_with_path_param"
+        },
+        {
+          "level": 4,
+          "text": "match_ws",
+          "anchor": "match_ws"
+        },
+        {
+          "level": 4,
+          "text": "_match_ws_with_deps",
+          "anchor": "_match_ws_with_deps"
+        },
+        {
+          "level": 3,
+          "text": "AppConfig",
+          "anchor": "appconfig"
+        }
+      ]
     },
     {
       "path": "observability.md",
       "title": "Observability",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Observability",
+          "anchor": "observability"
+        },
+        {
+          "level": 2,
+          "text": "Structured logging with structlog",
+          "anchor": "structured-logging-with-structlog"
+        },
+        {
+          "level": 3,
+          "text": "Setup",
+          "anchor": "setup"
+        },
+        {
+          "level": 3,
+          "text": "Getting loggers",
+          "anchor": "getting-loggers"
+        },
+        {
+          "level": 3,
+          "text": "What structlog adds to every entry",
+          "anchor": "what-structlog-adds-to-every-entry"
+        },
+        {
+          "level": 3,
+          "text": "JSON output example",
+          "anchor": "json-output-example"
+        },
+        {
+          "level": 3,
+          "text": "Integration with RequestIDMiddleware",
+          "anchor": "integration-with-requestidmiddleware"
+        },
+        {
+          "level": 3,
+          "text": "Integration with RequestTimingMiddleware",
+          "anchor": "integration-with-requesttimingmiddleware"
+        },
+        {
+          "level": 2,
+          "text": "Sentry integration",
+          "anchor": "sentry-integration"
+        },
+        {
+          "level": 3,
+          "text": "Setup",
+          "anchor": "setup-1"
+        },
+        {
+          "level": 3,
+          "text": "4xx filtering",
+          "anchor": "4xx-filtering"
+        },
+        {
+          "level": 2,
+          "text": "SQLite error log",
+          "anchor": "sqlite-error-log"
+        },
+        {
+          "level": 3,
+          "text": "Setup",
+          "anchor": "setup-2"
+        },
+        {
+          "level": 3,
+          "text": "What it captures",
+          "anchor": "what-it-captures"
+        },
+        {
+          "level": 3,
+          "text": "Non-blocking writes",
+          "anchor": "non-blocking-writes"
+        },
+        {
+          "level": 3,
+          "text": "Querying recent errors",
+          "anchor": "querying-recent-errors"
+        },
+        {
+          "level": 3,
+          "text": "Manual writes",
+          "anchor": "manual-writes"
+        },
+        {
+          "level": 3,
+          "text": "Lifecycle",
+          "anchor": "lifecycle"
+        },
+        {
+          "level": 2,
+          "text": "JSONL audit log",
+          "anchor": "jsonl-audit-log"
+        },
+        {
+          "level": 3,
+          "text": "Setup",
+          "anchor": "setup-3"
+        },
+        {
+          "level": 3,
+          "text": "Logging events",
+          "anchor": "logging-events"
+        },
+        {
+          "level": 3,
+          "text": "Entry format",
+          "anchor": "entry-format"
+        },
+        {
+          "level": 3,
+          "text": "Thread safety",
+          "anchor": "thread-safety"
+        },
+        {
+          "level": 3,
+          "text": "Querying audit logs",
+          "anchor": "querying-audit-logs"
+        },
+        {
+          "level": 2,
+          "text": "How these systems work together",
+          "anchor": "how-these-systems-work-together"
+        },
+        {
+          "level": 3,
+          "text": "Complete setup example",
+          "anchor": "complete-setup-example"
+        },
+        {
+          "level": 2,
+          "text": "API reference",
+          "anchor": "api-reference"
+        },
+        {
+          "level": 3,
+          "text": "fastware.logging",
+          "anchor": "fastwarelogging"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.logging",
+          "anchor": "srcfastwarelogging"
+        },
+        {
+          "level": 3,
+          "text": "configure_logging",
+          "anchor": "configure_logging"
+        },
+        {
+          "level": 3,
+          "text": "get_logger",
+          "anchor": "get_logger"
+        },
+        {
+          "level": 3,
+          "text": "init_sentry",
+          "anchor": "init_sentry"
+        },
+        {
+          "level": 3,
+          "text": "fastware.error_log",
+          "anchor": "fastwareerror_log"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.error_log",
+          "anchor": "srcfastwareerror_log"
+        },
+        {
+          "level": 3,
+          "text": "ErrorLog",
+          "anchor": "errorlog"
+        },
+        {
+          "level": 4,
+          "text": "_run_worker",
+          "anchor": "_run_worker"
+        },
+        {
+          "level": 4,
+          "text": "append",
+          "anchor": "append"
+        },
+        {
+          "level": 4,
+          "text": "flush",
+          "anchor": "flush"
+        },
+        {
+          "level": 4,
+          "text": "recent",
+          "anchor": "recent"
+        },
+        {
+          "level": 4,
+          "text": "close",
+          "anchor": "close"
+        },
+        {
+          "level": 3,
+          "text": "fastware.audit",
+          "anchor": "fastwareaudit"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.audit",
+          "anchor": "srcfastwareaudit"
+        },
+        {
+          "level": 3,
+          "text": "AuditLog",
+          "anchor": "auditlog"
+        },
+        {
+          "level": 4,
+          "text": "log",
+          "anchor": "log"
+        }
+      ]
     },
     {
       "path": "quickstart.md",
       "title": "Quickstart",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Quickstart",
+          "anchor": "quickstart"
+        },
+        {
+          "level": 2,
+          "text": "Install",
+          "anchor": "install"
+        },
+        {
+          "level": 2,
+          "text": "Step 1: Create a Router and add routes",
+          "anchor": "step-1-create-a-router-and-add-routes"
+        },
+        {
+          "level": 2,
+          "text": "Step 2: Use response types",
+          "anchor": "step-2-use-response-types"
+        },
+        {
+          "level": 2,
+          "text": "Step 3: Create the ASGI app",
+          "anchor": "step-3-create-the-asgi-app"
+        },
+        {
+          "level": 2,
+          "text": "Step 4: Serve it",
+          "anchor": "step-4-serve-it"
+        },
+        {
+          "level": 2,
+          "text": "Step 5: Add SSE broadcasting",
+          "anchor": "step-5-add-sse-broadcasting"
+        },
+        {
+          "level": 2,
+          "text": "Step 6: Add middleware",
+          "anchor": "step-6-add-middleware"
+        },
+        {
+          "level": 2,
+          "text": "Next steps",
+          "anchor": "next-steps"
+        }
+      ]
     },
     {
       "path": "src-fastware-__main__.md",
       "title": "src.fastware.__main__",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.__main__",
+          "anchor": "srcfastware__main__"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.__main__",
+          "anchor": "srcfastware__main__"
+        }
+      ]
     },
     {
       "path": "src-fastware-_fswrite.md",
       "title": "src.fastware._fswrite",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware._fswrite",
+          "anchor": "srcfastware_fswrite"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware._fswrite",
+          "anchor": "srcfastware_fswrite"
+        },
+        {
+          "level": 3,
+          "text": "LockedFileWriter",
+          "anchor": "lockedfilewriter"
+        },
+        {
+          "level": 4,
+          "text": "append_line",
+          "anchor": "append_line"
+        },
+        {
+          "level": 4,
+          "text": "overwrite",
+          "anchor": "overwrite"
+        }
+      ]
     },
     {
       "path": "src-fastware-_scope.md",
       "title": "src.fastware._scope",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware._scope",
+          "anchor": "srcfastware_scope"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware._scope",
+          "anchor": "srcfastware_scope"
+        },
+        {
+          "level": 3,
+          "text": "_first_header",
+          "anchor": "_first_header"
+        },
+        {
+          "level": 3,
+          "text": "header_bytes",
+          "anchor": "header_bytes"
+        },
+        {
+          "level": 3,
+          "text": "header_str",
+          "anchor": "header_str"
+        },
+        {
+          "level": 3,
+          "text": "cookies",
+          "anchor": "cookies"
+        },
+        {
+          "level": 3,
+          "text": "cookie",
+          "anchor": "cookie"
+        }
+      ]
     },
     {
       "path": "src-fastware-app.md",
       "title": "src.fastware.app",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.app",
+          "anchor": "srcfastwareapp"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.app",
+          "anchor": "srcfastwareapp"
+        },
+        {
+          "level": 3,
+          "text": "_disconnect_watcher",
+          "anchor": "_disconnect_watcher"
+        },
+        {
+          "level": 3,
+          "text": "_send_stream",
+          "anchor": "_send_stream"
+        },
+        {
+          "level": 3,
+          "text": "_accepted_params",
+          "anchor": "_accepted_params"
+        },
+        {
+          "level": 3,
+          "text": "_deep_convert_pydantic",
+          "anchor": "_deep_convert_pydantic"
+        },
+        {
+          "level": 3,
+          "text": "_send_result",
+          "anchor": "_send_result"
+        },
+        {
+          "level": 3,
+          "text": "_MountLifespan",
+          "anchor": "_mountlifespan"
+        },
+        {
+          "level": 4,
+          "text": "startup",
+          "anchor": "startup"
+        },
+        {
+          "level": 4,
+          "text": "shutdown",
+          "anchor": "shutdown"
+        },
+        {
+          "level": 3,
+          "text": "_compute_static_build_id",
+          "anchor": "_compute_static_build_id"
+        },
+        {
+          "level": 3,
+          "text": "_cache_control_for",
+          "anchor": "_cache_control_for"
+        },
+        {
+          "level": 3,
+          "text": "_serve_static",
+          "anchor": "_serve_static"
+        },
+        {
+          "level": 3,
+          "text": "_serve_spa_fallback",
+          "anchor": "_serve_spa_fallback"
+        },
+        {
+          "level": 3,
+          "text": "AppConfig",
+          "anchor": "appconfig"
+        },
+        {
+          "level": 3,
+          "text": "create_app",
+          "anchor": "create_app"
+        }
+      ]
     },
     {
       "path": "src-fastware-audit.md",
       "title": "src.fastware.audit",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.audit",
+          "anchor": "srcfastwareaudit"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.audit",
+          "anchor": "srcfastwareaudit"
+        },
+        {
+          "level": 3,
+          "text": "AuditLog",
+          "anchor": "auditlog"
+        },
+        {
+          "level": 4,
+          "text": "log",
+          "anchor": "log"
+        }
+      ]
     },
     {
       "path": "src-fastware-auth.md",
       "title": "src.fastware.auth",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.auth",
+          "anchor": "srcfastwareauth"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.auth",
+          "anchor": "srcfastwareauth"
+        },
+        {
+          "level": 3,
+          "text": "create_token",
+          "anchor": "create_token"
+        },
+        {
+          "level": 3,
+          "text": "verify_token",
+          "anchor": "verify_token"
+        },
+        {
+          "level": 3,
+          "text": "hash_password",
+          "anchor": "hash_password"
+        },
+        {
+          "level": 3,
+          "text": "verify_password",
+          "anchor": "verify_password"
+        },
+        {
+          "level": 3,
+          "text": "UserStore",
+          "anchor": "userstore"
+        },
+        {
+          "level": 4,
+          "text": "load_users",
+          "anchor": "load_users"
+        },
+        {
+          "level": 4,
+          "text": "save_users",
+          "anchor": "save_users"
+        },
+        {
+          "level": 4,
+          "text": "find_user",
+          "anchor": "find_user"
+        },
+        {
+          "level": 4,
+          "text": "create_user",
+          "anchor": "create_user"
+        },
+        {
+          "level": 4,
+          "text": "delete_user",
+          "anchor": "delete_user"
+        },
+        {
+          "level": 3,
+          "text": "JSONFileUserStore",
+          "anchor": "jsonfileuserstore"
+        },
+        {
+          "level": 4,
+          "text": "load_users",
+          "anchor": "load_users-1"
+        },
+        {
+          "level": 4,
+          "text": "save_users",
+          "anchor": "save_users-1"
+        },
+        {
+          "level": 3,
+          "text": "get_current_user",
+          "anchor": "get_current_user"
+        },
+        {
+          "level": 3,
+          "text": "require_role",
+          "anchor": "require_role"
+        },
+        {
+          "level": 3,
+          "text": "CSRFMiddleware",
+          "anchor": "csrfmiddleware"
+        },
+        {
+          "level": 3,
+          "text": "set_session_cookies",
+          "anchor": "set_session_cookies"
+        },
+        {
+          "level": 3,
+          "text": "clear_session_cookies",
+          "anchor": "clear_session_cookies"
+        },
+        {
+          "level": 3,
+          "text": "rate_limit",
+          "anchor": "rate_limit"
+        }
+      ]
     },
     {
       "path": "src-fastware-cli.md",
       "title": "src.fastware.cli",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.cli",
+          "anchor": "srcfastwarecli"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.cli",
+          "anchor": "srcfastwarecli"
+        },
+        {
+          "level": 3,
+          "text": "dev_run",
+          "anchor": "dev_run"
+        },
+        {
+          "level": 3,
+          "text": "dev_status",
+          "anchor": "dev_status"
+        },
+        {
+          "level": 3,
+          "text": "dev_stop",
+          "anchor": "dev_stop"
+        },
+        {
+          "level": 3,
+          "text": "main",
+          "anchor": "main"
+        }
+      ]
     },
     {
       "path": "src-fastware-config.md",
       "title": "src.fastware.config",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.config",
+          "anchor": "srcfastwareconfig"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.config",
+          "anchor": "srcfastwareconfig"
+        },
+        {
+          "level": 3,
+          "text": "load_config",
+          "anchor": "load_config"
+        }
+      ]
     },
     {
       "path": "src-fastware-dev.md",
       "title": "src.fastware.dev",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.dev",
+          "anchor": "srcfastwaredev"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.dev",
+          "anchor": "srcfastwaredev"
+        },
+        {
+          "level": 3,
+          "text": "dev",
+          "anchor": "dev"
+        }
+      ]
     },
     {
       "path": "src-fastware-devconfig.md",
       "title": "src.fastware.devconfig",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.devconfig",
+          "anchor": "srcfastwaredevconfig"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.devconfig",
+          "anchor": "srcfastwaredevconfig"
+        },
+        {
+          "level": 3,
+          "text": "DevConfigError",
+          "anchor": "devconfigerror"
+        },
+        {
+          "level": 3,
+          "text": "BackendSpec",
+          "anchor": "backendspec"
+        },
+        {
+          "level": 4,
+          "text": "is_in_process",
+          "anchor": "is_in_process"
+        },
+        {
+          "level": 3,
+          "text": "ViteSpec",
+          "anchor": "vitespec"
+        },
+        {
+          "level": 3,
+          "text": "HealthCheck",
+          "anchor": "healthcheck"
+        },
+        {
+          "level": 3,
+          "text": "AuxService",
+          "anchor": "auxservice"
+        },
+        {
+          "level": 3,
+          "text": "PreSpawnGate",
+          "anchor": "prespawngate"
+        },
+        {
+          "level": 3,
+          "text": "DevConfig",
+          "anchor": "devconfig"
+        },
+        {
+          "level": 4,
+          "text": "base_dir",
+          "anchor": "base_dir"
+        },
+        {
+          "level": 4,
+          "text": "resolve_cwd",
+          "anchor": "resolve_cwd"
+        },
+        {
+          "level": 3,
+          "text": "build_dev_config",
+          "anchor": "build_dev_config"
+        },
+        {
+          "level": 3,
+          "text": "find_dev_pyproject",
+          "anchor": "find_dev_pyproject"
+        },
+        {
+          "level": 3,
+          "text": "load_dev_config",
+          "anchor": "load_dev_config"
+        }
+      ]
     },
     {
       "path": "src-fastware-di.md",
       "title": "src.fastware.di",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.di",
+          "anchor": "srcfastwaredi"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.di",
+          "anchor": "srcfastwaredi"
+        },
+        {
+          "level": 3,
+          "text": "_request_call_mode",
+          "anchor": "_request_call_mode"
+        },
+        {
+          "level": 3,
+          "text": "DependencyResolver",
+          "anchor": "dependencyresolver"
+        },
+        {
+          "level": 4,
+          "text": "resolve",
+          "anchor": "resolve"
+        },
+        {
+          "level": 4,
+          "text": "cleanup",
+          "anchor": "cleanup"
+        }
+      ]
     },
     {
       "path": "src-fastware-error_log.md",
       "title": "src.fastware.error_log",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.error_log",
+          "anchor": "srcfastwareerror_log"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.error_log",
+          "anchor": "srcfastwareerror_log"
+        },
+        {
+          "level": 3,
+          "text": "ErrorLog",
+          "anchor": "errorlog"
+        },
+        {
+          "level": 4,
+          "text": "_run_worker",
+          "anchor": "_run_worker"
+        },
+        {
+          "level": 4,
+          "text": "append",
+          "anchor": "append"
+        },
+        {
+          "level": 4,
+          "text": "flush",
+          "anchor": "flush"
+        },
+        {
+          "level": 4,
+          "text": "recent",
+          "anchor": "recent"
+        },
+        {
+          "level": 4,
+          "text": "close",
+          "anchor": "close"
+        }
+      ]
     },
     {
       "path": "src-fastware-features.md",
       "title": "src.fastware.features",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.features",
+          "anchor": "srcfastwarefeatures"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.features",
+          "anchor": "srcfastwarefeatures"
+        },
+        {
+          "level": 3,
+          "text": "FeatureFlags",
+          "anchor": "featureflags"
+        },
+        {
+          "level": 4,
+          "text": "_load_overrides",
+          "anchor": "_load_overrides"
+        },
+        {
+          "level": 4,
+          "text": "enabled",
+          "anchor": "enabled"
+        },
+        {
+          "level": 4,
+          "text": "all_flags",
+          "anchor": "all_flags"
+        },
+        {
+          "level": 4,
+          "text": "set_override",
+          "anchor": "set_override"
+        },
+        {
+          "level": 4,
+          "text": "reload",
+          "anchor": "reload"
+        }
+      ]
     },
     {
       "path": "src-fastware-logging.md",
       "title": "src.fastware.logging",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.logging",
+          "anchor": "srcfastwarelogging"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.logging",
+          "anchor": "srcfastwarelogging"
+        },
+        {
+          "level": 3,
+          "text": "configure_logging",
+          "anchor": "configure_logging"
+        },
+        {
+          "level": 3,
+          "text": "get_logger",
+          "anchor": "get_logger"
+        },
+        {
+          "level": 3,
+          "text": "init_sentry",
+          "anchor": "init_sentry"
+        }
+      ]
     },
     {
       "path": "src-fastware-mcp.md",
       "title": "src.fastware.mcp",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.mcp",
+          "anchor": "srcfastwaremcp"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.mcp",
+          "anchor": "srcfastwaremcp"
+        },
+        {
+          "level": 3,
+          "text": "register_tools_for_role",
+          "anchor": "register_tools_for_role"
+        },
+        {
+          "level": 3,
+          "text": "create_mcp_server",
+          "anchor": "create_mcp_server"
+        }
+      ]
     },
     {
       "path": "src-fastware-middleware.md",
       "title": "src.fastware.middleware",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.middleware",
+          "anchor": "srcfastwaremiddleware"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.middleware",
+          "anchor": "srcfastwaremiddleware"
+        },
+        {
+          "level": 3,
+          "text": "RequestIDMiddleware",
+          "anchor": "requestidmiddleware"
+        },
+        {
+          "level": 3,
+          "text": "RequestTimingMiddleware",
+          "anchor": "requesttimingmiddleware"
+        },
+        {
+          "level": 3,
+          "text": "CORSMiddleware",
+          "anchor": "corsmiddleware"
+        },
+        {
+          "level": 4,
+          "text": "_cors_headers",
+          "anchor": "_cors_headers"
+        },
+        {
+          "level": 3,
+          "text": "TrustedHostMiddleware",
+          "anchor": "trustedhostmiddleware"
+        },
+        {
+          "level": 3,
+          "text": "ViteDevProxy",
+          "anchor": "vitedevproxy"
+        },
+        {
+          "level": 4,
+          "text": "__init__",
+          "anchor": "__init__"
+        },
+        {
+          "level": 4,
+          "text": "_is_api_request",
+          "anchor": "_is_api_request"
+        },
+        {
+          "level": 4,
+          "text": "close",
+          "anchor": "close"
+        },
+        {
+          "level": 4,
+          "text": "_proxy_http",
+          "anchor": "_proxy_http"
+        },
+        {
+          "level": 4,
+          "text": "_proxy_ws",
+          "anchor": "_proxy_ws"
+        }
+      ]
     },
     {
       "path": "src-fastware-request.md",
       "title": "src.fastware.request",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.request",
+          "anchor": "srcfastwarerequest"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.request",
+          "anchor": "srcfastwarerequest"
+        },
+        {
+          "level": 3,
+          "text": "State",
+          "anchor": "state"
+        },
+        {
+          "level": 4,
+          "text": "get",
+          "anchor": "get"
+        },
+        {
+          "level": 3,
+          "text": "Request",
+          "anchor": "request"
+        },
+        {
+          "level": 4,
+          "text": "json",
+          "anchor": "json"
+        },
+        {
+          "level": 4,
+          "text": "body",
+          "anchor": "body"
+        },
+        {
+          "level": 4,
+          "text": "_qs",
+          "anchor": "_qs"
+        },
+        {
+          "level": 4,
+          "text": "query",
+          "anchor": "query"
+        },
+        {
+          "level": 4,
+          "text": "query_list",
+          "anchor": "query_list"
+        },
+        {
+          "level": 4,
+          "text": "query_params",
+          "anchor": "query_params"
+        },
+        {
+          "level": 4,
+          "text": "header",
+          "anchor": "header"
+        },
+        {
+          "level": 4,
+          "text": "body_size",
+          "anchor": "body_size"
+        },
+        {
+          "level": 4,
+          "text": "state",
+          "anchor": "state-1"
+        },
+        {
+          "level": 4,
+          "text": "method",
+          "anchor": "method"
+        },
+        {
+          "level": 4,
+          "text": "path",
+          "anchor": "path"
+        },
+        {
+          "level": 4,
+          "text": "is_disconnected",
+          "anchor": "is_disconnected"
+        },
+        {
+          "level": 4,
+          "text": "_mark_disconnected",
+          "anchor": "_mark_disconnected"
+        },
+        {
+          "level": 4,
+          "text": "_register_stream_task",
+          "anchor": "_register_stream_task"
+        },
+        {
+          "level": 4,
+          "text": "cookies",
+          "anchor": "cookies"
+        },
+        {
+          "level": 4,
+          "text": "cookie",
+          "anchor": "cookie"
+        },
+        {
+          "level": 4,
+          "text": "json_as",
+          "anchor": "json_as"
+        }
+      ]
     },
     {
       "path": "src-fastware-responses.md",
       "title": "src.fastware.responses",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.responses",
+          "anchor": "srcfastwareresponses"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.responses",
+          "anchor": "srcfastwareresponses"
+        },
+        {
+          "level": 3,
+          "text": "set_cookie",
+          "anchor": "set_cookie"
+        },
+        {
+          "level": 3,
+          "text": "delete_cookie",
+          "anchor": "delete_cookie"
+        },
+        {
+          "level": 3,
+          "text": "HTTPError",
+          "anchor": "httperror"
+        },
+        {
+          "level": 3,
+          "text": "JSONResponse",
+          "anchor": "jsonresponse"
+        },
+        {
+          "level": 3,
+          "text": "TextResponse",
+          "anchor": "textresponse"
+        },
+        {
+          "level": 3,
+          "text": "HTMLResponse",
+          "anchor": "htmlresponse"
+        },
+        {
+          "level": 3,
+          "text": "BytesResponse",
+          "anchor": "bytesresponse"
+        },
+        {
+          "level": 3,
+          "text": "StreamResponse",
+          "anchor": "streamresponse"
+        },
+        {
+          "level": 3,
+          "text": "FileResponse",
+          "anchor": "fileresponse"
+        },
+        {
+          "level": 3,
+          "text": "_build_headers",
+          "anchor": "_build_headers"
+        },
+        {
+          "level": 3,
+          "text": "_send_response",
+          "anchor": "_send_response"
+        },
+        {
+          "level": 3,
+          "text": "send_error",
+          "anchor": "send_error"
+        }
+      ]
     },
     {
       "path": "src-fastware-routing.md",
       "title": "src.fastware.routing",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.routing",
+          "anchor": "srcfastwarerouting"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.routing",
+          "anchor": "srcfastwarerouting"
+        },
+        {
+          "level": 3,
+          "text": "_parse_segment",
+          "anchor": "_parse_segment"
+        },
+        {
+          "level": 3,
+          "text": "Router",
+          "anchor": "router"
+        },
+        {
+          "level": 4,
+          "text": "mount",
+          "anchor": "mount"
+        },
+        {
+          "level": 4,
+          "text": "_method_decorator",
+          "anchor": "_method_decorator"
+        },
+        {
+          "level": 4,
+          "text": "get",
+          "anchor": "get"
+        },
+        {
+          "level": 4,
+          "text": "post",
+          "anchor": "post"
+        },
+        {
+          "level": 4,
+          "text": "delete",
+          "anchor": "delete"
+        },
+        {
+          "level": 4,
+          "text": "put",
+          "anchor": "put"
+        },
+        {
+          "level": 4,
+          "text": "patch",
+          "anchor": "patch"
+        },
+        {
+          "level": 4,
+          "text": "add_route",
+          "anchor": "add_route"
+        },
+        {
+          "level": 4,
+          "text": "ws",
+          "anchor": "ws"
+        },
+        {
+          "level": 4,
+          "text": "add_ws_route",
+          "anchor": "add_ws_route"
+        },
+        {
+          "level": 4,
+          "text": "include_router",
+          "anchor": "include_router"
+        },
+        {
+          "level": 4,
+          "text": "match",
+          "anchor": "match"
+        },
+        {
+          "level": 4,
+          "text": "_match_pattern",
+          "anchor": "_match_pattern"
+        },
+        {
+          "level": 4,
+          "text": "_match_with_deps",
+          "anchor": "_match_with_deps"
+        },
+        {
+          "level": 4,
+          "text": "allowed_methods",
+          "anchor": "allowed_methods"
+        },
+        {
+          "level": 4,
+          "text": "_match_with_path_param",
+          "anchor": "_match_with_path_param"
+        },
+        {
+          "level": 4,
+          "text": "match_ws",
+          "anchor": "match_ws"
+        },
+        {
+          "level": 4,
+          "text": "_match_ws_with_deps",
+          "anchor": "_match_ws_with_deps"
+        }
+      ]
     },
     {
       "path": "src-fastware-server.md",
       "title": "src.fastware.server",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.server",
+          "anchor": "srcfastwareserver"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.server",
+          "anchor": "srcfastwareserver"
+        },
+        {
+          "level": 3,
+          "text": "PortInUseError",
+          "anchor": "portinuseerror"
+        },
+        {
+          "level": 3,
+          "text": "AlreadyRunningError",
+          "anchor": "alreadyrunningerror"
+        },
+        {
+          "level": 3,
+          "text": "_probe_health",
+          "anchor": "_probe_health"
+        },
+        {
+          "level": 3,
+          "text": "_write_pid",
+          "anchor": "_write_pid"
+        },
+        {
+          "level": 3,
+          "text": "_remove_pid",
+          "anchor": "_remove_pid"
+        },
+        {
+          "level": 3,
+          "text": "_reap_if_dead_child",
+          "anchor": "_reap_if_dead_child"
+        },
+        {
+          "level": 3,
+          "text": "check_already_running",
+          "anchor": "check_already_running"
+        },
+        {
+          "level": 3,
+          "text": "ensure_port_available",
+          "anchor": "ensure_port_available"
+        },
+        {
+          "level": 3,
+          "text": "_find_port_holder_pids",
+          "anchor": "_find_port_holder_pids"
+        },
+        {
+          "level": 3,
+          "text": "_resolve_target",
+          "anchor": "_resolve_target"
+        },
+        {
+          "level": 3,
+          "text": "_materialize_target",
+          "anchor": "_materialize_target"
+        },
+        {
+          "level": 3,
+          "text": "_remove_shim_dir",
+          "anchor": "_remove_shim_dir"
+        },
+        {
+          "level": 3,
+          "text": "_find_free_port",
+          "anchor": "_find_free_port"
+        },
+        {
+          "level": 3,
+          "text": "_port_file_path",
+          "anchor": "_port_file_path"
+        },
+        {
+          "level": 3,
+          "text": "_write_port_file",
+          "anchor": "_write_port_file"
+        },
+        {
+          "level": 3,
+          "text": "_remove_port_file",
+          "anchor": "_remove_port_file"
+        },
+        {
+          "level": 3,
+          "text": "read_port_file",
+          "anchor": "read_port_file"
+        },
+        {
+          "level": 3,
+          "text": "RegistryEntry",
+          "anchor": "registryentry"
+        },
+        {
+          "level": 3,
+          "text": "_registry_dir",
+          "anchor": "_registry_dir"
+        },
+        {
+          "level": 3,
+          "text": "_registry_entry_path",
+          "anchor": "_registry_entry_path"
+        },
+        {
+          "level": 3,
+          "text": "_pid_alive",
+          "anchor": "_pid_alive"
+        },
+        {
+          "level": 3,
+          "text": "register_instance",
+          "anchor": "register_instance"
+        },
+        {
+          "level": 3,
+          "text": "deregister_instance",
+          "anchor": "deregister_instance"
+        },
+        {
+          "level": 3,
+          "text": "list_instances",
+          "anchor": "list_instances"
+        },
+        {
+          "level": 3,
+          "text": "_marker_path",
+          "anchor": "_marker_path"
+        },
+        {
+          "level": 3,
+          "text": "write_marker",
+          "anchor": "write_marker"
+        },
+        {
+          "level": 3,
+          "text": "list_markers",
+          "anchor": "list_markers"
+        },
+        {
+          "level": 3,
+          "text": "remove_marker",
+          "anchor": "remove_marker"
+        },
+        {
+          "level": 3,
+          "text": "_resolve_host_port",
+          "anchor": "_resolve_host_port"
+        },
+        {
+          "level": 3,
+          "text": "_make_server",
+          "anchor": "_make_server"
+        },
+        {
+          "level": 3,
+          "text": "_make_embed_server",
+          "anchor": "_make_embed_server"
+        },
+        {
+          "level": 3,
+          "text": "_run_server",
+          "anchor": "_run_server"
+        },
+        {
+          "level": 3,
+          "text": "_serve_subprocess",
+          "anchor": "_serve_subprocess"
+        },
+        {
+          "level": 3,
+          "text": "serve_background",
+          "anchor": "serve_background"
+        },
+        {
+          "level": 3,
+          "text": "serve",
+          "anchor": "serve"
+        },
+        {
+          "level": 3,
+          "text": "stop_background",
+          "anchor": "stop_background"
+        },
+        {
+          "level": 3,
+          "text": "ServerStatus",
+          "anchor": "serverstatus"
+        },
+        {
+          "level": 3,
+          "text": "_cleanup_pid_and_port",
+          "anchor": "_cleanup_pid_and_port"
+        },
+        {
+          "level": 3,
+          "text": "stop",
+          "anchor": "stop"
+        },
+        {
+          "level": 3,
+          "text": "_confirm_dead",
+          "anchor": "_confirm_dead"
+        },
+        {
+          "level": 3,
+          "text": "status",
+          "anchor": "status"
+        }
+      ]
     },
     {
       "path": "src-fastware-sse.md",
       "title": "src.fastware.sse",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.sse",
+          "anchor": "srcfastwaresse"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.sse",
+          "anchor": "srcfastwaresse"
+        },
+        {
+          "level": 3,
+          "text": "Broadcaster",
+          "anchor": "broadcaster"
+        },
+        {
+          "level": 4,
+          "text": "register_event",
+          "anchor": "register_event"
+        },
+        {
+          "level": 4,
+          "text": "event_types",
+          "anchor": "event_types"
+        },
+        {
+          "level": 4,
+          "text": "_format_sse",
+          "anchor": "_format_sse"
+        },
+        {
+          "level": 4,
+          "text": "broadcast",
+          "anchor": "broadcast"
+        },
+        {
+          "level": 4,
+          "text": "_event_generator",
+          "anchor": "_event_generator"
+        },
+        {
+          "level": 4,
+          "text": "stream",
+          "anchor": "stream"
+        },
+        {
+          "level": 4,
+          "text": "client_count",
+          "anchor": "client_count"
+        },
+        {
+          "level": 3,
+          "text": "sse_route",
+          "anchor": "sse_route"
+        }
+      ]
     },
     {
       "path": "src-fastware-supervise.md",
       "title": "src.fastware.supervise",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.supervise",
+          "anchor": "srcfastwaresupervise"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.supervise",
+          "anchor": "srcfastwaresupervise"
+        },
+        {
+          "level": 3,
+          "text": "DevRunError",
+          "anchor": "devrunerror"
+        },
+        {
+          "level": 3,
+          "text": "PreSpawnGateError",
+          "anchor": "prespawngateerror"
+        },
+        {
+          "level": 3,
+          "text": "ReadinessError",
+          "anchor": "readinesserror"
+        },
+        {
+          "level": 3,
+          "text": "PortCollisionError",
+          "anchor": "portcollisionerror"
+        },
+        {
+          "level": 3,
+          "text": "SWModeConflictError",
+          "anchor": "swmodeconflicterror"
+        },
+        {
+          "level": 3,
+          "text": "ComponentDied",
+          "anchor": "componentdied"
+        },
+        {
+          "level": 3,
+          "text": "_http_answers",
+          "anchor": "_http_answers"
+        },
+        {
+          "level": 3,
+          "text": "run_pre_spawn_gates",
+          "anchor": "run_pre_spawn_gates"
+        },
+        {
+          "level": 3,
+          "text": "DevProcess",
+          "anchor": "devprocess"
+        },
+        {
+          "level": 4,
+          "text": "start",
+          "anchor": "start"
+        },
+        {
+          "level": 4,
+          "text": "pid",
+          "anchor": "pid"
+        },
+        {
+          "level": 4,
+          "text": "is_running",
+          "anchor": "is_running"
+        },
+        {
+          "level": 4,
+          "text": "returncode",
+          "anchor": "returncode"
+        },
+        {
+          "level": 4,
+          "text": "forward_signal",
+          "anchor": "forward_signal"
+        },
+        {
+          "level": 4,
+          "text": "stop",
+          "anchor": "stop"
+        },
+        {
+          "level": 3,
+          "text": "teardown",
+          "anchor": "teardown"
+        },
+        {
+          "level": 3,
+          "text": "supervise_loop",
+          "anchor": "supervise_loop"
+        },
+        {
+          "level": 3,
+          "text": "_serve_in_process",
+          "anchor": "_serve_in_process"
+        },
+        {
+          "level": 3,
+          "text": "_start_ordered",
+          "anchor": "_start_ordered"
+        },
+        {
+          "level": 3,
+          "text": "resolve_backend_sw_mode",
+          "anchor": "resolve_backend_sw_mode"
+        },
+        {
+          "level": 3,
+          "text": "check_sw_mode",
+          "anchor": "check_sw_mode"
+        },
+        {
+          "level": 3,
+          "text": "dev_pid_path",
+          "anchor": "dev_pid_path"
+        },
+        {
+          "level": 3,
+          "text": "list_dev_instances",
+          "anchor": "list_dev_instances"
+        },
+        {
+          "level": 3,
+          "text": "stop_dev_instances",
+          "anchor": "stop_dev_instances"
+        },
+        {
+          "level": 3,
+          "text": "_spawn_daemon",
+          "anchor": "_spawn_daemon"
+        },
+        {
+          "level": 3,
+          "text": "run_dev",
+          "anchor": "run_dev"
+        }
+      ]
     },
     {
       "path": "src-fastware-tasks.md",
       "title": "src.fastware.tasks",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.tasks",
+          "anchor": "srcfastwaretasks"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.tasks",
+          "anchor": "srcfastwaretasks"
+        },
+        {
+          "level": 3,
+          "text": "BackgroundTask",
+          "anchor": "backgroundtask"
+        },
+        {
+          "level": 4,
+          "text": "start",
+          "anchor": "start"
+        },
+        {
+          "level": 4,
+          "text": "stop",
+          "anchor": "stop"
+        },
+        {
+          "level": 3,
+          "text": "TaskRegistry",
+          "anchor": "taskregistry"
+        },
+        {
+          "level": 4,
+          "text": "register",
+          "anchor": "register"
+        },
+        {
+          "level": 4,
+          "text": "start_all",
+          "anchor": "start_all"
+        },
+        {
+          "level": 4,
+          "text": "stop_all",
+          "anchor": "stop_all"
+        },
+        {
+          "level": 4,
+          "text": "list_tasks",
+          "anchor": "list_tasks"
+        },
+        {
+          "level": 4,
+          "text": "get_task",
+          "anchor": "get_task"
+        }
+      ]
     },
     {
       "path": "src-fastware-testing.md",
       "title": "src.fastware.testing",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.testing",
+          "anchor": "srcfastwaretesting"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.testing",
+          "anchor": "srcfastwaretesting"
+        },
+        {
+          "level": 3,
+          "text": "_wrap_raise_server_exceptions",
+          "anchor": "_wrap_raise_server_exceptions"
+        },
+        {
+          "level": 3,
+          "text": "_LifespanManager",
+          "anchor": "_lifespanmanager"
+        },
+        {
+          "level": 4,
+          "text": "startup",
+          "anchor": "startup"
+        },
+        {
+          "level": 4,
+          "text": "shutdown",
+          "anchor": "shutdown"
+        },
+        {
+          "level": 4,
+          "text": "_wait",
+          "anchor": "_wait"
+        },
+        {
+          "level": 3,
+          "text": "AsyncTestClient",
+          "anchor": "asynctestclient"
+        },
+        {
+          "level": 3,
+          "text": "_SyncTestClient",
+          "anchor": "_synctestclient"
+        },
+        {
+          "level": 4,
+          "text": "_start_loop",
+          "anchor": "_start_loop"
+        },
+        {
+          "level": 4,
+          "text": "_run",
+          "anchor": "_run"
+        },
+        {
+          "level": 4,
+          "text": "get",
+          "anchor": "get"
+        },
+        {
+          "level": 4,
+          "text": "post",
+          "anchor": "post"
+        },
+        {
+          "level": 4,
+          "text": "put",
+          "anchor": "put"
+        },
+        {
+          "level": 4,
+          "text": "patch",
+          "anchor": "patch"
+        },
+        {
+          "level": 4,
+          "text": "delete",
+          "anchor": "delete"
+        },
+        {
+          "level": 4,
+          "text": "options",
+          "anchor": "options"
+        },
+        {
+          "level": 4,
+          "text": "head",
+          "anchor": "head"
+        },
+        {
+          "level": 4,
+          "text": "close",
+          "anchor": "close"
+        }
+      ]
     },
     {
       "path": "src-fastware-websocket.md",
       "title": "src.fastware.websocket",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "src.fastware.websocket",
+          "anchor": "srcfastwarewebsocket"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.websocket",
+          "anchor": "srcfastwarewebsocket"
+        },
+        {
+          "level": 3,
+          "text": "WebSocketDisconnect",
+          "anchor": "websocketdisconnect"
+        },
+        {
+          "level": 3,
+          "text": "WebSocket",
+          "anchor": "websocket"
+        },
+        {
+          "level": 4,
+          "text": "path_params",
+          "anchor": "path_params"
+        },
+        {
+          "level": 4,
+          "text": "headers",
+          "anchor": "headers"
+        },
+        {
+          "level": 4,
+          "text": "query_string",
+          "anchor": "query_string"
+        },
+        {
+          "level": 4,
+          "text": "accept",
+          "anchor": "accept"
+        },
+        {
+          "level": 4,
+          "text": "close",
+          "anchor": "close"
+        },
+        {
+          "level": 4,
+          "text": "send_json",
+          "anchor": "send_json"
+        },
+        {
+          "level": 4,
+          "text": "send_bytes",
+          "anchor": "send_bytes"
+        },
+        {
+          "level": 4,
+          "text": "send_text",
+          "anchor": "send_text"
+        },
+        {
+          "level": 4,
+          "text": "_receive_data",
+          "anchor": "_receive_data"
+        },
+        {
+          "level": 4,
+          "text": "receive_json",
+          "anchor": "receive_json"
+        },
+        {
+          "level": 4,
+          "text": "receive_bytes",
+          "anchor": "receive_bytes"
+        },
+        {
+          "level": 4,
+          "text": "receive_text",
+          "anchor": "receive_text"
+        },
+        {
+          "level": 4,
+          "text": "receive_raw",
+          "anchor": "receive_raw"
+        }
+      ]
     },
     {
       "path": "sse-guide.md",
       "title": "SSE Broadcasting",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "SSE Broadcasting",
+          "anchor": "sse-broadcasting"
+        },
+        {
+          "level": 2,
+          "text": "When to use SSE vs WebSocket",
+          "anchor": "when-to-use-sse-vs-websocket"
+        },
+        {
+          "level": 2,
+          "text": "Basic setup",
+          "anchor": "basic-setup"
+        },
+        {
+          "level": 3,
+          "text": "1. Create a Broadcaster",
+          "anchor": "1-create-a-broadcaster"
+        },
+        {
+          "level": 3,
+          "text": "2. Register event types",
+          "anchor": "2-register-event-types"
+        },
+        {
+          "level": 3,
+          "text": "3. Wire to a route",
+          "anchor": "3-wire-to-a-route"
+        },
+        {
+          "level": 3,
+          "text": "4. Broadcast from handlers",
+          "anchor": "4-broadcast-from-handlers"
+        },
+        {
+          "level": 3,
+          "text": "5. Create the app",
+          "anchor": "5-create-the-app"
+        },
+        {
+          "level": 2,
+          "text": "Client-side JavaScript",
+          "anchor": "client-side-javascript"
+        },
+        {
+          "level": 2,
+          "text": "Heartbeat configuration",
+          "anchor": "heartbeat-configuration"
+        },
+        {
+          "level": 2,
+          "text": "Strict mode vs permissive mode",
+          "anchor": "strict-mode-vs-permissive-mode"
+        },
+        {
+          "level": 2,
+          "text": "Buffer size",
+          "anchor": "buffer-size"
+        },
+        {
+          "level": 2,
+          "text": "Introspection",
+          "anchor": "introspection"
+        },
+        {
+          "level": 2,
+          "text": "Complete example",
+          "anchor": "complete-example"
+        },
+        {
+          "level": 2,
+          "text": "API reference",
+          "anchor": "api-reference"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.sse",
+          "anchor": "srcfastwaresse"
+        },
+        {
+          "level": 3,
+          "text": "Broadcaster",
+          "anchor": "broadcaster"
+        },
+        {
+          "level": 4,
+          "text": "register_event",
+          "anchor": "register_event"
+        },
+        {
+          "level": 4,
+          "text": "event_types",
+          "anchor": "event_types"
+        },
+        {
+          "level": 4,
+          "text": "_format_sse",
+          "anchor": "_format_sse"
+        },
+        {
+          "level": 4,
+          "text": "broadcast",
+          "anchor": "broadcast"
+        },
+        {
+          "level": 4,
+          "text": "_event_generator",
+          "anchor": "_event_generator"
+        },
+        {
+          "level": 4,
+          "text": "stream",
+          "anchor": "stream"
+        },
+        {
+          "level": 4,
+          "text": "client_count",
+          "anchor": "client_count"
+        },
+        {
+          "level": 3,
+          "text": "sse_route",
+          "anchor": "sse_route"
+        }
+      ]
     },
     {
       "path": "tasks-guide.md",
       "title": "Background Tasks and Feature Flags",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Background Tasks and Feature Flags",
+          "anchor": "background-tasks-and-feature-flags"
+        },
+        {
+          "level": 2,
+          "text": "Background task system",
+          "anchor": "background-task-system"
+        },
+        {
+          "level": 3,
+          "text": "The BackgroundTask protocol",
+          "anchor": "the-backgroundtask-protocol"
+        },
+        {
+          "level": 3,
+          "text": "Registering tasks with factories",
+          "anchor": "registering-tasks-with-factories"
+        },
+        {
+          "level": 3,
+          "text": "Starting and stopping tasks",
+          "anchor": "starting-and-stopping-tasks"
+        },
+        {
+          "level": 3,
+          "text": "Feature-gated tasks",
+          "anchor": "feature-gated-tasks"
+        },
+        {
+          "level": 3,
+          "text": "Inspecting the registry",
+          "anchor": "inspecting-the-registry"
+        },
+        {
+          "level": 3,
+          "text": "Lifecycle integration with create_app",
+          "anchor": "lifecycle-integration-with-create_app"
+        },
+        {
+          "level": 2,
+          "text": "Feature flags",
+          "anchor": "feature-flags"
+        },
+        {
+          "level": 3,
+          "text": "Defining flags with defaults",
+          "anchor": "defining-flags-with-defaults"
+        },
+        {
+          "level": 3,
+          "text": "Checking flags at runtime",
+          "anchor": "checking-flags-at-runtime"
+        },
+        {
+          "level": 3,
+          "text": "JSON overrides",
+          "anchor": "json-overrides"
+        },
+        {
+          "level": 3,
+          "text": "Setting overrides at runtime",
+          "anchor": "setting-overrides-at-runtime"
+        },
+        {
+          "level": 3,
+          "text": "Hot reload",
+          "anchor": "hot-reload"
+        },
+        {
+          "level": 3,
+          "text": "Admin endpoint example",
+          "anchor": "admin-endpoint-example"
+        },
+        {
+          "level": 2,
+          "text": "Configuration",
+          "anchor": "configuration"
+        },
+        {
+          "level": 3,
+          "text": "Loading TOML config",
+          "anchor": "loading-toml-config"
+        },
+        {
+          "level": 3,
+          "text": "Pydantic schema validation",
+          "anchor": "pydantic-schema-validation"
+        },
+        {
+          "level": 3,
+          "text": "Error handling",
+          "anchor": "error-handling"
+        },
+        {
+          "level": 3,
+          "text": "Wiring config into the app",
+          "anchor": "wiring-config-into-the-app"
+        },
+        {
+          "level": 2,
+          "text": "API reference",
+          "anchor": "api-reference"
+        },
+        {
+          "level": 3,
+          "text": "BackgroundTask and TaskRegistry",
+          "anchor": "backgroundtask-and-taskregistry"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.tasks",
+          "anchor": "srcfastwaretasks"
+        },
+        {
+          "level": 3,
+          "text": "BackgroundTask",
+          "anchor": "backgroundtask"
+        },
+        {
+          "level": 4,
+          "text": "start",
+          "anchor": "start"
+        },
+        {
+          "level": 4,
+          "text": "stop",
+          "anchor": "stop"
+        },
+        {
+          "level": 3,
+          "text": "TaskRegistry",
+          "anchor": "taskregistry"
+        },
+        {
+          "level": 4,
+          "text": "register",
+          "anchor": "register"
+        },
+        {
+          "level": 4,
+          "text": "start_all",
+          "anchor": "start_all"
+        },
+        {
+          "level": 4,
+          "text": "stop_all",
+          "anchor": "stop_all"
+        },
+        {
+          "level": 4,
+          "text": "list_tasks",
+          "anchor": "list_tasks"
+        },
+        {
+          "level": 4,
+          "text": "get_task",
+          "anchor": "get_task"
+        },
+        {
+          "level": 3,
+          "text": "FeatureFlags",
+          "anchor": "featureflags"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.features",
+          "anchor": "srcfastwarefeatures"
+        },
+        {
+          "level": 3,
+          "text": "FeatureFlags",
+          "anchor": "featureflags-1"
+        },
+        {
+          "level": 4,
+          "text": "_load_overrides",
+          "anchor": "_load_overrides"
+        },
+        {
+          "level": 4,
+          "text": "enabled",
+          "anchor": "enabled"
+        },
+        {
+          "level": 4,
+          "text": "all_flags",
+          "anchor": "all_flags"
+        },
+        {
+          "level": 4,
+          "text": "set_override",
+          "anchor": "set_override"
+        },
+        {
+          "level": 4,
+          "text": "reload",
+          "anchor": "reload"
+        },
+        {
+          "level": 3,
+          "text": "load_config",
+          "anchor": "load_config"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.config",
+          "anchor": "srcfastwareconfig"
+        },
+        {
+          "level": 3,
+          "text": "load_config",
+          "anchor": "load_config-1"
+        }
+      ]
     },
     {
       "path": "vite-guide.md",
       "title": "Vite Dev Mode",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Vite Dev Mode",
+          "anchor": "vite-dev-mode"
+        },
+        {
+          "level": 2,
+          "text": "The problem",
+          "anchor": "the-problem"
+        },
+        {
+          "level": 2,
+          "text": "The dev() function",
+          "anchor": "the-dev-function"
+        },
+        {
+          "level": 3,
+          "text": "Parameters",
+          "anchor": "parameters"
+        },
+        {
+          "level": 2,
+          "text": "ViteDevProxy middleware",
+          "anchor": "vitedevproxy-middleware"
+        },
+        {
+          "level": 3,
+          "text": "How routing works",
+          "anchor": "how-routing-works"
+        },
+        {
+          "level": 3,
+          "text": "Configuring backend prefixes",
+          "anchor": "configuring-backend-prefixes"
+        },
+        {
+          "level": 2,
+          "text": "Production: SPA fallback",
+          "anchor": "production-spa-fallback"
+        },
+        {
+          "level": 2,
+          "text": "Service workers and cache retirement",
+          "anchor": "service-workers-and-cache-retirement"
+        },
+        {
+          "level": 3,
+          "text": "Retiring a cache worker: `cache` -> `reset` -> `off`",
+          "anchor": "retiring-a-cache-worker-cache-reset-off"
+        },
+        {
+          "level": 2,
+          "text": "Complete development setup",
+          "anchor": "complete-development-setup"
+        },
+        {
+          "level": 2,
+          "text": "API reference",
+          "anchor": "api-reference"
+        },
+        {
+          "level": 2,
+          "text": "src.fastware.dev",
+          "anchor": "srcfastwaredev"
+        },
+        {
+          "level": 3,
+          "text": "dev",
+          "anchor": "dev"
+        },
+        {
+          "level": 3,
+          "text": "ViteDevProxy",
+          "anchor": "vitedevproxy"
+        },
+        {
+          "level": 4,
+          "text": "__init__",
+          "anchor": "__init__"
+        },
+        {
+          "level": 4,
+          "text": "_is_api_request",
+          "anchor": "_is_api_request"
+        },
+        {
+          "level": 4,
+          "text": "close",
+          "anchor": "close"
+        },
+        {
+          "level": 4,
+          "text": "_proxy_http",
+          "anchor": "_proxy_http"
+        },
+        {
+          "level": 4,
+          "text": "_proxy_ws",
+          "anchor": "_proxy_ws"
+        }
+      ]
     },
     {
       "path": "vs-fastapi.md",
       "title": "fastware vs FastAPI",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "fastware vs FastAPI",
+          "anchor": "fastware-vs-fastapi"
+        },
+        {
+          "level": 2,
+          "text": "At a glance",
+          "anchor": "at-a-glance"
+        },
+        {
+          "level": 2,
+          "text": "Performance",
+          "anchor": "performance"
+        },
+        {
+          "level": 3,
+          "text": "JSON serialization",
+          "anchor": "json-serialization"
+        },
+        {
+          "level": 3,
+          "text": "ASGI server",
+          "anchor": "asgi-server"
+        },
+        {
+          "level": 2,
+          "text": "Batteries",
+          "anchor": "batteries"
+        },
+        {
+          "level": 2,
+          "text": "What FastAPI does better",
+          "anchor": "what-fastapi-does-better"
+        },
+        {
+          "level": 2,
+          "text": "When to choose fastware",
+          "anchor": "when-to-choose-fastware"
+        },
+        {
+          "level": 2,
+          "text": "When to choose FastAPI",
+          "anchor": "when-to-choose-fastapi"
+        }
+      ]
     },
     {
       "path": "vs-litestar.md",
       "title": "fastware vs Litestar",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "fastware vs Litestar",
+          "anchor": "fastware-vs-litestar"
+        },
+        {
+          "level": 2,
+          "text": "Origin stories",
+          "anchor": "origin-stories"
+        },
+        {
+          "level": 2,
+          "text": "Feature comparison",
+          "anchor": "feature-comparison"
+        },
+        {
+          "level": 2,
+          "text": "Shared ground: msgspec",
+          "anchor": "shared-ground-msgspec"
+        },
+        {
+          "level": 2,
+          "text": "What Litestar does better",
+          "anchor": "what-litestar-does-better"
+        },
+        {
+          "level": 2,
+          "text": "What fastware does differently",
+          "anchor": "what-fastware-does-differently"
+        },
+        {
+          "level": 2,
+          "text": "When to choose fastware",
+          "anchor": "when-to-choose-fastware"
+        },
+        {
+          "level": 2,
+          "text": "When to choose Litestar",
+          "anchor": "when-to-choose-litestar"
+        }
+      ]
     },
     {
       "path": "vs-sanic.md",
       "title": "fastware vs Sanic",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "fastware vs Sanic",
+          "anchor": "fastware-vs-sanic"
+        },
+        {
+          "level": 2,
+          "text": "Server philosophies",
+          "anchor": "server-philosophies"
+        },
+        {
+          "level": 2,
+          "text": "Feature comparison",
+          "anchor": "feature-comparison"
+        },
+        {
+          "level": 2,
+          "text": "Performance",
+          "anchor": "performance"
+        },
+        {
+          "level": 2,
+          "text": "What Sanic does differently",
+          "anchor": "what-sanic-does-differently"
+        },
+        {
+          "level": 2,
+          "text": "What fastware includes that Sanic does not",
+          "anchor": "what-fastware-includes-that-sanic-does-not"
+        },
+        {
+          "level": 2,
+          "text": "When to choose fastware",
+          "anchor": "when-to-choose-fastware"
+        },
+        {
+          "level": 2,
+          "text": "When to choose Sanic",
+          "anchor": "when-to-choose-sanic"
+        }
+      ]
     },
     {
       "path": "vs-starlette.md",
       "title": "fastware vs Starlette",
-      "type": "doc"
+      "type": "doc",
+      "headings": [
+        {
+          "level": 1,
+          "text": "fastware vs Starlette",
+          "anchor": "fastware-vs-starlette"
+        },
+        {
+          "level": 2,
+          "text": "Toolkit vs framework",
+          "anchor": "toolkit-vs-framework"
+        },
+        {
+          "level": 2,
+          "text": "Feature comparison",
+          "anchor": "feature-comparison"
+        },
+        {
+          "level": 2,
+          "text": "What Starlette does differently",
+          "anchor": "what-starlette-does-differently"
+        },
+        {
+          "level": 2,
+          "text": "When to choose fastware",
+          "anchor": "when-to-choose-fastware"
+        },
+        {
+          "level": 2,
+          "text": "When to choose Starlette",
+          "anchor": "when-to-choose-starlette"
+        }
+      ]
     }
   ],
   "posts": [],
-  "last_gen": "2026-08-08T20:00:29.027014+00:00"
+  "last_gen": "2026-08-12T03:44:04.980107+00:00"
 }
