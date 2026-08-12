@@ -3,3 +3,4 @@
 {"format_version":1,"id":"18caf279b815ce7455d96c210e5145ab8909c54e1779db4f","commits":["4d2f54da9d9bb2a166d1c32ba8d66c29baca7053","5a313d5e6201e423a481dd896f9596aebc68dbd9"],"user_facing":false}
 {"format_version":1,"id":"18caf3102e235452c799638205bc473bb4c416194fbeaaf5","commits":["1e4e48c2a50a668265dfe44e56645f45ad695535"],"user_facing":false}
 {"format_version":1,"id":"18cb0df3744665bf1169056997a64983b79b4e03082adc90","commits":["9f46d42df81be93cc85a267b4b85686d98de591d"],"user_facing":true,"description":"**Documentation links no longer dead-end.** Five cross-page links in the quickstart and the FastAPI migration guide pointed outside the documentation root.","type":"fix"}
+{"format_version":1,"id":"18cb0df37f85ce299ddebbb7bc6043c89bd215de9a4c3532","commits":["b1d6874a14089d83460cba5840207a7c37b0c19f"],"user_facing":false}
