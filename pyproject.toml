@@ -8,8 +8,11 @@ dependencies = [
     "granian>=2.7,<3.0",
     # 0.36.0 made effect classification mandatory; the `fastware` CLI declares
     # `effect=` on all three dev commands and will not register on anything
-    # older.
-    "strictcli>=0.36.0",
+    # older. 0.41.0 made presence declared rather than inferred and banned a
+    # value `default=` on any flag of a `mutating` command, so the dev
+    # commands' flags declare `presence="optional"` and apply their fallback in
+    # the handler -- a spelling 0.40.x and older cannot parse.
+    "strictcli>=0.41.0",
 ]
 keywords = ["rlsbl"]
 

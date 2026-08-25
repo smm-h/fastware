@@ -29,6 +29,20 @@ def _load_cfg():
     return load_dev_config()
 
 
+def _opt(value, fallback):
+    """Resolve an absent optional flag to the fallback its own help declares.
+
+    strictcli forbids a value ``default=`` on any flag of a ``mutating``
+    command: a value the framework picks is a value the framework writes
+    without the invocation ever having stated it. All three ``dev`` commands
+    are mutating, so their flags declare ``presence="optional"`` -- absence
+    arrives as ``None`` -- and name their fallback in their help text. This is
+    the one place absence becomes that fallback, so nothing downstream ever
+    reads a ``None`` as false or as zero.
+    """
+    return fallback if value is None else value
+
+
 @dev.command(
     "run",
     # mutating: spawns the Vite dev server and the Granian backend as real
@@ -44,22 +58,26 @@ def _load_cfg():
 @flag(
     "daemon",
     type=bool,
-    default=False,
+    presence="optional",
     help="Detach and run the dev environment in the background, registering it in "
     "the instance registry (query with 'dev status', stop with 'dev stop'). "
-    "Default runs in the foreground and blocks until Ctrl+C.",
+    "When neither --daemon nor --no-daemon is passed, the dev environment runs "
+    "in the foreground and blocks until Ctrl+C.",
 )
 @flag(
     "grace",
     type=int,
-    default=10,
-    help="Seconds to wait for a component to stop gracefully before SIGKILL.",
+    presence="optional",
+    help="Seconds to wait for a component to stop gracefully before SIGKILL. "
+    "When the flag is not passed, 10 seconds is used.",
 )
-def dev_run(ctx, daemon: bool, grace: int) -> int:
+def dev_run(ctx, daemon: bool | None, grace: int | None) -> int:
     """Handler for ``fastware dev run``."""
     from fastware.devconfig import DevConfigError
     from fastware.supervise import ComponentDied, DevRunError, run_dev
 
+    daemon = _opt(daemon, False)
+    grace = _opt(grace, 10)
     try:
         cfg = _load_cfg()
     except DevConfigError as exc:
@@ -123,14 +141,16 @@ def dev_status(ctx) -> int:
 @flag(
     "grace",
     type=int,
-    default=10,
-    help="Seconds to wait for a dev environment to stop gracefully before SIGKILL.",
+    presence="optional",
+    help="Seconds to wait for a dev environment to stop gracefully before SIGKILL. "
+    "When the flag is not passed, 10 seconds is used.",
 )
-def dev_stop(ctx, grace: int) -> int:
+def dev_stop(ctx, grace: int | None) -> int:
     """Handler for ``fastware dev stop``."""
     from fastware.devconfig import DevConfigError
     from fastware.supervise import stop_dev_instances
 
+    grace = _opt(grace, 10)
     try:
         cfg = _load_cfg()
     except DevConfigError as exc:
