@@ -1,42 +1,64 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "defaults": {
-    "schema_version": 1,
+    "schema_version": 2,
     "app": {
       "env_prefix": null,
       "config": false,
+      "config_format": "json",
+      "config_path": null,
+      "config_conflict_mode": "cli-wins",
+      "proc_observe_allowlist": [],
       "global_flags": [],
       "commands": {},
       "groups": {},
       "deprecated": {},
-      "tag_contracts": {}
+      "tag_contracts": {},
+      "checks": {},
+      "config_fields": {},
+      "infra": {}
     },
     "flag": {
       "short": null,
-      "default": null,
       "env": null,
-      "choices": null,
-      "repeatable": false,
-      "unique": false,
       "env_separator": null,
+      "prefixed": true,
+      "choices": null,
+      "elect_by": null,
+      "unique": false,
+      "conflict_mode": null,
       "negatable": null,
-      "hidden": false
+      "nullable": false
     },
     "arg": {
-      "type": "str",
-      "required": true,
-      "default": null,
       "variadic": false,
       "choices": null
     },
+    "choice": {
+      "flags": []
+    },
+    "choice_record": {
+      "help": null
+    },
     "command": {
+      "consequential": false,
+      "dry_run_supported": true,
+      "dry_run_unsupported_reason": null,
+      "update_of": null,
+      "write_mode": null,
+      "payload_schema": null,
+      "owns_stdout": false,
       "passthrough": false,
       "flags": [],
+      "flag_sets": [],
       "args": [],
       "tags": [],
       "constraints": [],
       "hidden": false,
-      "interactive": false
+      "interactive": false,
+      "config_fields": [],
+      "grants": [],
+      "forwarding": null
     },
     "group": {
       "commands": {},
@@ -44,6 +66,18 @@
       "deprecated": {},
       "tags": [],
       "hidden": false
+    },
+    "config_field": {
+      "default": null,
+      "bound_commands": []
+    },
+    "check": {
+      "scope": null
+    },
+    "infra": {
+      "roots": [],
+      "handshakes": [],
+      "connections": []
     }
   },
   "project_id": "fastware",
@@ -62,16 +96,20 @@
           "flags": [
             {
               "name": "daemon",
-              "type": "bool",
-              "help": "Detach and run the dev environment in the background, registering it in the instance registry (query with 'dev status', stop with 'dev stop'). Default runs in the foreground and blocks until Ctrl+C.",
-              "default": false,
+              "help": "Detach and run the dev environment in the background, registering it in the instance registry (query with 'dev status', stop with 'dev stop'). When neither --daemon nor --no-daemon is passed, the dev environment runs in the foreground and blocks until Ctrl+C.",
+              "value_schema": {
+                "type": "boolean"
+              },
+              "presence": "optional",
               "negatable": true
             },
             {
               "name": "grace",
-              "type": "int",
-              "help": "Seconds to wait for a component to stop gracefully before SIGKILL.",
-              "default": 10
+              "help": "Seconds to wait for a component to stop gracefully before SIGKILL. When the flag is not passed, 10 seconds is used.",
+              "value_schema": {
+                "type": "integer"
+              },
+              "presence": "optional"
             }
           ]
         },
@@ -87,9 +125,11 @@
           "flags": [
             {
               "name": "grace",
-              "type": "int",
-              "help": "Seconds to wait for a dev environment to stop gracefully before SIGKILL.",
-              "default": 10
+              "help": "Seconds to wait for a dev environment to stop gracefully before SIGKILL. When the flag is not passed, 10 seconds is used.",
+              "value_schema": {
+                "type": "integer"
+              },
+              "presence": "optional"
             }
           ]
         }
