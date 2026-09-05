@@ -33,3 +33,7 @@ the inherited repo cwd carry @pytest.mark.repo_cwd.
 # blog = false
 include = ["pypi"]
 exclude = []
+candidate_sha = "f528d1320be11b145f78531c35b2b811383214d5"
+
+[tree_hashes]
+"." = "a5ddb226894488d06f7f4de6755fea093ebb181e"

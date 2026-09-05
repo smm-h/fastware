@@ -1,3 +1,5 @@
+# strictspec document version gate (do not remove)
+format_version = 1
 # Version bump type: patch, minor, major, hotfix, or prerelease
 bump = "minor"
 # Short description of this release (required)
@@ -10,3 +12,7 @@ context = "The old foreground=False path ran Granian.serve() in a daemon thread,
 # blog = false
 include = ["pypi"]
 exclude = []
+candidate_sha = "7b5853dc84c7c6750b61be4fb6261162d608806f"
+
+[tree_hashes]
+"." = "8e37366432cdb1f4e9335f6bc71194251e8c20a8"
