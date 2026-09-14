@@ -171,7 +171,7 @@ fastware/
 
 ## Documentation
 
-Full documentation is available at [fastware.smmh.dev](https://fastware.smmh.dev).
+Full documentation is available at [smmh.dev/fastware](https://smmh.dev/fastware/).
 
 ## Built on fastware
 
