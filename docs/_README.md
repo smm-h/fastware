@@ -1,12 +1,12 @@
 ---
 title: fastware
-description: A fast, batteries-included ASGI framework built on msgspec and Granian
+description: A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client.
 date: 2026-07-01
 ---
 
 # fastware
 
-:-: var key="project.description"
+fastware is a batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client. It is for Python teams building JSON and streaming APIs who would rather have those pieces assembled than gather them from separate packages. Its core installs only msgspec and Granian; everything else -- auth, structured logging, testing, MCP support and Pydantic integration -- is an opt-in extra.
 
 [![PyPI version](https://img.shields.io/pypi/v/fastware)](https://pypi.org/project/fastware/)
 [![Python 3.11+](https://img.shields.io/pypi/pyversions/fastware)](https://pypi.org/project/fastware/)

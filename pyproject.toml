@@ -1,7 +1,8 @@
 [project]
 name = "fastware"
 version = "0.6.0"
-description = "A fast, batteries-included ASGI framework. The FastAPI alternative."
+description = "A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "msgspec>=0.21.1",
@@ -14,7 +15,29 @@ dependencies = [
     # the handler -- a spelling 0.40.x and older cannot parse.
     "strictcli>=0.41.0",
 ]
-keywords = ["rlsbl"]
+keywords = [
+    "asgi",
+    "web-framework",
+    "msgspec",
+    "granian",
+    "sse",
+    "websockets",
+    "dependency-injection",
+    "rlsbl",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Developers",
+    "Framework :: AsyncIO",
+    "Topic :: Internet :: WWW/HTTP",
+]
+
+[project.urls]
+Homepage = "https://smmh.dev/fastware/"
+Documentation = "https://smmh.dev/fastware/"
+Repository = "https://github.com/smm-h/fastware"
+Issues = "https://github.com/smm-h/fastware/issues"
+Changelog = "https://github.com/smm-h/fastware/blob/main/CHANGELOG.md"
 
 [project.scripts]
 fastware = "fastware.__main__:main"

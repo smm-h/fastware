@@ -1,4 +1,4 @@
-"""A fast, batteries-included ASGI framework. The FastAPI alternative."""
+"""A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client."""
 
 from __future__ import annotations
 
