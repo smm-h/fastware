@@ -2,7 +2,7 @@
 
 # fastware
 
-A fast, batteries-included ASGI framework. The FastAPI alternative.
+fastware is a batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client. It is for Python teams building JSON and streaming APIs who would rather have those pieces assembled than gather them from separate packages. Its core installs only msgspec and Granian; everything else -- auth, structured logging, testing, MCP support and Pydantic integration -- is an opt-in extra.
 
 [![PyPI version](https://img.shields.io/pypi/v/fastware)](https://pypi.org/project/fastware/)
 [![Python 3.11+](https://img.shields.io/pypi/pyversions/fastware)](https://pypi.org/project/fastware/)
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
 ## Feature overview
 
-- **src.fastware** (`src/fastware/__init__.py`): A fast, batteries-included ASGI framework.
+- **src.fastware** (`src/fastware/__init__.py`): A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client.
 - **src.fastware.__main__** (`src/fastware/__main__.py`): Enable running the fastware CLI with ``python -m fastware``.
 - **src.fastware._assets** (`src/fastware/_assets.py`): Framework browser assets (service workers, registration snippet, update client) shipped as package data and rendered with per-app substitutions.
 - **src.fastware._fswrite** (`src/fastware/_fswrite.py`): A small thread-safe file writer shared by the append/overwrite call sites.

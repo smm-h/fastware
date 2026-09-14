@@ -2,7 +2,7 @@
 
 # fastware
 
-A fast, batteries-included ASGI framework. The FastAPI alternative.
+A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client
 
 ## Architecture
 
@@ -31,7 +31,7 @@ fastware is a modular ASGI framework extracted from a monolithic `asgi.py` into 
 
 ## Module Layout
 
-- **src.fastware** (`src/fastware/__init__.py`): A fast, batteries-included ASGI framework.
+- **src.fastware** (`src/fastware/__init__.py`): A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client.
 - **src.fastware.__main__** (`src/fastware/__main__.py`): Enable running the fastware CLI with ``python -m fastware``.
 - **src.fastware._assets** (`src/fastware/_assets.py`): Framework browser assets (service workers, registration snippet, update client) shipped as package data and rendered with per-app substitutions.
 - **src.fastware._fswrite** (`src/fastware/_fswrite.py`): A small thread-safe file writer shared by the append/overwrite call sites.

@@ -3,7 +3,7 @@
   "name": "fastware",
   "slug": "fastware",
   "version": "0.6.0",
-  "description": "A fast, batteries-included ASGI framework. The FastAPI alternative.",
+  "description": "A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client",
   "language": "python",
   "base_url": "https://smmh.dev/fastware",
   "pages": [
@@ -4201,6 +4201,6 @@
     }
   ],
   "posts": [],
-  "last_gen": "2026-09-14T14:58:07.273551+00:00",
+  "last_gen": "2026-09-14T15:18:26.287806+00:00",
   "theme": "minimal"
 }
