@@ -2,11 +2,18 @@
 
 # Changelog
 
-## Unreleased
+## 0.6.1
+
+The project describes itself consistently on PyPI and in its README, the README links the documentation at its current address, dev flags are optional with fallbacks, and stop waits for the process to end.
 
 ### Fixes
 
 - **`stop()` no longer reports a killed server as running.** After escalating to SIGKILL it now waits for the kill to actually land, so `status()`, `list_instances()` and `check_already_running()` called right after a stop tell the truth instead of seeing the corpse's PID.
+- **Documentation links no longer dead-end.** Five cross-page links in the quickstart and the FastAPI migration guide pointed outside the documentation root.
+- **`fastware` CLI registers again on current strictcli.** The `dev` commands' `--daemon` and `--grace` flags no longer declare a value default, which strictcli 0.41+ refuses at registration on a mutating command -- the CLI aborted at import with a `ValueError` before running anything. Absence now resolves to the same fallbacks as before (foreground, 10-second grace), and the strictcli floor moves to `>=0.41.0`.
+- **Documentation links point at the unified site.** The declared docs base was the retired per-project host; it is `https://smmh.dev/fastware/` now, so generated sitemaps, feeds and llms.txt name the address that serves the pages.
+- **The project describes itself consistently on PyPI and in its README.** PyPI showed no long description, no project links and no classifiers, and the one-line summary was a tagline rather than a definition.
+- **The README links the documentation at its current address.**
 
 ## 0.6.0
 

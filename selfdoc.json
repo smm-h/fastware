@@ -1,5 +1,5 @@
 {
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client",
   "repo": "https://github.com/smm-h/fastware",
   "source": [
@@ -17,7 +17,7 @@
   ],
   "versions": [
     {
-      "version": "0.6.0"
+      "version": "0.6.1"
     }
   ],
   "locales": [
