@@ -1,8 +1,8 @@
----
-title: Auth API Reference
-description: "Reference for fastware[auth]: JWT tokens, bcrypt hashing, user stores, get_current_user/require_role DI, CSRF middleware, sessions, and rate limiting."
-date: 2026-07-01
----
++++
+title = "Auth API Reference"
+description = "Reference for fastware[auth]: JWT tokens, bcrypt hashing, user stores, get_current_user/require_role DI, CSRF middleware, sessions, and rate limiting."
+date = 2026-07-01
++++
 
 # Auth API Reference
 

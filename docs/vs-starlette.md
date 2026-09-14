@@ -1,8 +1,8 @@
----
-title: fastware vs Starlette
-description: "Comparison of fastware and Starlette: batteries-included framework (SSE, auth, server lifecycle) vs lightweight modular ASGI toolkit."
-date: 2026-07-01
----
++++
+title = "fastware vs Starlette"
+description = "Comparison of fastware and Starlette: batteries-included framework (SSE, auth, server lifecycle) vs lightweight modular ASGI toolkit."
+date = 2026-07-01
++++
 
 # fastware vs Starlette
 

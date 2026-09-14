@@ -1,8 +1,8 @@
----
-title: CLAUDE.md
-description: Developer guide for AI agents working on the fastware codebase
-date: 2026-07-01
----
++++
+title = "CLAUDE.md"
+description = "Developer guide for AI agents working on the fastware codebase"
+date = 2026-07-01
++++
 
 # fastware
 

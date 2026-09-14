@@ -1,8 +1,8 @@
----
-title: Server API Reference
-description: "Reference for fastware's Granian server lifecycle: foreground/background/reload serving, selectable event loop, PID tracking, and port management."
-date: 2026-07-01
----
++++
+title = "Server API Reference"
+description = "Reference for fastware's Granian server lifecycle: foreground/background/reload serving, selectable event loop, PID tracking, and port management."
+date = 2026-07-01
++++
 
 # Server API Reference
 

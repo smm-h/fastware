@@ -1,8 +1,8 @@
----
-title: Background Tasks and Feature Flags
-description: "Guide to fastware background tasks, feature flags, and TOML config: BackgroundTask protocol, TaskRegistry, feature gating, and Pydantic validation."
-date: 2026-07-29
----
++++
+title = "Background Tasks and Feature Flags"
+description = "Guide to fastware background tasks, feature flags, and TOML config: BackgroundTask protocol, TaskRegistry, feature gating, and Pydantic validation."
+date = 2026-07-29
++++
 
 # Background Tasks and Feature Flags
 

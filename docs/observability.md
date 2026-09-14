@@ -1,8 +1,8 @@
----
-title: Observability
-description: "fastware observability guide: structured logging with structlog, Sentry error tracking, SQLite-backed 5xx error log, and JSONL audit logging."
-date: 2026-07-01
----
++++
+title = "Observability"
+description = "fastware observability guide: structured logging with structlog, Sentry error tracking, SQLite-backed 5xx error log, and JSONL audit logging."
+date = 2026-07-01
++++
 
 # Observability
 

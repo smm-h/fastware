@@ -1,8 +1,8 @@
----
-title: Core API Reference
-description: "Core API reference for fastware: ASGI type aliases, six response types, msgspec request parsing, path-based routing, WebSocket helpers, and create_app."
-date: 2026-07-01
----
++++
+title = "Core API Reference"
+description = "Core API reference for fastware: ASGI type aliases, six response types, msgspec request parsing, path-based routing, WebSocket helpers, and create_app."
+date = 2026-07-01
++++
 
 # Core API Reference
 

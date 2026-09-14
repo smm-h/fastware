@@ -1,8 +1,8 @@
----
-title: Migrating from FastAPI
-description: "Guide to porting a FastAPI app to fastware: import mappings, route-handler and DI translation, response equivalents, and trade-offs."
-date: 2026-07-01
----
++++
+title = "Migrating from FastAPI"
+description = "Guide to porting a FastAPI app to fastware: import mappings, route-handler and DI translation, response equivalents, and trade-offs."
+date = 2026-07-01
++++
 
 # Migrating from FastAPI
 

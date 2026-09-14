@@ -1,8 +1,8 @@
----
-title: SSE Broadcasting
-description: "fastware SSE broadcasting: choosing SSE over WebSocket, typed events, per-client async queues, heartbeats, and automatic disconnected-client pruning."
-date: 2026-07-01
----
++++
+title = "SSE Broadcasting"
+description = "fastware SSE broadcasting: choosing SSE over WebSocket, typed events, per-client async queues, heartbeats, and automatic disconnected-client pruning."
+date = 2026-07-01
++++
 
 # SSE Broadcasting
 

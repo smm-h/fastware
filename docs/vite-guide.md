@@ -1,8 +1,8 @@
----
-title: Vite Dev Mode
-description: "fastware Vite integration: the dev() launcher, ViteDevProxy backend-first routing, production SPA fallback, and the service worker cache-retirement route."
-date: 2026-07-01
----
++++
+title = "Vite Dev Mode"
+description = "fastware Vite integration: the dev() launcher, ViteDevProxy backend-first routing, production SPA fallback, and the service worker cache-retirement route."
+date = 2026-07-01
++++
 
 # Vite Dev Mode
 

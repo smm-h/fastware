@@ -1,8 +1,8 @@
----
-title: Optional Extras
-description: "Guide to fastware's 7 optional extras groups: auth (JWT, bcrypt), logging (structlog), dev (hot reload), testing, MCP, Pydantic, and all."
-date: 2026-07-01
----
++++
+title = "Optional Extras"
+description = "Guide to fastware's 7 optional extras groups: auth (JWT, bcrypt), logging (structlog), dev (hot reload), testing, MCP, Pydantic, and all."
+date = 2026-07-01
++++
 
 # Optional Extras
 

@@ -1,8 +1,8 @@
----
-title: fastware
-description: A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client.
-date: 2026-07-01
----
++++
+title = "fastware"
+description = "A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client."
+date = 2026-07-01
++++
 
 # fastware
 

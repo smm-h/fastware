@@ -1,8 +1,8 @@
----
-title: Quickstart
-description: "Build your first fastware ASGI application in 6 steps: routing, response types, app factory, server, SSE broadcasting, and middleware."
-date: 2026-07-01
----
++++
+title = "Quickstart"
+description = "Build your first fastware ASGI application in 6 steps: routing, response types, app factory, server, SSE broadcasting, and middleware."
+date = 2026-07-01
++++
 
 # Quickstart
 

@@ -1,8 +1,8 @@
----
-title: Testing API Reference
-description: "Reference for fastware's in-process test clients: AsyncTestClient and TestClient over httpx ASGITransport with ASGI lifespan support."
-date: 2026-07-01
----
++++
+title = "Testing API Reference"
+description = "Reference for fastware's in-process test clients: AsyncTestClient and TestClient over httpx ASGITransport with ASGI lifespan support."
+date = 2026-07-01
++++
 
 # Testing API Reference
 

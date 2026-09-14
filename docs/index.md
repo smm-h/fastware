@@ -1,8 +1,8 @@
----
-title: fastware
-description: "fastware home: a fast, batteries-included ASGI framework with msgspec JSON, the bundled Granian server, install steps, and a minimal Router example."
-date: 2026-07-01
----
++++
+title = "fastware"
+description = "fastware home: a fast, batteries-included ASGI framework with msgspec JSON, the bundled Granian server, install steps, and a minimal Router example."
+date = 2026-07-01
++++
 
 # fastware
 

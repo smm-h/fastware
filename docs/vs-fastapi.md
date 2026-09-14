@@ -1,8 +1,8 @@
----
-title: fastware vs FastAPI
-description: "Detailed comparison of fastware and FastAPI: msgspec vs Pydantic performance, managed Granian vs BYO Uvicorn, and built-in vs third-party features."
-date: 2026-07-01
----
++++
+title = "fastware vs FastAPI"
+description = "Detailed comparison of fastware and FastAPI: msgspec vs Pydantic performance, managed Granian vs BYO Uvicorn, and built-in vs third-party features."
+date = 2026-07-01
++++
 
 # fastware vs FastAPI
 

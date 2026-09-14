@@ -1,8 +1,8 @@
----
-title: fastware vs Sanic
-description: "Comparison of fastware and Sanic: both bundle their own server, but differ in JSON engine (msgspec vs stdlib), auth, SSE, and worker management."
-date: 2026-07-01
----
++++
+title = "fastware vs Sanic"
+description = "Comparison of fastware and Sanic: both bundle their own server, but differ in JSON engine (msgspec vs stdlib), auth, SSE, and worker management."
+date = 2026-07-01
++++
 
 # fastware vs Sanic
 

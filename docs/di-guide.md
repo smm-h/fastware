@@ -1,8 +1,8 @@
----
-title: Dependency Injection
-description: "Guide to fastware DI: per-request resolution with caching, sync/async factories, generator cleanup, router deps, and test overrides."
-date: 2026-07-01
----
++++
+title = "Dependency Injection"
+description = "Guide to fastware DI: per-request resolution with caching, sync/async factories, generator cleanup, router deps, and test overrides."
+date = 2026-07-01
++++
 
 # Dependency Injection
 

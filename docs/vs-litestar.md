@@ -1,8 +1,8 @@
----
-title: fastware vs Litestar
-description: "Comparison of fastware and Litestar: both use msgspec for JSON, but differ in server management, SSE, auth, OpenAPI, and DI depth."
-date: 2026-07-01
----
++++
+title = "fastware vs Litestar"
+description = "Comparison of fastware and Litestar: both use msgspec for JSON, but differ in server management, SSE, auth, OpenAPI, and DI depth."
+date = 2026-07-01
++++
 
 # fastware vs Litestar
 

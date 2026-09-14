@@ -1,8 +1,8 @@
----
-title: Middleware API Reference
-description: "Reference for fastware's pure-ASGI middleware: CORS, request-ID tracing, request timing, trusted-host validation, and ViteDevProxy backend-first routing."
-date: 2026-07-01
----
++++
+title = "Middleware API Reference"
+description = "Reference for fastware's pure-ASGI middleware: CORS, request-ID tracing, request timing, trusted-host validation, and ViteDevProxy backend-first routing."
+date = 2026-07-01
++++
 
 # Middleware API Reference
 
