@@ -2,9 +2,9 @@
 format_version = 1
 # Version bump type: patch, minor, major, infra, or prerelease
 #   prerelease: advance an existing pre-release (0.6.0-beta.0 -> -beta.1)
-bump = ""
+bump = "patch"
 # Short description of this release (required)
-description = ""
+description = "The project describes itself consistently on PyPI and in its README, the README links the documentation at its current address, dev flags are optional with fallbacks, and stop waits for the process to end."
 # Optional context explaining why these changes were made
 context = ""
 # Pre-release channel: alpha, beta, rc, or stable (ordered;
