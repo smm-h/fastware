@@ -1,7 +1,8 @@
 +++
 title = "API Reference"
-description = "Auto-generated index of the fastware API reference, linking every documented module page along with its classes and functions."
+description = "API reference index for fastware covering 25 modules"
 generated = true
+seeded = true
 nav_group = "API Reference"
 nav_order = 90
 +++

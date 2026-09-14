@@ -1,7 +1,8 @@
 +++
 title = "fastware dev"
-description = "CLI reference for fastware dev: run, status, and stop commands that manage the file-driven Vite + backend development environment."
+description = "Run and manage the file-driven development environment"
 generated = true
+seeded = true
 nav_group = "CLI Reference"
 nav_order = 1
 +++
