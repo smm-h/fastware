@@ -5,7 +5,7 @@
   "version": "0.6.0",
   "description": "A fast, batteries-included ASGI framework. The FastAPI alternative.",
   "language": "python",
-  "base_url": "https://fastware.smmh.dev",
+  "base_url": "https://smmh.dev/fastware",
   "pages": [
     {
       "path": "api-auth.md",
@@ -19,102 +19,102 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.auth",
+          "text": "`src.fastware.auth`",
           "anchor": "srcfastwareauth"
         },
         {
           "level": 3,
-          "text": "create_token",
+          "text": "`create_token`",
           "anchor": "create_token"
         },
         {
           "level": 3,
-          "text": "verify_token",
+          "text": "`verify_token`",
           "anchor": "verify_token"
         },
         {
           "level": 3,
-          "text": "hash_password",
+          "text": "`hash_password`",
           "anchor": "hash_password"
         },
         {
           "level": 3,
-          "text": "verify_password",
+          "text": "`verify_password`",
           "anchor": "verify_password"
         },
         {
           "level": 3,
-          "text": "UserStore",
+          "text": "`UserStore`",
           "anchor": "userstore"
         },
         {
           "level": 4,
-          "text": "load_users",
+          "text": "`load_users`",
           "anchor": "load_users"
         },
         {
           "level": 4,
-          "text": "save_users",
+          "text": "`save_users`",
           "anchor": "save_users"
         },
         {
           "level": 4,
-          "text": "find_user",
+          "text": "`find_user`",
           "anchor": "find_user"
         },
         {
           "level": 4,
-          "text": "create_user",
+          "text": "`create_user`",
           "anchor": "create_user"
         },
         {
           "level": 4,
-          "text": "delete_user",
+          "text": "`delete_user`",
           "anchor": "delete_user"
         },
         {
           "level": 3,
-          "text": "JSONFileUserStore",
+          "text": "`JSONFileUserStore`",
           "anchor": "jsonfileuserstore"
         },
         {
           "level": 4,
-          "text": "load_users",
+          "text": "`load_users`",
           "anchor": "load_users-1"
         },
         {
           "level": 4,
-          "text": "save_users",
+          "text": "`save_users`",
           "anchor": "save_users-1"
         },
         {
           "level": 3,
-          "text": "get_current_user",
+          "text": "`get_current_user`",
           "anchor": "get_current_user"
         },
         {
           "level": 3,
-          "text": "require_role",
+          "text": "`require_role`",
           "anchor": "require_role"
         },
         {
           "level": 3,
-          "text": "CSRFMiddleware",
+          "text": "`CSRFMiddleware`",
           "anchor": "csrfmiddleware"
         },
         {
           "level": 3,
-          "text": "set_session_cookies",
+          "text": "`set_session_cookies`",
           "anchor": "set_session_cookies"
         },
         {
           "level": 3,
-          "text": "clear_session_cookies",
+          "text": "`clear_session_cookies`",
           "anchor": "clear_session_cookies"
         },
         {
           "level": 3,
-          "text": "rate_limit",
+          "text": "`rate_limit`",
           "anchor": "rate_limit"
         },
         {
@@ -136,62 +136,62 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.middleware",
+          "text": "`src.fastware.middleware`",
           "anchor": "srcfastwaremiddleware"
         },
         {
           "level": 3,
-          "text": "RequestIDMiddleware",
+          "text": "`RequestIDMiddleware`",
           "anchor": "requestidmiddleware"
         },
         {
           "level": 3,
-          "text": "RequestTimingMiddleware",
+          "text": "`RequestTimingMiddleware`",
           "anchor": "requesttimingmiddleware"
         },
         {
           "level": 3,
-          "text": "CORSMiddleware",
+          "text": "`CORSMiddleware`",
           "anchor": "corsmiddleware"
         },
         {
           "level": 4,
-          "text": "_cors_headers",
+          "text": "`_cors_headers`",
           "anchor": "_cors_headers"
         },
         {
           "level": 3,
-          "text": "TrustedHostMiddleware",
+          "text": "`TrustedHostMiddleware`",
           "anchor": "trustedhostmiddleware"
         },
         {
           "level": 3,
-          "text": "ViteDevProxy",
+          "text": "`ViteDevProxy`",
           "anchor": "vitedevproxy"
         },
         {
           "level": 4,
-          "text": "__init__",
+          "text": "`__init__`",
           "anchor": "__init__"
         },
         {
           "level": 4,
-          "text": "_is_api_request",
+          "text": "`_is_api_request`",
           "anchor": "_is_api_request"
         },
         {
           "level": 4,
-          "text": "close",
+          "text": "`close`",
           "anchor": "close"
         },
         {
           "level": 4,
-          "text": "_proxy_http",
+          "text": "`_proxy_http`",
           "anchor": "_proxy_http"
         },
         {
           "level": 4,
-          "text": "_proxy_ws",
+          "text": "`_proxy_ws`",
           "anchor": "_proxy_ws"
         },
         {
@@ -218,212 +218,212 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.server",
+          "text": "`src.fastware.server`",
           "anchor": "srcfastwareserver"
         },
         {
           "level": 3,
-          "text": "PortInUseError",
+          "text": "`PortInUseError`",
           "anchor": "portinuseerror"
         },
         {
           "level": 3,
-          "text": "AlreadyRunningError",
+          "text": "`AlreadyRunningError`",
           "anchor": "alreadyrunningerror"
         },
         {
           "level": 3,
-          "text": "_probe_health",
+          "text": "`_probe_health`",
           "anchor": "_probe_health"
         },
         {
           "level": 3,
-          "text": "_write_pid",
+          "text": "`_write_pid`",
           "anchor": "_write_pid"
         },
         {
           "level": 3,
-          "text": "_remove_pid",
+          "text": "`_remove_pid`",
           "anchor": "_remove_pid"
         },
         {
           "level": 3,
-          "text": "_reap_if_dead_child",
+          "text": "`_reap_if_dead_child`",
           "anchor": "_reap_if_dead_child"
         },
         {
           "level": 3,
-          "text": "check_already_running",
+          "text": "`check_already_running`",
           "anchor": "check_already_running"
         },
         {
           "level": 3,
-          "text": "ensure_port_available",
+          "text": "`ensure_port_available`",
           "anchor": "ensure_port_available"
         },
         {
           "level": 3,
-          "text": "_find_port_holder_pids",
+          "text": "`_find_port_holder_pids`",
           "anchor": "_find_port_holder_pids"
         },
         {
           "level": 3,
-          "text": "_resolve_target",
+          "text": "`_resolve_target`",
           "anchor": "_resolve_target"
         },
         {
           "level": 3,
-          "text": "_materialize_target",
+          "text": "`_materialize_target`",
           "anchor": "_materialize_target"
         },
         {
           "level": 3,
-          "text": "_remove_shim_dir",
+          "text": "`_remove_shim_dir`",
           "anchor": "_remove_shim_dir"
         },
         {
           "level": 3,
-          "text": "_find_free_port",
+          "text": "`_find_free_port`",
           "anchor": "_find_free_port"
         },
         {
           "level": 3,
-          "text": "_port_file_path",
+          "text": "`_port_file_path`",
           "anchor": "_port_file_path"
         },
         {
           "level": 3,
-          "text": "_write_port_file",
+          "text": "`_write_port_file`",
           "anchor": "_write_port_file"
         },
         {
           "level": 3,
-          "text": "_remove_port_file",
+          "text": "`_remove_port_file`",
           "anchor": "_remove_port_file"
         },
         {
           "level": 3,
-          "text": "read_port_file",
+          "text": "`read_port_file`",
           "anchor": "read_port_file"
         },
         {
           "level": 3,
-          "text": "RegistryEntry",
+          "text": "`RegistryEntry`",
           "anchor": "registryentry"
         },
         {
           "level": 3,
-          "text": "_registry_dir",
+          "text": "`_registry_dir`",
           "anchor": "_registry_dir"
         },
         {
           "level": 3,
-          "text": "_registry_entry_path",
+          "text": "`_registry_entry_path`",
           "anchor": "_registry_entry_path"
         },
         {
           "level": 3,
-          "text": "_pid_alive",
+          "text": "`_pid_alive`",
           "anchor": "_pid_alive"
         },
         {
           "level": 3,
-          "text": "register_instance",
+          "text": "`register_instance`",
           "anchor": "register_instance"
         },
         {
           "level": 3,
-          "text": "deregister_instance",
+          "text": "`deregister_instance`",
           "anchor": "deregister_instance"
         },
         {
           "level": 3,
-          "text": "list_instances",
+          "text": "`list_instances`",
           "anchor": "list_instances"
         },
         {
           "level": 3,
-          "text": "_marker_path",
+          "text": "`_marker_path`",
           "anchor": "_marker_path"
         },
         {
           "level": 3,
-          "text": "write_marker",
+          "text": "`write_marker`",
           "anchor": "write_marker"
         },
         {
           "level": 3,
-          "text": "list_markers",
+          "text": "`list_markers`",
           "anchor": "list_markers"
         },
         {
           "level": 3,
-          "text": "remove_marker",
+          "text": "`remove_marker`",
           "anchor": "remove_marker"
         },
         {
           "level": 3,
-          "text": "_resolve_host_port",
+          "text": "`_resolve_host_port`",
           "anchor": "_resolve_host_port"
         },
         {
           "level": 3,
-          "text": "_make_server",
+          "text": "`_make_server`",
           "anchor": "_make_server"
         },
         {
           "level": 3,
-          "text": "_make_embed_server",
+          "text": "`_make_embed_server`",
           "anchor": "_make_embed_server"
         },
         {
           "level": 3,
-          "text": "_run_server",
+          "text": "`_run_server`",
           "anchor": "_run_server"
         },
         {
           "level": 3,
-          "text": "_serve_subprocess",
+          "text": "`_serve_subprocess`",
           "anchor": "_serve_subprocess"
         },
         {
           "level": 3,
-          "text": "serve_background",
+          "text": "`serve_background`",
           "anchor": "serve_background"
         },
         {
           "level": 3,
-          "text": "serve",
+          "text": "`serve`",
           "anchor": "serve"
         },
         {
           "level": 3,
-          "text": "stop_background",
+          "text": "`stop_background`",
           "anchor": "stop_background"
         },
         {
           "level": 3,
-          "text": "ServerStatus",
+          "text": "`ServerStatus`",
           "anchor": "serverstatus"
         },
         {
           "level": 3,
-          "text": "_cleanup_pid_and_port",
+          "text": "`_cleanup_pid_and_port`",
           "anchor": "_cleanup_pid_and_port"
         },
         {
           "level": 3,
-          "text": "stop",
+          "text": "`stop`",
           "anchor": "stop"
         },
         {
           "level": 3,
-          "text": "_confirm_dead",
+          "text": "`_confirm_dead`",
           "anchor": "_confirm_dead"
         },
         {
           "level": 3,
-          "text": "status",
+          "text": "`status`",
           "anchor": "status"
         },
         {
@@ -470,92 +470,92 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.testing",
+          "text": "`src.fastware.testing`",
           "anchor": "srcfastwaretesting"
         },
         {
           "level": 3,
-          "text": "_wrap_raise_server_exceptions",
+          "text": "`_wrap_raise_server_exceptions`",
           "anchor": "_wrap_raise_server_exceptions"
         },
         {
           "level": 3,
-          "text": "_LifespanManager",
+          "text": "`_LifespanManager`",
           "anchor": "_lifespanmanager"
         },
         {
           "level": 4,
-          "text": "startup",
+          "text": "`startup`",
           "anchor": "startup"
         },
         {
           "level": 4,
-          "text": "shutdown",
+          "text": "`shutdown`",
           "anchor": "shutdown"
         },
         {
           "level": 4,
-          "text": "_wait",
+          "text": "`_wait`",
           "anchor": "_wait"
         },
         {
           "level": 3,
-          "text": "AsyncTestClient",
+          "text": "`AsyncTestClient`",
           "anchor": "asynctestclient"
         },
         {
           "level": 3,
-          "text": "_SyncTestClient",
+          "text": "`_SyncTestClient`",
           "anchor": "_synctestclient"
         },
         {
           "level": 4,
-          "text": "_start_loop",
+          "text": "`_start_loop`",
           "anchor": "_start_loop"
         },
         {
           "level": 4,
-          "text": "_run",
+          "text": "`_run`",
           "anchor": "_run"
         },
         {
           "level": 4,
-          "text": "get",
+          "text": "`get`",
           "anchor": "get"
         },
         {
           "level": 4,
-          "text": "post",
+          "text": "`post`",
           "anchor": "post"
         },
         {
           "level": 4,
-          "text": "put",
+          "text": "`put`",
           "anchor": "put"
         },
         {
           "level": 4,
-          "text": "patch",
+          "text": "`patch`",
           "anchor": "patch"
         },
         {
           "level": 4,
-          "text": "delete",
+          "text": "`delete`",
           "anchor": "delete"
         },
         {
           "level": 4,
-          "text": "options",
+          "text": "`options`",
           "anchor": "options"
         },
         {
           "level": 4,
-          "text": "head",
+          "text": "`head`",
           "anchor": "head"
         },
         {
           "level": 4,
-          "text": "close",
+          "text": "`close`",
           "anchor": "close"
         },
         {
@@ -597,22 +597,22 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.types",
+          "text": "`src.fastware.types`",
           "anchor": "srcfastwaretypes"
         },
         {
           "level": 3,
-          "text": "Scope",
+          "text": "`Scope`",
           "anchor": "scope"
         },
         {
           "level": 3,
-          "text": "Receive",
+          "text": "`Receive`",
           "anchor": "receive"
         },
         {
           "level": 3,
-          "text": "Send",
+          "text": "`Send`",
           "anchor": "send"
         },
         {
@@ -622,67 +622,67 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.responses",
+          "text": "`src.fastware.responses`",
           "anchor": "srcfastwareresponses"
         },
         {
           "level": 3,
-          "text": "set_cookie",
+          "text": "`set_cookie`",
           "anchor": "set_cookie"
         },
         {
           "level": 3,
-          "text": "delete_cookie",
+          "text": "`delete_cookie`",
           "anchor": "delete_cookie"
         },
         {
           "level": 3,
-          "text": "HTTPError",
+          "text": "`HTTPError`",
           "anchor": "httperror"
         },
         {
           "level": 3,
-          "text": "JSONResponse",
+          "text": "`JSONResponse`",
           "anchor": "jsonresponse"
         },
         {
           "level": 3,
-          "text": "TextResponse",
+          "text": "`TextResponse`",
           "anchor": "textresponse"
         },
         {
           "level": 3,
-          "text": "HTMLResponse",
+          "text": "`HTMLResponse`",
           "anchor": "htmlresponse"
         },
         {
           "level": 3,
-          "text": "BytesResponse",
+          "text": "`BytesResponse`",
           "anchor": "bytesresponse"
         },
         {
           "level": 3,
-          "text": "StreamResponse",
+          "text": "`StreamResponse`",
           "anchor": "streamresponse"
         },
         {
           "level": 3,
-          "text": "FileResponse",
+          "text": "`FileResponse`",
           "anchor": "fileresponse"
         },
         {
           "level": 3,
-          "text": "_build_headers",
+          "text": "`_build_headers`",
           "anchor": "_build_headers"
         },
         {
           "level": 3,
-          "text": "_send_response",
+          "text": "`_send_response`",
           "anchor": "_send_response"
         },
         {
           "level": 3,
-          "text": "send_error",
+          "text": "`send_error`",
           "anchor": "send_error"
         },
         {
@@ -692,107 +692,107 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.request",
+          "text": "`src.fastware.request`",
           "anchor": "srcfastwarerequest"
         },
         {
           "level": 3,
-          "text": "State",
+          "text": "`State`",
           "anchor": "state"
         },
         {
           "level": 4,
-          "text": "get",
+          "text": "`get`",
           "anchor": "get"
         },
         {
           "level": 3,
-          "text": "Request",
+          "text": "`Request`",
           "anchor": "request"
         },
         {
           "level": 4,
-          "text": "json",
+          "text": "`json`",
           "anchor": "json"
         },
         {
           "level": 4,
-          "text": "body",
+          "text": "`body`",
           "anchor": "body"
         },
         {
           "level": 4,
-          "text": "_qs",
+          "text": "`_qs`",
           "anchor": "_qs"
         },
         {
           "level": 4,
-          "text": "query",
+          "text": "`query`",
           "anchor": "query"
         },
         {
           "level": 4,
-          "text": "query_list",
+          "text": "`query_list`",
           "anchor": "query_list"
         },
         {
           "level": 4,
-          "text": "query_params",
+          "text": "`query_params`",
           "anchor": "query_params"
         },
         {
           "level": 4,
-          "text": "header",
+          "text": "`header`",
           "anchor": "header"
         },
         {
           "level": 4,
-          "text": "body_size",
+          "text": "`body_size`",
           "anchor": "body_size"
         },
         {
           "level": 4,
-          "text": "state",
+          "text": "`state`",
           "anchor": "state-1"
         },
         {
           "level": 4,
-          "text": "method",
+          "text": "`method`",
           "anchor": "method"
         },
         {
           "level": 4,
-          "text": "path",
+          "text": "`path`",
           "anchor": "path"
         },
         {
           "level": 4,
-          "text": "is_disconnected",
+          "text": "`is_disconnected`",
           "anchor": "is_disconnected"
         },
         {
           "level": 4,
-          "text": "_mark_disconnected",
+          "text": "`_mark_disconnected`",
           "anchor": "_mark_disconnected"
         },
         {
           "level": 4,
-          "text": "_register_stream_task",
+          "text": "`_register_stream_task`",
           "anchor": "_register_stream_task"
         },
         {
           "level": 4,
-          "text": "cookies",
+          "text": "`cookies`",
           "anchor": "cookies"
         },
         {
           "level": 4,
-          "text": "cookie",
+          "text": "`cookie`",
           "anchor": "cookie"
         },
         {
           "level": 4,
-          "text": "json_as",
+          "text": "`json_as`",
           "anchor": "json_as"
         },
         {
@@ -802,107 +802,107 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.routing",
+          "text": "`src.fastware.routing`",
           "anchor": "srcfastwarerouting"
         },
         {
           "level": 3,
-          "text": "_parse_segment",
+          "text": "`_parse_segment`",
           "anchor": "_parse_segment"
         },
         {
           "level": 3,
-          "text": "Router",
+          "text": "`Router`",
           "anchor": "router"
         },
         {
           "level": 4,
-          "text": "mount",
+          "text": "`mount`",
           "anchor": "mount"
         },
         {
           "level": 4,
-          "text": "_method_decorator",
+          "text": "`_method_decorator`",
           "anchor": "_method_decorator"
         },
         {
           "level": 4,
-          "text": "get",
+          "text": "`get`",
           "anchor": "get-1"
         },
         {
           "level": 4,
-          "text": "post",
+          "text": "`post`",
           "anchor": "post"
         },
         {
           "level": 4,
-          "text": "delete",
+          "text": "`delete`",
           "anchor": "delete"
         },
         {
           "level": 4,
-          "text": "put",
+          "text": "`put`",
           "anchor": "put"
         },
         {
           "level": 4,
-          "text": "patch",
+          "text": "`patch`",
           "anchor": "patch"
         },
         {
           "level": 4,
-          "text": "add_route",
+          "text": "`add_route`",
           "anchor": "add_route"
         },
         {
           "level": 4,
-          "text": "ws",
+          "text": "`ws`",
           "anchor": "ws"
         },
         {
           "level": 4,
-          "text": "add_ws_route",
+          "text": "`add_ws_route`",
           "anchor": "add_ws_route"
         },
         {
           "level": 4,
-          "text": "include_router",
+          "text": "`include_router`",
           "anchor": "include_router"
         },
         {
           "level": 4,
-          "text": "match",
+          "text": "`match`",
           "anchor": "match"
         },
         {
           "level": 4,
-          "text": "_match_pattern",
+          "text": "`_match_pattern`",
           "anchor": "_match_pattern"
         },
         {
           "level": 4,
-          "text": "_match_with_deps",
+          "text": "`_match_with_deps`",
           "anchor": "_match_with_deps"
         },
         {
           "level": 4,
-          "text": "allowed_methods",
+          "text": "`allowed_methods`",
           "anchor": "allowed_methods"
         },
         {
           "level": 4,
-          "text": "_match_with_path_param",
+          "text": "`_match_with_path_param`",
           "anchor": "_match_with_path_param"
         },
         {
           "level": 4,
-          "text": "match_ws",
+          "text": "`match_ws`",
           "anchor": "match_ws"
         },
         {
           "level": 4,
-          "text": "_match_ws_with_deps",
+          "text": "`_match_ws_with_deps`",
           "anchor": "_match_ws_with_deps"
         },
         {
@@ -912,82 +912,82 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.websocket",
+          "text": "`src.fastware.websocket`",
           "anchor": "srcfastwarewebsocket"
         },
         {
           "level": 3,
-          "text": "WebSocketDisconnect",
+          "text": "`WebSocketDisconnect`",
           "anchor": "websocketdisconnect"
         },
         {
           "level": 3,
-          "text": "WebSocket",
+          "text": "`WebSocket`",
           "anchor": "websocket-1"
         },
         {
           "level": 4,
-          "text": "path_params",
+          "text": "`path_params`",
           "anchor": "path_params"
         },
         {
           "level": 4,
-          "text": "headers",
+          "text": "`headers`",
           "anchor": "headers"
         },
         {
           "level": 4,
-          "text": "query_string",
+          "text": "`query_string`",
           "anchor": "query_string"
         },
         {
           "level": 4,
-          "text": "accept",
+          "text": "`accept`",
           "anchor": "accept"
         },
         {
           "level": 4,
-          "text": "close",
+          "text": "`close`",
           "anchor": "close"
         },
         {
           "level": 4,
-          "text": "send_json",
+          "text": "`send_json`",
           "anchor": "send_json"
         },
         {
           "level": 4,
-          "text": "send_bytes",
+          "text": "`send_bytes`",
           "anchor": "send_bytes"
         },
         {
           "level": 4,
-          "text": "send_text",
+          "text": "`send_text`",
           "anchor": "send_text"
         },
         {
           "level": 4,
-          "text": "_receive_data",
+          "text": "`_receive_data`",
           "anchor": "_receive_data"
         },
         {
           "level": 4,
-          "text": "receive_json",
+          "text": "`receive_json`",
           "anchor": "receive_json"
         },
         {
           "level": 4,
-          "text": "receive_bytes",
+          "text": "`receive_bytes`",
           "anchor": "receive_bytes"
         },
         {
           "level": 4,
-          "text": "receive_text",
+          "text": "`receive_text`",
           "anchor": "receive_text"
         },
         {
           "level": 4,
-          "text": "receive_raw",
+          "text": "`receive_raw`",
           "anchor": "receive_raw"
         },
         {
@@ -997,77 +997,77 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.app",
+          "text": "`src.fastware.app`",
           "anchor": "srcfastwareapp"
         },
         {
           "level": 3,
-          "text": "_disconnect_watcher",
+          "text": "`_disconnect_watcher`",
           "anchor": "_disconnect_watcher"
         },
         {
           "level": 3,
-          "text": "_send_stream",
+          "text": "`_send_stream`",
           "anchor": "_send_stream"
         },
         {
           "level": 3,
-          "text": "_accepted_params",
+          "text": "`_accepted_params`",
           "anchor": "_accepted_params"
         },
         {
           "level": 3,
-          "text": "_deep_convert_pydantic",
+          "text": "`_deep_convert_pydantic`",
           "anchor": "_deep_convert_pydantic"
         },
         {
           "level": 3,
-          "text": "_send_result",
+          "text": "`_send_result`",
           "anchor": "_send_result"
         },
         {
           "level": 3,
-          "text": "_MountLifespan",
+          "text": "`_MountLifespan`",
           "anchor": "_mountlifespan"
         },
         {
           "level": 4,
-          "text": "startup",
+          "text": "`startup`",
           "anchor": "startup"
         },
         {
           "level": 4,
-          "text": "shutdown",
+          "text": "`shutdown`",
           "anchor": "shutdown"
         },
         {
           "level": 3,
-          "text": "_compute_static_build_id",
+          "text": "`_compute_static_build_id`",
           "anchor": "_compute_static_build_id"
         },
         {
           "level": 3,
-          "text": "_cache_control_for",
+          "text": "`_cache_control_for`",
           "anchor": "_cache_control_for"
         },
         {
           "level": 3,
-          "text": "_serve_static",
+          "text": "`_serve_static`",
           "anchor": "_serve_static"
         },
         {
           "level": 3,
-          "text": "_serve_spa_fallback",
+          "text": "`_serve_spa_fallback`",
           "anchor": "_serve_spa_fallback"
         },
         {
           "level": 3,
-          "text": "AppConfig",
+          "text": "`AppConfig`",
           "anchor": "appconfig"
         },
         {
           "level": 3,
-          "text": "create_app",
+          "text": "`create_app`",
           "anchor": "create_app"
         }
       ]
@@ -1218,27 +1218,27 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.di",
+          "text": "`src.fastware.di`",
           "anchor": "srcfastwaredi"
         },
         {
           "level": 3,
-          "text": "_request_call_mode",
+          "text": "`_request_call_mode`",
           "anchor": "_request_call_mode"
         },
         {
           "level": 3,
-          "text": "DependencyResolver",
+          "text": "`DependencyResolver`",
           "anchor": "dependencyresolver"
         },
         {
           "level": 4,
-          "text": "resolve",
+          "text": "`resolve`",
           "anchor": "resolve"
         },
         {
           "level": 4,
-          "text": "cleanup",
+          "text": "`cleanup`",
           "anchor": "cleanup"
         }
       ]
@@ -1431,102 +1431,102 @@
         },
         {
           "level": 3,
-          "text": "Router",
+          "text": "`Router`",
           "anchor": "router"
         },
         {
           "level": 4,
-          "text": "mount",
+          "text": "`mount`",
           "anchor": "mount"
         },
         {
           "level": 4,
-          "text": "_method_decorator",
+          "text": "`_method_decorator`",
           "anchor": "_method_decorator"
         },
         {
           "level": 4,
-          "text": "get",
+          "text": "`get`",
           "anchor": "get"
         },
         {
           "level": 4,
-          "text": "post",
+          "text": "`post`",
           "anchor": "post"
         },
         {
           "level": 4,
-          "text": "delete",
+          "text": "`delete`",
           "anchor": "delete"
         },
         {
           "level": 4,
-          "text": "put",
+          "text": "`put`",
           "anchor": "put"
         },
         {
           "level": 4,
-          "text": "patch",
+          "text": "`patch`",
           "anchor": "patch"
         },
         {
           "level": 4,
-          "text": "add_route",
+          "text": "`add_route`",
           "anchor": "add_route"
         },
         {
           "level": 4,
-          "text": "ws",
+          "text": "`ws`",
           "anchor": "ws"
         },
         {
           "level": 4,
-          "text": "add_ws_route",
+          "text": "`add_ws_route`",
           "anchor": "add_ws_route"
         },
         {
           "level": 4,
-          "text": "include_router",
+          "text": "`include_router`",
           "anchor": "include_router"
         },
         {
           "level": 4,
-          "text": "match",
+          "text": "`match`",
           "anchor": "match"
         },
         {
           "level": 4,
-          "text": "_match_pattern",
+          "text": "`_match_pattern`",
           "anchor": "_match_pattern"
         },
         {
           "level": 4,
-          "text": "_match_with_deps",
+          "text": "`_match_with_deps`",
           "anchor": "_match_with_deps"
         },
         {
           "level": 4,
-          "text": "allowed_methods",
+          "text": "`allowed_methods`",
           "anchor": "allowed_methods"
         },
         {
           "level": 4,
-          "text": "_match_with_path_param",
+          "text": "`_match_with_path_param`",
           "anchor": "_match_with_path_param"
         },
         {
           "level": 4,
-          "text": "match_ws",
+          "text": "`match_ws`",
           "anchor": "match_ws"
         },
         {
           "level": 4,
-          "text": "_match_ws_with_deps",
+          "text": "`_match_ws_with_deps`",
           "anchor": "_match_ws_with_deps"
         },
         {
           "level": 3,
-          "text": "AppConfig",
+          "text": "`AppConfig`",
           "anchor": "appconfig"
         }
       ]
@@ -1678,22 +1678,22 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.logging",
+          "text": "`src.fastware.logging`",
           "anchor": "srcfastwarelogging"
         },
         {
           "level": 3,
-          "text": "configure_logging",
+          "text": "`configure_logging`",
           "anchor": "configure_logging"
         },
         {
           "level": 3,
-          "text": "get_logger",
+          "text": "`get_logger`",
           "anchor": "get_logger"
         },
         {
           "level": 3,
-          "text": "init_sentry",
+          "text": "`init_sentry`",
           "anchor": "init_sentry"
         },
         {
@@ -1703,37 +1703,37 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.error_log",
+          "text": "`src.fastware.error_log`",
           "anchor": "srcfastwareerror_log"
         },
         {
           "level": 3,
-          "text": "ErrorLog",
+          "text": "`ErrorLog`",
           "anchor": "errorlog"
         },
         {
           "level": 4,
-          "text": "_run_worker",
+          "text": "`_run_worker`",
           "anchor": "_run_worker"
         },
         {
           "level": 4,
-          "text": "append",
+          "text": "`append`",
           "anchor": "append"
         },
         {
           "level": 4,
-          "text": "flush",
+          "text": "`flush`",
           "anchor": "flush"
         },
         {
           "level": 4,
-          "text": "recent",
+          "text": "`recent`",
           "anchor": "recent"
         },
         {
           "level": 4,
-          "text": "close",
+          "text": "`close`",
           "anchor": "close"
         },
         {
@@ -1743,17 +1743,17 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.audit",
+          "text": "`src.fastware.audit`",
           "anchor": "srcfastwareaudit"
         },
         {
           "level": 3,
-          "text": "AuditLog",
+          "text": "`AuditLog`",
           "anchor": "auditlog"
         },
         {
           "level": 4,
-          "text": "log",
+          "text": "`log`",
           "anchor": "log"
         }
       ]
@@ -1822,7 +1822,7 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.__main__",
+          "text": "`src.fastware.__main__`",
           "anchor": "srcfastware__main__"
         }
       ]
@@ -1839,22 +1839,22 @@
         },
         {
           "level": 2,
-          "text": "src.fastware._fswrite",
+          "text": "`src.fastware._fswrite`",
           "anchor": "srcfastware_fswrite"
         },
         {
           "level": 3,
-          "text": "LockedFileWriter",
+          "text": "`LockedFileWriter`",
           "anchor": "lockedfilewriter"
         },
         {
           "level": 4,
-          "text": "append_line",
+          "text": "`append_line`",
           "anchor": "append_line"
         },
         {
           "level": 4,
-          "text": "overwrite",
+          "text": "`overwrite`",
           "anchor": "overwrite"
         }
       ]
@@ -1871,32 +1871,32 @@
         },
         {
           "level": 2,
-          "text": "src.fastware._scope",
+          "text": "`src.fastware._scope`",
           "anchor": "srcfastware_scope"
         },
         {
           "level": 3,
-          "text": "_first_header",
+          "text": "`_first_header`",
           "anchor": "_first_header"
         },
         {
           "level": 3,
-          "text": "header_bytes",
+          "text": "`header_bytes`",
           "anchor": "header_bytes"
         },
         {
           "level": 3,
-          "text": "header_str",
+          "text": "`header_str`",
           "anchor": "header_str"
         },
         {
           "level": 3,
-          "text": "cookies",
+          "text": "`cookies`",
           "anchor": "cookies"
         },
         {
           "level": 3,
-          "text": "cookie",
+          "text": "`cookie`",
           "anchor": "cookie"
         }
       ]
@@ -1913,77 +1913,77 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.app",
+          "text": "`src.fastware.app`",
           "anchor": "srcfastwareapp"
         },
         {
           "level": 3,
-          "text": "_disconnect_watcher",
+          "text": "`_disconnect_watcher`",
           "anchor": "_disconnect_watcher"
         },
         {
           "level": 3,
-          "text": "_send_stream",
+          "text": "`_send_stream`",
           "anchor": "_send_stream"
         },
         {
           "level": 3,
-          "text": "_accepted_params",
+          "text": "`_accepted_params`",
           "anchor": "_accepted_params"
         },
         {
           "level": 3,
-          "text": "_deep_convert_pydantic",
+          "text": "`_deep_convert_pydantic`",
           "anchor": "_deep_convert_pydantic"
         },
         {
           "level": 3,
-          "text": "_send_result",
+          "text": "`_send_result`",
           "anchor": "_send_result"
         },
         {
           "level": 3,
-          "text": "_MountLifespan",
+          "text": "`_MountLifespan`",
           "anchor": "_mountlifespan"
         },
         {
           "level": 4,
-          "text": "startup",
+          "text": "`startup`",
           "anchor": "startup"
         },
         {
           "level": 4,
-          "text": "shutdown",
+          "text": "`shutdown`",
           "anchor": "shutdown"
         },
         {
           "level": 3,
-          "text": "_compute_static_build_id",
+          "text": "`_compute_static_build_id`",
           "anchor": "_compute_static_build_id"
         },
         {
           "level": 3,
-          "text": "_cache_control_for",
+          "text": "`_cache_control_for`",
           "anchor": "_cache_control_for"
         },
         {
           "level": 3,
-          "text": "_serve_static",
+          "text": "`_serve_static`",
           "anchor": "_serve_static"
         },
         {
           "level": 3,
-          "text": "_serve_spa_fallback",
+          "text": "`_serve_spa_fallback`",
           "anchor": "_serve_spa_fallback"
         },
         {
           "level": 3,
-          "text": "AppConfig",
+          "text": "`AppConfig`",
           "anchor": "appconfig"
         },
         {
           "level": 3,
-          "text": "create_app",
+          "text": "`create_app`",
           "anchor": "create_app"
         }
       ]
@@ -2000,17 +2000,17 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.audit",
+          "text": "`src.fastware.audit`",
           "anchor": "srcfastwareaudit"
         },
         {
           "level": 3,
-          "text": "AuditLog",
+          "text": "`AuditLog`",
           "anchor": "auditlog"
         },
         {
           "level": 4,
-          "text": "log",
+          "text": "`log`",
           "anchor": "log"
         }
       ]
@@ -2027,102 +2027,102 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.auth",
+          "text": "`src.fastware.auth`",
           "anchor": "srcfastwareauth"
         },
         {
           "level": 3,
-          "text": "create_token",
+          "text": "`create_token`",
           "anchor": "create_token"
         },
         {
           "level": 3,
-          "text": "verify_token",
+          "text": "`verify_token`",
           "anchor": "verify_token"
         },
         {
           "level": 3,
-          "text": "hash_password",
+          "text": "`hash_password`",
           "anchor": "hash_password"
         },
         {
           "level": 3,
-          "text": "verify_password",
+          "text": "`verify_password`",
           "anchor": "verify_password"
         },
         {
           "level": 3,
-          "text": "UserStore",
+          "text": "`UserStore`",
           "anchor": "userstore"
         },
         {
           "level": 4,
-          "text": "load_users",
+          "text": "`load_users`",
           "anchor": "load_users"
         },
         {
           "level": 4,
-          "text": "save_users",
+          "text": "`save_users`",
           "anchor": "save_users"
         },
         {
           "level": 4,
-          "text": "find_user",
+          "text": "`find_user`",
           "anchor": "find_user"
         },
         {
           "level": 4,
-          "text": "create_user",
+          "text": "`create_user`",
           "anchor": "create_user"
         },
         {
           "level": 4,
-          "text": "delete_user",
+          "text": "`delete_user`",
           "anchor": "delete_user"
         },
         {
           "level": 3,
-          "text": "JSONFileUserStore",
+          "text": "`JSONFileUserStore`",
           "anchor": "jsonfileuserstore"
         },
         {
           "level": 4,
-          "text": "load_users",
+          "text": "`load_users`",
           "anchor": "load_users-1"
         },
         {
           "level": 4,
-          "text": "save_users",
+          "text": "`save_users`",
           "anchor": "save_users-1"
         },
         {
           "level": 3,
-          "text": "get_current_user",
+          "text": "`get_current_user`",
           "anchor": "get_current_user"
         },
         {
           "level": 3,
-          "text": "require_role",
+          "text": "`require_role`",
           "anchor": "require_role"
         },
         {
           "level": 3,
-          "text": "CSRFMiddleware",
+          "text": "`CSRFMiddleware`",
           "anchor": "csrfmiddleware"
         },
         {
           "level": 3,
-          "text": "set_session_cookies",
+          "text": "`set_session_cookies`",
           "anchor": "set_session_cookies"
         },
         {
           "level": 3,
-          "text": "clear_session_cookies",
+          "text": "`clear_session_cookies`",
           "anchor": "clear_session_cookies"
         },
         {
           "level": 3,
-          "text": "rate_limit",
+          "text": "`rate_limit`",
           "anchor": "rate_limit"
         }
       ]
@@ -2139,27 +2139,32 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.cli",
+          "text": "`src.fastware.cli`",
           "anchor": "srcfastwarecli"
         },
         {
           "level": 3,
-          "text": "dev_run",
+          "text": "`_opt`",
+          "anchor": "_opt"
+        },
+        {
+          "level": 3,
+          "text": "`dev_run`",
           "anchor": "dev_run"
         },
         {
           "level": 3,
-          "text": "dev_status",
+          "text": "`dev_status`",
           "anchor": "dev_status"
         },
         {
           "level": 3,
-          "text": "dev_stop",
+          "text": "`dev_stop`",
           "anchor": "dev_stop"
         },
         {
           "level": 3,
-          "text": "main",
+          "text": "`main`",
           "anchor": "main"
         }
       ]
@@ -2176,12 +2181,12 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.config",
+          "text": "`src.fastware.config`",
           "anchor": "srcfastwareconfig"
         },
         {
           "level": 3,
-          "text": "load_config",
+          "text": "`load_config`",
           "anchor": "load_config"
         }
       ]
@@ -2198,12 +2203,12 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.dev",
+          "text": "`src.fastware.dev`",
           "anchor": "srcfastwaredev"
         },
         {
           "level": 3,
-          "text": "dev",
+          "text": "`dev`",
           "anchor": "dev"
         }
       ]
@@ -2220,72 +2225,72 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.devconfig",
+          "text": "`src.fastware.devconfig`",
           "anchor": "srcfastwaredevconfig"
         },
         {
           "level": 3,
-          "text": "DevConfigError",
+          "text": "`DevConfigError`",
           "anchor": "devconfigerror"
         },
         {
           "level": 3,
-          "text": "BackendSpec",
+          "text": "`BackendSpec`",
           "anchor": "backendspec"
         },
         {
           "level": 4,
-          "text": "is_in_process",
+          "text": "`is_in_process`",
           "anchor": "is_in_process"
         },
         {
           "level": 3,
-          "text": "ViteSpec",
+          "text": "`ViteSpec`",
           "anchor": "vitespec"
         },
         {
           "level": 3,
-          "text": "HealthCheck",
+          "text": "`HealthCheck`",
           "anchor": "healthcheck"
         },
         {
           "level": 3,
-          "text": "AuxService",
+          "text": "`AuxService`",
           "anchor": "auxservice"
         },
         {
           "level": 3,
-          "text": "PreSpawnGate",
+          "text": "`PreSpawnGate`",
           "anchor": "prespawngate"
         },
         {
           "level": 3,
-          "text": "DevConfig",
+          "text": "`DevConfig`",
           "anchor": "devconfig"
         },
         {
           "level": 4,
-          "text": "base_dir",
+          "text": "`base_dir`",
           "anchor": "base_dir"
         },
         {
           "level": 4,
-          "text": "resolve_cwd",
+          "text": "`resolve_cwd`",
           "anchor": "resolve_cwd"
         },
         {
           "level": 3,
-          "text": "build_dev_config",
+          "text": "`build_dev_config`",
           "anchor": "build_dev_config"
         },
         {
           "level": 3,
-          "text": "find_dev_pyproject",
+          "text": "`find_dev_pyproject`",
           "anchor": "find_dev_pyproject"
         },
         {
           "level": 3,
-          "text": "load_dev_config",
+          "text": "`load_dev_config`",
           "anchor": "load_dev_config"
         }
       ]
@@ -2302,27 +2307,27 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.di",
+          "text": "`src.fastware.di`",
           "anchor": "srcfastwaredi"
         },
         {
           "level": 3,
-          "text": "_request_call_mode",
+          "text": "`_request_call_mode`",
           "anchor": "_request_call_mode"
         },
         {
           "level": 3,
-          "text": "DependencyResolver",
+          "text": "`DependencyResolver`",
           "anchor": "dependencyresolver"
         },
         {
           "level": 4,
-          "text": "resolve",
+          "text": "`resolve`",
           "anchor": "resolve"
         },
         {
           "level": 4,
-          "text": "cleanup",
+          "text": "`cleanup`",
           "anchor": "cleanup"
         }
       ]
@@ -2339,37 +2344,37 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.error_log",
+          "text": "`src.fastware.error_log`",
           "anchor": "srcfastwareerror_log"
         },
         {
           "level": 3,
-          "text": "ErrorLog",
+          "text": "`ErrorLog`",
           "anchor": "errorlog"
         },
         {
           "level": 4,
-          "text": "_run_worker",
+          "text": "`_run_worker`",
           "anchor": "_run_worker"
         },
         {
           "level": 4,
-          "text": "append",
+          "text": "`append`",
           "anchor": "append"
         },
         {
           "level": 4,
-          "text": "flush",
+          "text": "`flush`",
           "anchor": "flush"
         },
         {
           "level": 4,
-          "text": "recent",
+          "text": "`recent`",
           "anchor": "recent"
         },
         {
           "level": 4,
-          "text": "close",
+          "text": "`close`",
           "anchor": "close"
         }
       ]
@@ -2386,37 +2391,37 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.features",
+          "text": "`src.fastware.features`",
           "anchor": "srcfastwarefeatures"
         },
         {
           "level": 3,
-          "text": "FeatureFlags",
+          "text": "`FeatureFlags`",
           "anchor": "featureflags"
         },
         {
           "level": 4,
-          "text": "_load_overrides",
+          "text": "`_load_overrides`",
           "anchor": "_load_overrides"
         },
         {
           "level": 4,
-          "text": "enabled",
+          "text": "`enabled`",
           "anchor": "enabled"
         },
         {
           "level": 4,
-          "text": "all_flags",
+          "text": "`all_flags`",
           "anchor": "all_flags"
         },
         {
           "level": 4,
-          "text": "set_override",
+          "text": "`set_override`",
           "anchor": "set_override"
         },
         {
           "level": 4,
-          "text": "reload",
+          "text": "`reload`",
           "anchor": "reload"
         }
       ]
@@ -2433,22 +2438,22 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.logging",
+          "text": "`src.fastware.logging`",
           "anchor": "srcfastwarelogging"
         },
         {
           "level": 3,
-          "text": "configure_logging",
+          "text": "`configure_logging`",
           "anchor": "configure_logging"
         },
         {
           "level": 3,
-          "text": "get_logger",
+          "text": "`get_logger`",
           "anchor": "get_logger"
         },
         {
           "level": 3,
-          "text": "init_sentry",
+          "text": "`init_sentry`",
           "anchor": "init_sentry"
         }
       ]
@@ -2465,17 +2470,17 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.mcp",
+          "text": "`src.fastware.mcp`",
           "anchor": "srcfastwaremcp"
         },
         {
           "level": 3,
-          "text": "register_tools_for_role",
+          "text": "`register_tools_for_role`",
           "anchor": "register_tools_for_role"
         },
         {
           "level": 3,
-          "text": "create_mcp_server",
+          "text": "`create_mcp_server`",
           "anchor": "create_mcp_server"
         }
       ]
@@ -2492,62 +2497,62 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.middleware",
+          "text": "`src.fastware.middleware`",
           "anchor": "srcfastwaremiddleware"
         },
         {
           "level": 3,
-          "text": "RequestIDMiddleware",
+          "text": "`RequestIDMiddleware`",
           "anchor": "requestidmiddleware"
         },
         {
           "level": 3,
-          "text": "RequestTimingMiddleware",
+          "text": "`RequestTimingMiddleware`",
           "anchor": "requesttimingmiddleware"
         },
         {
           "level": 3,
-          "text": "CORSMiddleware",
+          "text": "`CORSMiddleware`",
           "anchor": "corsmiddleware"
         },
         {
           "level": 4,
-          "text": "_cors_headers",
+          "text": "`_cors_headers`",
           "anchor": "_cors_headers"
         },
         {
           "level": 3,
-          "text": "TrustedHostMiddleware",
+          "text": "`TrustedHostMiddleware`",
           "anchor": "trustedhostmiddleware"
         },
         {
           "level": 3,
-          "text": "ViteDevProxy",
+          "text": "`ViteDevProxy`",
           "anchor": "vitedevproxy"
         },
         {
           "level": 4,
-          "text": "__init__",
+          "text": "`__init__`",
           "anchor": "__init__"
         },
         {
           "level": 4,
-          "text": "_is_api_request",
+          "text": "`_is_api_request`",
           "anchor": "_is_api_request"
         },
         {
           "level": 4,
-          "text": "close",
+          "text": "`close`",
           "anchor": "close"
         },
         {
           "level": 4,
-          "text": "_proxy_http",
+          "text": "`_proxy_http`",
           "anchor": "_proxy_http"
         },
         {
           "level": 4,
-          "text": "_proxy_ws",
+          "text": "`_proxy_ws`",
           "anchor": "_proxy_ws"
         }
       ]
@@ -2564,107 +2569,107 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.request",
+          "text": "`src.fastware.request`",
           "anchor": "srcfastwarerequest"
         },
         {
           "level": 3,
-          "text": "State",
+          "text": "`State`",
           "anchor": "state"
         },
         {
           "level": 4,
-          "text": "get",
+          "text": "`get`",
           "anchor": "get"
         },
         {
           "level": 3,
-          "text": "Request",
+          "text": "`Request`",
           "anchor": "request"
         },
         {
           "level": 4,
-          "text": "json",
+          "text": "`json`",
           "anchor": "json"
         },
         {
           "level": 4,
-          "text": "body",
+          "text": "`body`",
           "anchor": "body"
         },
         {
           "level": 4,
-          "text": "_qs",
+          "text": "`_qs`",
           "anchor": "_qs"
         },
         {
           "level": 4,
-          "text": "query",
+          "text": "`query`",
           "anchor": "query"
         },
         {
           "level": 4,
-          "text": "query_list",
+          "text": "`query_list`",
           "anchor": "query_list"
         },
         {
           "level": 4,
-          "text": "query_params",
+          "text": "`query_params`",
           "anchor": "query_params"
         },
         {
           "level": 4,
-          "text": "header",
+          "text": "`header`",
           "anchor": "header"
         },
         {
           "level": 4,
-          "text": "body_size",
+          "text": "`body_size`",
           "anchor": "body_size"
         },
         {
           "level": 4,
-          "text": "state",
+          "text": "`state`",
           "anchor": "state-1"
         },
         {
           "level": 4,
-          "text": "method",
+          "text": "`method`",
           "anchor": "method"
         },
         {
           "level": 4,
-          "text": "path",
+          "text": "`path`",
           "anchor": "path"
         },
         {
           "level": 4,
-          "text": "is_disconnected",
+          "text": "`is_disconnected`",
           "anchor": "is_disconnected"
         },
         {
           "level": 4,
-          "text": "_mark_disconnected",
+          "text": "`_mark_disconnected`",
           "anchor": "_mark_disconnected"
         },
         {
           "level": 4,
-          "text": "_register_stream_task",
+          "text": "`_register_stream_task`",
           "anchor": "_register_stream_task"
         },
         {
           "level": 4,
-          "text": "cookies",
+          "text": "`cookies`",
           "anchor": "cookies"
         },
         {
           "level": 4,
-          "text": "cookie",
+          "text": "`cookie`",
           "anchor": "cookie"
         },
         {
           "level": 4,
-          "text": "json_as",
+          "text": "`json_as`",
           "anchor": "json_as"
         }
       ]
@@ -2681,67 +2686,67 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.responses",
+          "text": "`src.fastware.responses`",
           "anchor": "srcfastwareresponses"
         },
         {
           "level": 3,
-          "text": "set_cookie",
+          "text": "`set_cookie`",
           "anchor": "set_cookie"
         },
         {
           "level": 3,
-          "text": "delete_cookie",
+          "text": "`delete_cookie`",
           "anchor": "delete_cookie"
         },
         {
           "level": 3,
-          "text": "HTTPError",
+          "text": "`HTTPError`",
           "anchor": "httperror"
         },
         {
           "level": 3,
-          "text": "JSONResponse",
+          "text": "`JSONResponse`",
           "anchor": "jsonresponse"
         },
         {
           "level": 3,
-          "text": "TextResponse",
+          "text": "`TextResponse`",
           "anchor": "textresponse"
         },
         {
           "level": 3,
-          "text": "HTMLResponse",
+          "text": "`HTMLResponse`",
           "anchor": "htmlresponse"
         },
         {
           "level": 3,
-          "text": "BytesResponse",
+          "text": "`BytesResponse`",
           "anchor": "bytesresponse"
         },
         {
           "level": 3,
-          "text": "StreamResponse",
+          "text": "`StreamResponse`",
           "anchor": "streamresponse"
         },
         {
           "level": 3,
-          "text": "FileResponse",
+          "text": "`FileResponse`",
           "anchor": "fileresponse"
         },
         {
           "level": 3,
-          "text": "_build_headers",
+          "text": "`_build_headers`",
           "anchor": "_build_headers"
         },
         {
           "level": 3,
-          "text": "_send_response",
+          "text": "`_send_response`",
           "anchor": "_send_response"
         },
         {
           "level": 3,
-          "text": "send_error",
+          "text": "`send_error`",
           "anchor": "send_error"
         }
       ]
@@ -2758,107 +2763,107 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.routing",
+          "text": "`src.fastware.routing`",
           "anchor": "srcfastwarerouting"
         },
         {
           "level": 3,
-          "text": "_parse_segment",
+          "text": "`_parse_segment`",
           "anchor": "_parse_segment"
         },
         {
           "level": 3,
-          "text": "Router",
+          "text": "`Router`",
           "anchor": "router"
         },
         {
           "level": 4,
-          "text": "mount",
+          "text": "`mount`",
           "anchor": "mount"
         },
         {
           "level": 4,
-          "text": "_method_decorator",
+          "text": "`_method_decorator`",
           "anchor": "_method_decorator"
         },
         {
           "level": 4,
-          "text": "get",
+          "text": "`get`",
           "anchor": "get"
         },
         {
           "level": 4,
-          "text": "post",
+          "text": "`post`",
           "anchor": "post"
         },
         {
           "level": 4,
-          "text": "delete",
+          "text": "`delete`",
           "anchor": "delete"
         },
         {
           "level": 4,
-          "text": "put",
+          "text": "`put`",
           "anchor": "put"
         },
         {
           "level": 4,
-          "text": "patch",
+          "text": "`patch`",
           "anchor": "patch"
         },
         {
           "level": 4,
-          "text": "add_route",
+          "text": "`add_route`",
           "anchor": "add_route"
         },
         {
           "level": 4,
-          "text": "ws",
+          "text": "`ws`",
           "anchor": "ws"
         },
         {
           "level": 4,
-          "text": "add_ws_route",
+          "text": "`add_ws_route`",
           "anchor": "add_ws_route"
         },
         {
           "level": 4,
-          "text": "include_router",
+          "text": "`include_router`",
           "anchor": "include_router"
         },
         {
           "level": 4,
-          "text": "match",
+          "text": "`match`",
           "anchor": "match"
         },
         {
           "level": 4,
-          "text": "_match_pattern",
+          "text": "`_match_pattern`",
           "anchor": "_match_pattern"
         },
         {
           "level": 4,
-          "text": "_match_with_deps",
+          "text": "`_match_with_deps`",
           "anchor": "_match_with_deps"
         },
         {
           "level": 4,
-          "text": "allowed_methods",
+          "text": "`allowed_methods`",
           "anchor": "allowed_methods"
         },
         {
           "level": 4,
-          "text": "_match_with_path_param",
+          "text": "`_match_with_path_param`",
           "anchor": "_match_with_path_param"
         },
         {
           "level": 4,
-          "text": "match_ws",
+          "text": "`match_ws`",
           "anchor": "match_ws"
         },
         {
           "level": 4,
-          "text": "_match_ws_with_deps",
+          "text": "`_match_ws_with_deps`",
           "anchor": "_match_ws_with_deps"
         }
       ]
@@ -2875,212 +2880,212 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.server",
+          "text": "`src.fastware.server`",
           "anchor": "srcfastwareserver"
         },
         {
           "level": 3,
-          "text": "PortInUseError",
+          "text": "`PortInUseError`",
           "anchor": "portinuseerror"
         },
         {
           "level": 3,
-          "text": "AlreadyRunningError",
+          "text": "`AlreadyRunningError`",
           "anchor": "alreadyrunningerror"
         },
         {
           "level": 3,
-          "text": "_probe_health",
+          "text": "`_probe_health`",
           "anchor": "_probe_health"
         },
         {
           "level": 3,
-          "text": "_write_pid",
+          "text": "`_write_pid`",
           "anchor": "_write_pid"
         },
         {
           "level": 3,
-          "text": "_remove_pid",
+          "text": "`_remove_pid`",
           "anchor": "_remove_pid"
         },
         {
           "level": 3,
-          "text": "_reap_if_dead_child",
+          "text": "`_reap_if_dead_child`",
           "anchor": "_reap_if_dead_child"
         },
         {
           "level": 3,
-          "text": "check_already_running",
+          "text": "`check_already_running`",
           "anchor": "check_already_running"
         },
         {
           "level": 3,
-          "text": "ensure_port_available",
+          "text": "`ensure_port_available`",
           "anchor": "ensure_port_available"
         },
         {
           "level": 3,
-          "text": "_find_port_holder_pids",
+          "text": "`_find_port_holder_pids`",
           "anchor": "_find_port_holder_pids"
         },
         {
           "level": 3,
-          "text": "_resolve_target",
+          "text": "`_resolve_target`",
           "anchor": "_resolve_target"
         },
         {
           "level": 3,
-          "text": "_materialize_target",
+          "text": "`_materialize_target`",
           "anchor": "_materialize_target"
         },
         {
           "level": 3,
-          "text": "_remove_shim_dir",
+          "text": "`_remove_shim_dir`",
           "anchor": "_remove_shim_dir"
         },
         {
           "level": 3,
-          "text": "_find_free_port",
+          "text": "`_find_free_port`",
           "anchor": "_find_free_port"
         },
         {
           "level": 3,
-          "text": "_port_file_path",
+          "text": "`_port_file_path`",
           "anchor": "_port_file_path"
         },
         {
           "level": 3,
-          "text": "_write_port_file",
+          "text": "`_write_port_file`",
           "anchor": "_write_port_file"
         },
         {
           "level": 3,
-          "text": "_remove_port_file",
+          "text": "`_remove_port_file`",
           "anchor": "_remove_port_file"
         },
         {
           "level": 3,
-          "text": "read_port_file",
+          "text": "`read_port_file`",
           "anchor": "read_port_file"
         },
         {
           "level": 3,
-          "text": "RegistryEntry",
+          "text": "`RegistryEntry`",
           "anchor": "registryentry"
         },
         {
           "level": 3,
-          "text": "_registry_dir",
+          "text": "`_registry_dir`",
           "anchor": "_registry_dir"
         },
         {
           "level": 3,
-          "text": "_registry_entry_path",
+          "text": "`_registry_entry_path`",
           "anchor": "_registry_entry_path"
         },
         {
           "level": 3,
-          "text": "_pid_alive",
+          "text": "`_pid_alive`",
           "anchor": "_pid_alive"
         },
         {
           "level": 3,
-          "text": "register_instance",
+          "text": "`register_instance`",
           "anchor": "register_instance"
         },
         {
           "level": 3,
-          "text": "deregister_instance",
+          "text": "`deregister_instance`",
           "anchor": "deregister_instance"
         },
         {
           "level": 3,
-          "text": "list_instances",
+          "text": "`list_instances`",
           "anchor": "list_instances"
         },
         {
           "level": 3,
-          "text": "_marker_path",
+          "text": "`_marker_path`",
           "anchor": "_marker_path"
         },
         {
           "level": 3,
-          "text": "write_marker",
+          "text": "`write_marker`",
           "anchor": "write_marker"
         },
         {
           "level": 3,
-          "text": "list_markers",
+          "text": "`list_markers`",
           "anchor": "list_markers"
         },
         {
           "level": 3,
-          "text": "remove_marker",
+          "text": "`remove_marker`",
           "anchor": "remove_marker"
         },
         {
           "level": 3,
-          "text": "_resolve_host_port",
+          "text": "`_resolve_host_port`",
           "anchor": "_resolve_host_port"
         },
         {
           "level": 3,
-          "text": "_make_server",
+          "text": "`_make_server`",
           "anchor": "_make_server"
         },
         {
           "level": 3,
-          "text": "_make_embed_server",
+          "text": "`_make_embed_server`",
           "anchor": "_make_embed_server"
         },
         {
           "level": 3,
-          "text": "_run_server",
+          "text": "`_run_server`",
           "anchor": "_run_server"
         },
         {
           "level": 3,
-          "text": "_serve_subprocess",
+          "text": "`_serve_subprocess`",
           "anchor": "_serve_subprocess"
         },
         {
           "level": 3,
-          "text": "serve_background",
+          "text": "`serve_background`",
           "anchor": "serve_background"
         },
         {
           "level": 3,
-          "text": "serve",
+          "text": "`serve`",
           "anchor": "serve"
         },
         {
           "level": 3,
-          "text": "stop_background",
+          "text": "`stop_background`",
           "anchor": "stop_background"
         },
         {
           "level": 3,
-          "text": "ServerStatus",
+          "text": "`ServerStatus`",
           "anchor": "serverstatus"
         },
         {
           "level": 3,
-          "text": "_cleanup_pid_and_port",
+          "text": "`_cleanup_pid_and_port`",
           "anchor": "_cleanup_pid_and_port"
         },
         {
           "level": 3,
-          "text": "stop",
+          "text": "`stop`",
           "anchor": "stop"
         },
         {
           "level": 3,
-          "text": "_confirm_dead",
+          "text": "`_confirm_dead`",
           "anchor": "_confirm_dead"
         },
         {
           "level": 3,
-          "text": "status",
+          "text": "`status`",
           "anchor": "status"
         }
       ]
@@ -3097,52 +3102,52 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.sse",
+          "text": "`src.fastware.sse`",
           "anchor": "srcfastwaresse"
         },
         {
           "level": 3,
-          "text": "Broadcaster",
+          "text": "`Broadcaster`",
           "anchor": "broadcaster"
         },
         {
           "level": 4,
-          "text": "register_event",
+          "text": "`register_event`",
           "anchor": "register_event"
         },
         {
           "level": 4,
-          "text": "event_types",
+          "text": "`event_types`",
           "anchor": "event_types"
         },
         {
           "level": 4,
-          "text": "_format_sse",
+          "text": "`_format_sse`",
           "anchor": "_format_sse"
         },
         {
           "level": 4,
-          "text": "broadcast",
+          "text": "`broadcast`",
           "anchor": "broadcast"
         },
         {
           "level": 4,
-          "text": "_event_generator",
+          "text": "`_event_generator`",
           "anchor": "_event_generator"
         },
         {
           "level": 4,
-          "text": "stream",
+          "text": "`stream`",
           "anchor": "stream"
         },
         {
           "level": 4,
-          "text": "client_count",
+          "text": "`client_count`",
           "anchor": "client_count"
         },
         {
           "level": 3,
-          "text": "sse_route",
+          "text": "`sse_route`",
           "anchor": "sse_route"
         }
       ]
@@ -3159,137 +3164,137 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.supervise",
+          "text": "`src.fastware.supervise`",
           "anchor": "srcfastwaresupervise"
         },
         {
           "level": 3,
-          "text": "DevRunError",
+          "text": "`DevRunError`",
           "anchor": "devrunerror"
         },
         {
           "level": 3,
-          "text": "PreSpawnGateError",
+          "text": "`PreSpawnGateError`",
           "anchor": "prespawngateerror"
         },
         {
           "level": 3,
-          "text": "ReadinessError",
+          "text": "`ReadinessError`",
           "anchor": "readinesserror"
         },
         {
           "level": 3,
-          "text": "PortCollisionError",
+          "text": "`PortCollisionError`",
           "anchor": "portcollisionerror"
         },
         {
           "level": 3,
-          "text": "SWModeConflictError",
+          "text": "`SWModeConflictError`",
           "anchor": "swmodeconflicterror"
         },
         {
           "level": 3,
-          "text": "ComponentDied",
+          "text": "`ComponentDied`",
           "anchor": "componentdied"
         },
         {
           "level": 3,
-          "text": "_http_answers",
+          "text": "`_http_answers`",
           "anchor": "_http_answers"
         },
         {
           "level": 3,
-          "text": "run_pre_spawn_gates",
+          "text": "`run_pre_spawn_gates`",
           "anchor": "run_pre_spawn_gates"
         },
         {
           "level": 3,
-          "text": "DevProcess",
+          "text": "`DevProcess`",
           "anchor": "devprocess"
         },
         {
           "level": 4,
-          "text": "start",
+          "text": "`start`",
           "anchor": "start"
         },
         {
           "level": 4,
-          "text": "pid",
+          "text": "`pid`",
           "anchor": "pid"
         },
         {
           "level": 4,
-          "text": "is_running",
+          "text": "`is_running`",
           "anchor": "is_running"
         },
         {
           "level": 4,
-          "text": "returncode",
+          "text": "`returncode`",
           "anchor": "returncode"
         },
         {
           "level": 4,
-          "text": "forward_signal",
+          "text": "`forward_signal`",
           "anchor": "forward_signal"
         },
         {
           "level": 4,
-          "text": "stop",
+          "text": "`stop`",
           "anchor": "stop"
         },
         {
           "level": 3,
-          "text": "teardown",
+          "text": "`teardown`",
           "anchor": "teardown"
         },
         {
           "level": 3,
-          "text": "supervise_loop",
+          "text": "`supervise_loop`",
           "anchor": "supervise_loop"
         },
         {
           "level": 3,
-          "text": "_serve_in_process",
+          "text": "`_serve_in_process`",
           "anchor": "_serve_in_process"
         },
         {
           "level": 3,
-          "text": "_start_ordered",
+          "text": "`_start_ordered`",
           "anchor": "_start_ordered"
         },
         {
           "level": 3,
-          "text": "resolve_backend_sw_mode",
+          "text": "`resolve_backend_sw_mode`",
           "anchor": "resolve_backend_sw_mode"
         },
         {
           "level": 3,
-          "text": "check_sw_mode",
+          "text": "`check_sw_mode`",
           "anchor": "check_sw_mode"
         },
         {
           "level": 3,
-          "text": "dev_pid_path",
+          "text": "`dev_pid_path`",
           "anchor": "dev_pid_path"
         },
         {
           "level": 3,
-          "text": "list_dev_instances",
+          "text": "`list_dev_instances`",
           "anchor": "list_dev_instances"
         },
         {
           "level": 3,
-          "text": "stop_dev_instances",
+          "text": "`stop_dev_instances`",
           "anchor": "stop_dev_instances"
         },
         {
           "level": 3,
-          "text": "_spawn_daemon",
+          "text": "`_spawn_daemon`",
           "anchor": "_spawn_daemon"
         },
         {
           "level": 3,
-          "text": "run_dev",
+          "text": "`run_dev`",
           "anchor": "run_dev"
         }
       ]
@@ -3306,52 +3311,52 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.tasks",
+          "text": "`src.fastware.tasks`",
           "anchor": "srcfastwaretasks"
         },
         {
           "level": 3,
-          "text": "BackgroundTask",
+          "text": "`BackgroundTask`",
           "anchor": "backgroundtask"
         },
         {
           "level": 4,
-          "text": "start",
+          "text": "`start`",
           "anchor": "start"
         },
         {
           "level": 4,
-          "text": "stop",
+          "text": "`stop`",
           "anchor": "stop"
         },
         {
           "level": 3,
-          "text": "TaskRegistry",
+          "text": "`TaskRegistry`",
           "anchor": "taskregistry"
         },
         {
           "level": 4,
-          "text": "register",
+          "text": "`register`",
           "anchor": "register"
         },
         {
           "level": 4,
-          "text": "start_all",
+          "text": "`start_all`",
           "anchor": "start_all"
         },
         {
           "level": 4,
-          "text": "stop_all",
+          "text": "`stop_all`",
           "anchor": "stop_all"
         },
         {
           "level": 4,
-          "text": "list_tasks",
+          "text": "`list_tasks`",
           "anchor": "list_tasks"
         },
         {
           "level": 4,
-          "text": "get_task",
+          "text": "`get_task`",
           "anchor": "get_task"
         }
       ]
@@ -3368,92 +3373,92 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.testing",
+          "text": "`src.fastware.testing`",
           "anchor": "srcfastwaretesting"
         },
         {
           "level": 3,
-          "text": "_wrap_raise_server_exceptions",
+          "text": "`_wrap_raise_server_exceptions`",
           "anchor": "_wrap_raise_server_exceptions"
         },
         {
           "level": 3,
-          "text": "_LifespanManager",
+          "text": "`_LifespanManager`",
           "anchor": "_lifespanmanager"
         },
         {
           "level": 4,
-          "text": "startup",
+          "text": "`startup`",
           "anchor": "startup"
         },
         {
           "level": 4,
-          "text": "shutdown",
+          "text": "`shutdown`",
           "anchor": "shutdown"
         },
         {
           "level": 4,
-          "text": "_wait",
+          "text": "`_wait`",
           "anchor": "_wait"
         },
         {
           "level": 3,
-          "text": "AsyncTestClient",
+          "text": "`AsyncTestClient`",
           "anchor": "asynctestclient"
         },
         {
           "level": 3,
-          "text": "_SyncTestClient",
+          "text": "`_SyncTestClient`",
           "anchor": "_synctestclient"
         },
         {
           "level": 4,
-          "text": "_start_loop",
+          "text": "`_start_loop`",
           "anchor": "_start_loop"
         },
         {
           "level": 4,
-          "text": "_run",
+          "text": "`_run`",
           "anchor": "_run"
         },
         {
           "level": 4,
-          "text": "get",
+          "text": "`get`",
           "anchor": "get"
         },
         {
           "level": 4,
-          "text": "post",
+          "text": "`post`",
           "anchor": "post"
         },
         {
           "level": 4,
-          "text": "put",
+          "text": "`put`",
           "anchor": "put"
         },
         {
           "level": 4,
-          "text": "patch",
+          "text": "`patch`",
           "anchor": "patch"
         },
         {
           "level": 4,
-          "text": "delete",
+          "text": "`delete`",
           "anchor": "delete"
         },
         {
           "level": 4,
-          "text": "options",
+          "text": "`options`",
           "anchor": "options"
         },
         {
           "level": 4,
-          "text": "head",
+          "text": "`head`",
           "anchor": "head"
         },
         {
           "level": 4,
-          "text": "close",
+          "text": "`close`",
           "anchor": "close"
         }
       ]
@@ -3470,82 +3475,82 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.websocket",
+          "text": "`src.fastware.websocket`",
           "anchor": "srcfastwarewebsocket"
         },
         {
           "level": 3,
-          "text": "WebSocketDisconnect",
+          "text": "`WebSocketDisconnect`",
           "anchor": "websocketdisconnect"
         },
         {
           "level": 3,
-          "text": "WebSocket",
+          "text": "`WebSocket`",
           "anchor": "websocket"
         },
         {
           "level": 4,
-          "text": "path_params",
+          "text": "`path_params`",
           "anchor": "path_params"
         },
         {
           "level": 4,
-          "text": "headers",
+          "text": "`headers`",
           "anchor": "headers"
         },
         {
           "level": 4,
-          "text": "query_string",
+          "text": "`query_string`",
           "anchor": "query_string"
         },
         {
           "level": 4,
-          "text": "accept",
+          "text": "`accept`",
           "anchor": "accept"
         },
         {
           "level": 4,
-          "text": "close",
+          "text": "`close`",
           "anchor": "close"
         },
         {
           "level": 4,
-          "text": "send_json",
+          "text": "`send_json`",
           "anchor": "send_json"
         },
         {
           "level": 4,
-          "text": "send_bytes",
+          "text": "`send_bytes`",
           "anchor": "send_bytes"
         },
         {
           "level": 4,
-          "text": "send_text",
+          "text": "`send_text`",
           "anchor": "send_text"
         },
         {
           "level": 4,
-          "text": "_receive_data",
+          "text": "`_receive_data`",
           "anchor": "_receive_data"
         },
         {
           "level": 4,
-          "text": "receive_json",
+          "text": "`receive_json`",
           "anchor": "receive_json"
         },
         {
           "level": 4,
-          "text": "receive_bytes",
+          "text": "`receive_bytes`",
           "anchor": "receive_bytes"
         },
         {
           "level": 4,
-          "text": "receive_text",
+          "text": "`receive_text`",
           "anchor": "receive_text"
         },
         {
           "level": 4,
-          "text": "receive_raw",
+          "text": "`receive_raw`",
           "anchor": "receive_raw"
         }
       ]
@@ -3632,52 +3637,52 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.sse",
+          "text": "`src.fastware.sse`",
           "anchor": "srcfastwaresse"
         },
         {
           "level": 3,
-          "text": "Broadcaster",
+          "text": "`Broadcaster`",
           "anchor": "broadcaster"
         },
         {
           "level": 4,
-          "text": "register_event",
+          "text": "`register_event`",
           "anchor": "register_event"
         },
         {
           "level": 4,
-          "text": "event_types",
+          "text": "`event_types`",
           "anchor": "event_types"
         },
         {
           "level": 4,
-          "text": "_format_sse",
+          "text": "`_format_sse`",
           "anchor": "_format_sse"
         },
         {
           "level": 4,
-          "text": "broadcast",
+          "text": "`broadcast`",
           "anchor": "broadcast"
         },
         {
           "level": 4,
-          "text": "_event_generator",
+          "text": "`_event_generator`",
           "anchor": "_event_generator"
         },
         {
           "level": 4,
-          "text": "stream",
+          "text": "`stream`",
           "anchor": "stream"
         },
         {
           "level": 4,
-          "text": "client_count",
+          "text": "`client_count`",
           "anchor": "client_count"
         },
         {
           "level": 3,
-          "text": "sse_route",
+          "text": "`sse_route`",
           "anchor": "sse_route"
         }
       ]
@@ -3799,52 +3804,52 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.tasks",
+          "text": "`src.fastware.tasks`",
           "anchor": "srcfastwaretasks"
         },
         {
           "level": 3,
-          "text": "BackgroundTask",
+          "text": "`BackgroundTask`",
           "anchor": "backgroundtask"
         },
         {
           "level": 4,
-          "text": "start",
+          "text": "`start`",
           "anchor": "start"
         },
         {
           "level": 4,
-          "text": "stop",
+          "text": "`stop`",
           "anchor": "stop"
         },
         {
           "level": 3,
-          "text": "TaskRegistry",
+          "text": "`TaskRegistry`",
           "anchor": "taskregistry"
         },
         {
           "level": 4,
-          "text": "register",
+          "text": "`register`",
           "anchor": "register"
         },
         {
           "level": 4,
-          "text": "start_all",
+          "text": "`start_all`",
           "anchor": "start_all"
         },
         {
           "level": 4,
-          "text": "stop_all",
+          "text": "`stop_all`",
           "anchor": "stop_all"
         },
         {
           "level": 4,
-          "text": "list_tasks",
+          "text": "`list_tasks`",
           "anchor": "list_tasks"
         },
         {
           "level": 4,
-          "text": "get_task",
+          "text": "`get_task`",
           "anchor": "get_task"
         },
         {
@@ -3854,37 +3859,37 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.features",
+          "text": "`src.fastware.features`",
           "anchor": "srcfastwarefeatures"
         },
         {
           "level": 3,
-          "text": "FeatureFlags",
+          "text": "`FeatureFlags`",
           "anchor": "featureflags-1"
         },
         {
           "level": 4,
-          "text": "_load_overrides",
+          "text": "`_load_overrides`",
           "anchor": "_load_overrides"
         },
         {
           "level": 4,
-          "text": "enabled",
+          "text": "`enabled`",
           "anchor": "enabled"
         },
         {
           "level": 4,
-          "text": "all_flags",
+          "text": "`all_flags`",
           "anchor": "all_flags"
         },
         {
           "level": 4,
-          "text": "set_override",
+          "text": "`set_override`",
           "anchor": "set_override"
         },
         {
           "level": 4,
-          "text": "reload",
+          "text": "`reload`",
           "anchor": "reload"
         },
         {
@@ -3894,12 +3899,12 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.config",
+          "text": "`src.fastware.config`",
           "anchor": "srcfastwareconfig"
         },
         {
           "level": 3,
-          "text": "load_config",
+          "text": "`load_config`",
           "anchor": "load_config-1"
         }
       ]
@@ -3971,42 +3976,42 @@
         },
         {
           "level": 2,
-          "text": "src.fastware.dev",
+          "text": "`src.fastware.dev`",
           "anchor": "srcfastwaredev"
         },
         {
           "level": 3,
-          "text": "dev",
+          "text": "`dev`",
           "anchor": "dev"
         },
         {
           "level": 3,
-          "text": "ViteDevProxy",
+          "text": "`ViteDevProxy`",
           "anchor": "vitedevproxy"
         },
         {
           "level": 4,
-          "text": "__init__",
+          "text": "`__init__`",
           "anchor": "__init__"
         },
         {
           "level": 4,
-          "text": "_is_api_request",
+          "text": "`_is_api_request`",
           "anchor": "_is_api_request"
         },
         {
           "level": 4,
-          "text": "close",
+          "text": "`close`",
           "anchor": "close"
         },
         {
           "level": 4,
-          "text": "_proxy_http",
+          "text": "`_proxy_http`",
           "anchor": "_proxy_http"
         },
         {
           "level": 4,
-          "text": "_proxy_ws",
+          "text": "`_proxy_ws`",
           "anchor": "_proxy_ws"
         }
       ]
@@ -4196,5 +4201,6 @@
     }
   ],
   "posts": [],
-  "last_gen": "2026-08-12T03:44:04.980107+00:00"
+  "last_gen": "2026-09-14T14:58:07.273551+00:00",
+  "theme": "minimal"
 }

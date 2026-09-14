@@ -19,10 +19,10 @@ Start the dev environment by reading [tool.fastware.dev] from the nearest pyproj
 
 ### Flags
 
-| Name | Short | Type | Default | Env | Description |
+| Name | Short | Type | Presence | Env | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--daemon` |  | bool |  |  | Detach and run the dev environment in the background, registering it in the instance registry (query with 'dev status', stop with 'dev stop'). Default runs in the foreground and blocks until Ctrl+C. |
-| `--grace` |  | int | 10 |  | Seconds to wait for a component to stop gracefully before SIGKILL. |
+| `--daemon`, `--no-daemon` |  | bool | optional |  | Detach and run the dev environment in the background, registering it in the instance registry (query with 'dev status', stop with 'dev stop'). When neither --daemon nor --no-daemon is passed, the dev environment runs in the foreground and blocks until Ctrl+C. |
+| `--grace` |  | int | optional |  | Seconds to wait for a component to stop gracefully before SIGKILL. When the flag is not passed, 10 seconds is used. |
 
 ## dev status
 
@@ -38,6 +38,6 @@ Stop all running dev environments by sending SIGTERM for a graceful shutdown. If
 
 ### Flags
 
-| Name | Short | Type | Default | Env | Description |
+| Name | Short | Type | Presence | Env | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--grace` |  | int | 10 |  | Seconds to wait for a dev environment to stop gracefully before SIGKILL. |
+| `--grace` |  | int | optional |  | Seconds to wait for a dev environment to stop gracefully before SIGKILL. When the flag is not passed, 10 seconds is used. |
