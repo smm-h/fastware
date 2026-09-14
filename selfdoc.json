@@ -9,7 +9,7 @@
   ],
   "docs": "docs/",
   "output": "docs/_build/",
-  "base_url": "https://fastware.smmh.dev",
+  "base_url": "https://smmh.dev/fastware",
   "root_files": [
     "docs/_README.md",
     "docs/_CLAUDE.md"
