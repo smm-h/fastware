@@ -2,6 +2,14 @@
 
 # Changelog
 
+## 0.6.2
+
+Documentation frontmatter converted to TOML for the current selfdoc; no user-facing change.
+
+### Infrastructure
+
+- Documentation frontmatter converted to TOML for the current selfdoc; no user-facing change.
+
 ## 0.6.1
 
 The project describes itself consistently on PyPI and in its README, the README links the documentation at its current address, dev flags are optional with fallbacks, and stop waits for the process to end.
