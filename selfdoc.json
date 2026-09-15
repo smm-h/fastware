@@ -41,13 +41,7 @@
   "topology": {
     "slug": "fastware",
     "docs_base": "https://smmh.dev",
-    "posts_base": "https://blog.smmh.dev",
-    "projects": {
-      "wesktop": "https://docs.smmh.dev/wesktop",
-      "rlsbl": "https://docs.smmh.dev/rlsbl",
-      "selfdoc": "https://docs.smmh.dev/selfdoc",
-      "strictcli": "https://docs.smmh.dev/strictcli"
-    }
+    "posts_base": "https://blog.smmh.dev"
   },
   "assembly": {
     "repo": "smm-h/selfdoc-cache"
