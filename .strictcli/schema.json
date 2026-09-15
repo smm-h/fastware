@@ -82,7 +82,7 @@
   },
   "project_id": "fastware",
   "name": "fastware",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "help": "A batteries-included ASGI framework: msgspec JSON, a managed Granian server, dependency injection, SSE, WebSockets, auth, and a test client",
   "groups": {
     "dev": {
