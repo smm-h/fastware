@@ -8,12 +8,12 @@
       "language": "python"
     }
   ],
-  "docs": "docs/",
-  "output": "docs/_build/",
+  "docs": ".stricttools/docs/",
+  "output": ".stricttools/docs-cache/build/",
   "base_url": "https://smmh.dev/fastware",
   "root_files": [
-    "docs/_README.md",
-    "docs/_CLAUDE.md"
+    ".stricttools/docs/_README.md",
+    ".stricttools/docs/_CLAUDE.md"
   ],
   "versions": [
     {
@@ -28,8 +28,8 @@
     }
   ],
   "directives": {
-    "table-extras": "docs/_directives/extras_table.py",
-    "table-middleware": "docs/_directives/middleware_table.py"
+    "table-extras": ".stricttools/docs/_directives/extras_table.py",
+    "table-middleware": ".stricttools/docs/_directives/middleware_table.py"
   },
   "gen": {
     "exclude": [
