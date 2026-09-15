@@ -16,7 +16,7 @@ from fastware import __version__
 
 app = App(
     name="fastware",
-    help="fastware framework CLI: run a file-driven Vite + backend dev environment",
+    help="A batteries-included ASGI framework: msgspec JSON, a managed Granian server, dependency injection, SSE, WebSockets, auth, and a test client",
     version=__version__,
 )
 

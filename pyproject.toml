@@ -1,7 +1,7 @@
 [project]
 name = "fastware"
 version = "0.6.2"
-description = "A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client"
+description = "A batteries-included ASGI framework: msgspec JSON, a managed Granian server, dependency injection, SSE, WebSockets, auth, and a test client"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

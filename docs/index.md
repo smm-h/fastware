@@ -1,6 +1,6 @@
 +++
 title = "fastware"
-description = "fastware home: a fast, batteries-included ASGI framework with msgspec JSON, the bundled Granian server, install steps, and a minimal Router example."
+description = "A batteries-included ASGI framework: msgspec JSON, a managed Granian server, dependency injection, SSE, WebSockets, auth, and a test client."
 date = 2026-07-01
 +++
 
