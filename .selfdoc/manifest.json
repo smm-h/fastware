@@ -2,8 +2,8 @@
   "schema_version": 1,
   "name": "fastware",
   "slug": "fastware",
-  "version": "0.6.1",
-  "description": "A batteries-included ASGI framework that pairs msgspec JSON with a managed Granian server, dependency injection, SSE, WebSockets, auth and a test client",
+  "version": "0.6.2",
+  "description": "A batteries-included ASGI framework: msgspec JSON, a managed Granian server, dependency injection, SSE, WebSockets, auth, and a test client",
   "language": "python",
   "base_url": "https://smmh.dev/fastware",
   "pages": [
@@ -4201,6 +4201,6 @@
     }
   ],
   "posts": [],
-  "last_gen": "2026-09-14T17:13:50.727958+00:00",
+  "last_gen": "2026-09-15T20:35:13.764308+00:00",
   "theme": "minimal"
 }

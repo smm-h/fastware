@@ -10,7 +10,7 @@ nav_order = 91
 
 # fastware CLI Reference
 
-fastware framework CLI: run a file-driven Vite + backend dev environment
+A batteries-included ASGI framework: msgspec JSON, a managed Granian server, dependency injection, SSE, WebSockets, auth, and a test client
 
 Version: :-: var key="project.version"
 
